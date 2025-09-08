@@ -1,3 +1,18 @@
 services:
   frontend:
-    
+    image: frontend
+    container_name: frontend
+    volumes:
+      - front_end:/app
+    build: ./frontend
+    restart: on-failure
+    pid: 'true'
+
+volumes:
+  front_end:
+    name: front_end
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/frontend
+      o: bind
