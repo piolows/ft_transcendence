@@ -6,7 +6,6 @@ services:
       - front_end:/app
     build: ./frontend
     restart: on-failure
-    pid: 'true'
 
 volumes:
   front_end:
