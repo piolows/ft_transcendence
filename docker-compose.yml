@@ -7,6 +7,10 @@ services:
     build: ./frontend
     restart: on-failure
     pid: 'true'
+    ports:
+      - "3000:3000"
+    networks:
+      - transcendence
 
 volumes:
   front_end:
@@ -16,3 +20,8 @@ volumes:
       type: none
       device: ${PWD}/frontend
       o: bind
+
+networks:
+  transcendence:
+    name: transcendence
+    driver: bridge

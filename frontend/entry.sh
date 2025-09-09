@@ -1,4 +1,5 @@
 #/usr/bin/env sh
 
-touch grass
-sleep infinity
+npm i
+
+npm run dev -- --port 3000
