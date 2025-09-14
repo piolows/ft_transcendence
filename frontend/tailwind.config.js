@@ -1,14 +1,4 @@
-module.exports = {
-  // this.corePlugins{
-  //   preflight: false,
-  // },
-  purge: [],
-  darkMode: false, // or 'media' or 'class'
-  theme: {
-    extend: {},
-  },
-  variants: {
-    extend: {},
-  },
-  plugins: [],
-}
+export const content = [
+  "./index.html",
+  "./src/**/*.{ts,tsx}"
+]
