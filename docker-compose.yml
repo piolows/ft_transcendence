@@ -10,6 +10,15 @@ services:
       - "3000:3000"
     networks:
       - transcendence
+  backend:
+    image: backend
+    container_name: backend
+    volumes:
+      - back_end:/app
+    build: ./backend
+    restart: on-failure
+    networks:
+      - transcendence
 
 volumes:
   front_end:
@@ -17,7 +26,14 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: ${PWD}/frontend
+      device: ${PWD}/frontend/src
+      o: bind
+  back_end:
+    name: back_end
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/backend/src
       o: bind
 
 networks:

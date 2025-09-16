@@ -1,4 +1,4 @@
-FROM node:24-alpine3.21
+FROM php:8.2-cli
 
 WORKDIR /app
 

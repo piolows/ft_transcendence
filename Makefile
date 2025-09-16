@@ -8,7 +8,7 @@ clean:
 
 fclean: clean
 #	 rm -rf ./frontend/node_modules
-	docker volume rm $(docker volume ls -q) || true
+	docker volume rm $$(docker volume ls -q) || true
 	docker system prune --all --force
 	docker volume prune -f
 
