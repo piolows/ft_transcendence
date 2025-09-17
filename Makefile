@@ -1,13 +1,14 @@
 all: build
 
 build:
-	docker-compose up --build -d
+	docker compose up --build -d
 
 clean:
-	docker-compose down --rmi all --remove-orphans
+	docker compose down --rmi all --remove-orphans
 
 fclean: clean
-#	 rm -rf ./frontend/node_modules
+#	 rm -rf ./backend/src/node_modules
+#	 rm -rf ./frontend/src/node_modules
 	docker volume rm $$(docker volume ls -q) || true
 	docker system prune --all --force
 	docker volume prune -f
