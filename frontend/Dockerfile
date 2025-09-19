@@ -8,6 +8,6 @@ COPY ./tools/* /usr/entry
 
 RUN chmod +x /usr/entry/entry.sh
 
-EXPOSE 3000
+EXPOSE 4116
 
 ENTRYPOINT ["sh", "/usr/entry/entry.sh"]

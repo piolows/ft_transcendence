@@ -7,7 +7,7 @@ services:
     build: ./frontend
     restart: on-failure
     ports:
-      - "3000:3000"
+      - "4116:4116"
     networks:
       - transcendence
   backend:
@@ -17,6 +17,8 @@ services:
       - back_end:/app
     build: ./backend
     restart: on-failure
+    ports:
+      - "4161:4161"
     networks:
       - transcendence
 
@@ -26,14 +28,14 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: ${PWD}/frontend/src
+      device: ${PWD}/frontend/app
       o: bind
   back_end:
     name: back_end
     driver: local
     driver_opts:
       type: none
-      device: ${PWD}/backend/src
+      device: ${PWD}/backend/app
       o: bind
 
 networks:
