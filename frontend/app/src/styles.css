@@ -6,3 +6,11 @@
 }
 
 @layer theme, components, utilities;
+
+.clicky {
+	cursor: pointer;
+}
+
+.clicky:hover {
+	scale: 1.25;
+}
