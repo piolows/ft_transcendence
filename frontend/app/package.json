@@ -15,7 +15,9 @@
     "autoprefixer": "^10.4.21",
     "dotenv": "^17.2.2",
     "tailwindcss": "^4.1.13",
-    "typescript": "^5.9.2",
+    "typescript": "^5.9.2"
+  },
+  "devDependencies": {
     "vite": "^7.1.5"
   }
 }

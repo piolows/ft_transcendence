@@ -2,4 +2,6 @@
 
 set -e
 
-sleep infinity
+npm i
+
+npm run dev
