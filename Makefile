@@ -1,4 +1,5 @@
 all: build
+	source scripts.sh
 
 build:
 	docker compose up --build -d
