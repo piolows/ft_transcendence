@@ -1,5 +1,5 @@
 import Fastify from "fastify";
-// import sqlite from "fastify-sqlite";
+import sqlite from "@fastify/sqlite";
 import router from "./router.controller.js";
 
 const fastify = Fastify({
@@ -17,16 +17,6 @@ const fastify = Fastify({
 fastify.get("/", (req, reply) => {
 	reply.send(`Hello ${req.query.name}!`);
 });
-
-///////////////////// Method 2 /////////////////////
-
-// fastify.route({
-// 	'method': 'GET',
-// 	'url': '/',
-// 	'handler': (req, reply) => {
-// 		reply.send(`Hello ${req.query.name}!`);
-// 	}
-// });
 
 fastify.register(router, { prefix: '/user' });
 
