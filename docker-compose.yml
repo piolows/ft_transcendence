@@ -1,17 +1,17 @@
 services:
   # Init container to set proper ownership
   volume-init:
-    image: volume-init
+    image: alpine:latest
     command: |
       sh -c "
-        chown -R 1001:1001 /backend_users &&
-        chmod -R 755 /backend_users
+        chown -R 1001:1001 /backend_users /front_end &&
+        chmod -R 755 /backend_users /front_end
       "
     volumes:
+      - front_end:/front_end
       - backend_users:/backend_users
 
   frontend:
-    image: frontend
     container_name: frontend
     volumes:
       - front_end:/app
@@ -23,7 +23,6 @@ services:
       - transcendence
 
   backend:
-    image: backend
     command: |
       sh -c "
         chown -R 1001:1001  &&
@@ -47,13 +46,6 @@ volumes:
       type: none
       device: ${PWD}/frontend/app
       o: bind
-  # backend_auth:
-  #   name: backend_auth
-  #   driver: local
-  #   driver_opts:
-  #     type: none
-  #     device: ${PWD}/backend/auth/app
-  #     o: bind
   backend_users:
     name: backend_users
     driver: local
@@ -61,6 +53,13 @@ volumes:
       type: none
       device: ${PWD}/backend/users/app
       o: bind
+  # backend_auth:
+  #   name: backend_auth
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: ${PWD}/backend/auth/app
+  #     o: bind
   # backend_router:
   #   name: backend_router
   #   driver: local
