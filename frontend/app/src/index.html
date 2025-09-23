@@ -3,31 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pongy</title>
+    <title>Pongy Landing</title>
     <link rel="stylesheet" href="styles.css">
+    <script type="module" src="registration.ts" defer></script>
 </head>
-<!-- body -->
-<body class="font-sixty min-h-screen bg-red-100 flex flex-col items-center justify-center">
-    <h1 class="text-4xl font-bold text-blue-500 underline italic text-center mb-5">eshan</h1>
 
-    <!-- start screen div -->
-    <div id="start-screen" class="text-center">
-        <p class="font-bold italic text-center mb-8">ping pong nation</p>
-        <a href="./game.html">
-            <button id="start-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded text-2xl">
-                Start Game
-            </button>
-        </a>
-    </div>
-
-    <!-- hidden game screen div -->
-    <!-- <div id="game-screen" class="hidden">
-        <p class="font-bold italic text-center mb-2">Use 'W/S' and Arrow Keys</p>
-        <div id="parent-container" class="flex justify-center">
-            <canvas id="gameCanvas" width="800" height="600" style="border:1px solid #000000;"></canvas>
+<body class="font-sixty min-h-screen bg-red-100">
+    <!-- nav bar -->
+    <nav class="bg-blue-500 p-4 text-white">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold popout">Pongy</h1>
+            <div class="space-x-4">
+                <button id="login-button" class="hover:text-blue-200 clicky">Login</button>
+                <button id="signup-button" class="bg-white text-blue-500 px-4 py-2 rounded hover:bg-blue-100 clicky">Sign Up</button>
+            </div>
         </div>
-    </div>
+    </nav>
 
-    <script type="module" src="./script.ts"></script> -->
+    <!-- main content -->
+    <main class="container mx-auto mt-16 px-4">
+        <!-- title / play button -->
+        <div class="text-center mb-16">
+            <h1 class="text-6xl font-bold text-blue-500 mb-4 popout">Welcome to Pongy</h1>
+            <p class="text-xl mb-8 popout">pingsie pongsie</p>
+            <!-- <a href="./game.html">
+                <button id="play-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded text-2xl">
+                    Play Now
+                </button>
+            </a> --> <!-- TEMP! -->
+        </div>
+
+        <!-- login screen -->
+        <div id="login-screen" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white p-8 rounded-lg shadow-lg w-96">
+                <h2 class="text-2xl font-bold mb-4 text-blue-500">Login</h2>
+                <form class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Username</label>
+                        <input type="text" class="mt-1 block w-full rounded border-gray-300 shadow-sm p-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" class="mt-1 block w-full rounded border-gray-300 shadow-sm p-2" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">Login</button>
+                </form>
+                <button class="mt-4 text-sm text-gray-500 hover:text-gray-700" id="login-close-button">Close</button>
+            </div>
+        </div>
+
+        <!-- sign up screen -->
+        <div id="signup-screen" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white p-8 rounded-lg shadow-lg w-96">
+                <h2 class="text-2xl font-bold mb-4 text-blue-500">Sign Up</h2>
+                <form class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Username</label>
+                        <input type="text" class="mt-1 block w-full rounded border-gray-300 shadow-sm p-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" class="mt-1 block w-full rounded border-gray-300 shadow-sm p-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" class="mt-1 block w-full rounded border-gray-300 shadow-sm p-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                        <input type="password" class="mt-1 block w-full rounded border-gray-300 shadow-sm p-2" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">Create Account</button>
+                </form>
+                <button class="mt-4 text-sm text-gray-500 hover:text-gray-700" id="signup-close-button">Close</button>
+            </div>
+        </div>
+
+        <!-- selection grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 popout">
+            <div class="text-center p-6 bg-white rounded-lg shadow-lg clicky">
+                <h3 class="text-xl font-bold text-blue-500 mb-2 clicky">Multiplayer Match</h3>
+                <p>Play online against strangers or friends!</p>
+            </div>
+            <div class="text-center p-6 bg-white rounded-lg shadow-lg clicky">
+                <h3 class="text-xl font-bold text-blue-500 mb-2 clicky">Leaderboards</h3>
+                <p>Compete for the top spot!</p>
+            </div>
+            <a href = "game.html" >
+            <div class="text-center p-7 bg-white rounded-lg shadow-lg clicky">
+                <h3 class="text-xl font-bold text-blue-500 mb-2 clicky">Local Match</h3>
+                <p>Two players on one keyboard!</p>
+            </div>
+            </a>
+        </div>
+
+         <!-- footer -->
+         <footer class="mt-16 text-center text-gray-500 text-sm">
+            &copy; 2025 Pongy Nation. No rights reserved at all.
+            <a href="devpage.html">
+              <button class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 clicky popout" id="to-devpage">Super Secret Dev Page</button>
+            </a>
+        </footer>
+    </main>
 </body>
 </html>

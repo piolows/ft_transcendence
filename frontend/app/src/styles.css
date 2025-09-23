@@ -7,10 +7,58 @@
 
 @layer theme, components, utilities;
 
-.clicky {
-	cursor: pointer;
+
+/* general styles */
+
+.custom_header {
+	font-family: var(--font-sixty);
+	font-size: 3rem;
+}
+.custom_subheader {
+	font-family: var(--font-sixty);
+	font-size: 2rem;
+}
+.custom_text {
+	font-family: var(--font-sixty);
+	font-size: 1.5rem;
+}
+.custom_smalltext {
+	font-family: var(--font-sixty);
+	font-size: 1rem;
 }
 
+/* styles for fun effects when hovering over stuff */
+
+@keyframes popout-scale {
+	0% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.025);
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+.popout {
+	transition: none;
+}
+.popout:hover {
+	animation: popout-scale 0.75s ease-in-out infinite;
+}
+.clicky {
+	cursor: pointer;
+	transition: 0.05s;
+}
 .clicky:hover {
 	scale: 1.25;
+}
+.goodbye {
+	transition: 2s;
+}
+.goodbye:hover {
+	opacity: 0;
+}
+.throwaway {
+	transition: 0.5s;
 }
