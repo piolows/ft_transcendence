@@ -4,8 +4,7 @@ services:
     image: alpine:latest
     command: |
       sh -c "
-        chown -R 1001:1001 /backend_users /front_end &&
-        chmod -R 755 /backend_users /front_end
+        chmod -R 777 /backend_users /front_end
       "
     volumes:
       - front_end:/front_end
@@ -17,22 +16,23 @@ services:
       - front_end:/app
     build: ./frontend
     restart: on-failure
+    environment:
+      - NODE_ENV=development
     ports:
       - "4116:4116"
     networks:
       - transcendence
 
   backend:
-    command: |
-      sh -c "
-        chown -R 1001:1001  &&
-        chmod -R 755 /auth-data /user-data /chat-data /game-data /user-uploads
-      "
     container_name: backend
     volumes:
       - backend_users:/app
     build: ./backend/users
     restart: on-failure
+    environment:
+      - NODE_ENV=development
+      - DB_FILE=/app/src/database/users.db
+      - USERS_TABLE=users
     ports:
       - "4161:4161"
     networks:
