@@ -2,8 +2,6 @@
 
 set -e
 
-apk add --no-cache sqlite
-
 # Sqlite Database file and name for table
 DB_FILE="/app/src/database/test.db"
 TABLE_NAME="users";
