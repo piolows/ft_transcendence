@@ -7,8 +7,6 @@ RUN apk add --no-cache sqlite
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodeuser -u 1001 -G nodejs
 
-RUN chmod -R 777 /app
-
 RUN mkdir -p /usr/entry
 
 COPY ./tools/* /usr/entry

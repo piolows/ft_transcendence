@@ -1,4 +1,15 @@
 services:
+  # Init container to set proper ownership
+  volume-init:
+    image: volume-init
+    command: |
+      sh -c "
+        chown -R 1001:1001 /backend_users &&
+        chmod -R 755 /backend_users
+      "
+    volumes:
+      - backend_users:/backend_users
+
   frontend:
     image: frontend
     container_name: frontend
@@ -10,8 +21,14 @@ services:
       - "4116:4116"
     networks:
       - transcendence
+
   backend:
     image: backend
+    command: |
+      sh -c "
+        chown -R 1001:1001  &&
+        chmod -R 755 /auth-data /user-data /chat-data /game-data /user-uploads
+      "
     container_name: backend
     volumes:
       - backend_users:/app
