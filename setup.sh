@@ -48,3 +48,5 @@ alias dils='docker image ls'
 alias dcls='docker container ls'
 alias dnls='docker network ls'
 alias dvls='docker volume ls'
+
+make
