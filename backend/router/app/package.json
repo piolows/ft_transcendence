@@ -1,0 +1,22 @@
+{
+  "name": "backend-pkg",
+  "version": "1.0.0",
+  "description": "emad hates frontend",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node src/main.js",
+    "dev": "nodemon src/main.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.4.1",
+    "dotenv": "^17.2.2",
+    "fastify": "^5.6.0",
+    "fastify-plugin": "^5.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

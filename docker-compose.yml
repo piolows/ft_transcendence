@@ -14,8 +14,8 @@ services:
     image: backend
     container_name: backend
     volumes:
-      - back_end:/app
-    build: ./backend
+      - backend_users:/app
+    build: ./backend/users
     restart: on-failure
     ports:
       - "4161:4161"
@@ -30,13 +30,27 @@ volumes:
       type: none
       device: ${PWD}/frontend/app
       o: bind
-  back_end:
-    name: back_end
+  # backend_auth:
+  #   name: backend_auth
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: ${PWD}/backend/auth/app
+  #     o: bind
+  backend_users:
+    name: backend_users
     driver: local
     driver_opts:
       type: none
-      device: ${PWD}/backend/app
+      device: ${PWD}/backend/users/app
       o: bind
+  # backend_router:
+  #   name: backend_router
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: ${PWD}/backend/router/app
+  #     o: bind
 
 networks:
   transcendence:
