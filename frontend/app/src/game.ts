@@ -192,11 +192,11 @@ function drawBall(ball: Ball)
 	context.fillStyle = ball.color;
 	context.fill();
 	context.closePath();
-	// if (ball.first_collision === false)
-	// {
-	// 	ball.x += ball.xVel;
-	// }
-	// else
+	if (ball.first_collision === false)
+	{
+		ball.x += ball.xVel;
+	}
+	else
 		ball.x += ball.xVel;
 	if (ball.first_collision === true)
 		ball.y += ball.yVel;
