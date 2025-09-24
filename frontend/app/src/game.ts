@@ -18,6 +18,8 @@ class Ball
 	speed: number;
 	r: number;
 	color: string;
+	starting: boolean;
+	first_collision: boolean;
 
 	constructor(xPos: number, yPos: number, speed: number, radius:number, c: string)
 	{
@@ -28,6 +30,8 @@ class Ball
 		this.color = c;
 		this.xVel = speed;
 		this.yVel = speed;
+		this.starting = true;
+		this.first_collision = false;
 	}
 }
 
@@ -54,13 +58,12 @@ class Paddle
 };
 
 const paddle_speed = 10;
-const ball_speed = 10;
+let ball_speed = 10;
 
 const ball = new Ball(cv.width / 2, cv.height / 2, ball_speed, 20, 'red');
-let left_paddle = new Paddle(90, 20, 20, (cv.height - 90) / 2, 'orange');
-let right_paddle = new Paddle(90, 20, cv.width - (20 * 2), (cv.height - 90) / 2, 'red');
+const left_paddle = new Paddle(90, 20, 20, (cv.height - 90) / 2, 'orange');
+const right_paddle = new Paddle(90, 20, cv.width - (20 * 2), (cv.height - 90) / 2, 'red');
 
-let interval = 0;
 
 function drawPaddle(paddle: Paddle)
 {
@@ -92,8 +95,22 @@ function hit_wall(ball: Ball)
 	return ('none');
 }
 
+function start_game(ball: Ball, left: Paddle, right: paddle)
+{
+	// randomize between left and right for the ball to start heading to
+	ball.x = cv.width / 2;
+	ball.y = cv.height / 2;
+	const randomizer = Math.floor(Math.random() * 2);
+	ball.xVel = randomizer === 0 ? ball.xVel * -1 : ball.xVel;
+	left.yPos = cv.height / 2;
+	right.yPos = cv.height / 2;
+	ball.starting = false;
+}
+
 function draw()
 {
+	if (ball.starting === true)
+		start_game(ball, left_paddle, right_paddle);
 	context.clearRect(0, 0, cv.width, cv.height);
 	context.fillStyle = 'black';
 	context.fillRect(0, 0, cv.width, cv.height);
@@ -112,9 +129,10 @@ function draw()
 	if ((ball.y >= left_paddle.yPos && ball.y <= left_paddle.yPos + left_paddle.height  && (ball.x + ball.speed) - ball.r < left_paddle.xPos + left_paddle.width)
 		|| ball.y >= right_paddle.yPos && ball.y <= right_paddle.yPos + right_paddle.height && (ball.x + ball.speed) + ball.r > right_paddle.xPos)
 	{
+		if (ball.first_collision != true)
+			ball.first_collision = true;
 		ball.color = 'pink';
 		ball.xVel *= -1;
-		// ball.speed *= -1;
 	}
 	// ball hit the top or bottom wall
 	if (ball.y + ball.speed > cv.height - ball.r || ball.y + ball.speed < ball.r)
@@ -122,28 +140,25 @@ function draw()
 		ball.yVel *= -1;
 		ball.color = 'yellow';
 	}
-	// // ball is scored in either the left or right
-	// if (ball.x + ball.speed > cv.width - ball.r || ball.x + ball.speed < ball.r)
-	// {
-	// 	ball.xVel *= -1;
-	// 	style = 'red';
-	// }
 	const wherehit = hit_wall(ball);
 	if (wherehit == 'right')
 	{
 		let current = p1_score.innerHTML;
 		p1_score.innerHTML = (parseInt(current) + 1).toString();
+		start_game(ball, left_paddle, right_paddle);
+		ball.first_collision = false;
 	}
 	if (wherehit == 'left')
 	{
 		let current = p2_score?.innerHTML;
 		p2_score.innerHTML = (parseInt(current) + 1).toString();
+		start_game(ball, left_paddle, right_paddle);
+		ball.first_collision = false;
 	}
 	drawPaddle(left_paddle);
 	drawPaddle(right_paddle);
 	drawBall(ball);
 	requestAnimationFrame(draw);
-	// circle(ball.x += ball.speed, ball.y += ball.speed, r);
 }
 
 function keyDownHandler(event)
@@ -177,11 +192,17 @@ function drawBall(ball: Ball)
 	context.fillStyle = ball.color;
 	context.fill();
 	context.closePath();
-	ball.x += ball.xVel;
-	ball.y += ball.yVel;
+	// if (ball.first_collision === false)
+	// {
+	// 	ball.x += ball.xVel;
+	// }
+	// else
+		ball.x += ball.xVel;
+	if (ball.first_collision === true)
+		ball.y += ball.yVel;
+	// ball_speed += 0.1;
 }
 
 document.addEventListener('keydown', keyDownHandler, false);
 document.addEventListener('keyup', keyUpHandler, false);
 draw();
-// interval = setInterval(draw, 10);
