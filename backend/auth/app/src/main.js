@@ -1,6 +1,7 @@
 import Fastify from "fastify";
-import router from "./router.controller.js";
+import endpointHandler from "./handler.controller.js";
 import sqlite from './plugins/fastify-sqlite.js';
+import 'dotenv/config';
 
 async function startSever() {
 	const fastify = Fastify({
@@ -8,12 +9,12 @@ async function startSever() {
 	});
 
 	fastify.register(sqlite, {
-		'dbFile': '/app/src/database/test.db'
+		dbFile: process.env.DB_FILE
 	});
 
-	fastify.register(router, { prefix: '/user' });
+	fastify.register(endpointHandler, { prefix: '/auth' });
 
-	fastify.listen({ port: 4161, host: '0.0.0.0' })
+	fastify.listen({ port: process.env.PORT, host: '0.0.0.0' })
 		.catch(error => {
 			fastify.log.error(error);
 			process.exit(1);

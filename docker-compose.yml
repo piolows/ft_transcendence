@@ -4,11 +4,12 @@ services:
     image: alpine:latest
     command: |
       sh -c "
-        chmod -R 777 /backend_users /front_end
+        chmod -R 777 /front_end /backend_users /backend_auth
       "
     volumes:
       - front_end:/front_end
       - backend_users:/backend_users
+      - backend_auth:/backend_auth
 
   frontend:
     container_name: frontend
@@ -33,8 +34,27 @@ services:
       - NODE_ENV=development
       - DB_FILE=/app/src/database/users.db
       - USERS_TABLE=users
+      - PORT=4161
     ports:
       - "4161:4161"
+    networks:
+      - transcendence
+
+  backend_auth:
+    container_name: backend_auth
+    volumes:
+      - backend_auth:/app
+    build: ./backend/auth
+    restart: on-failure
+    environment:
+      - NODE_ENV=development
+      - DB_FILE=/app/src/database/auth.db
+      - USERS_TABLE=users
+      - PORT=41610
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_PASS=${GOOGLE_CLIENT_PASS}
+    ports:
+      - "41610:41610"
     networks:
       - transcendence
 
@@ -53,13 +73,13 @@ volumes:
       type: none
       device: ${PWD}/backend/users/app
       o: bind
-  # backend_auth:
-  #   name: backend_auth
-  #   driver: local
-  #   driver_opts:
-  #     type: none
-  #     device: ${PWD}/backend/auth/app
-  #     o: bind
+  backend_auth:
+    name: backend_auth
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/backend/auth/app
+      o: bind
   # backend_router:
   #   name: backend_router
   #   driver: local

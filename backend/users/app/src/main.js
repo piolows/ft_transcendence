@@ -14,7 +14,7 @@ async function startSever() {
 
 	fastify.register(endpointHandler, { prefix: '/users' });
 
-	fastify.listen({ port: 4161, host: '0.0.0.0' })
+	fastify.listen({ port: process.env.PORT, host: '0.0.0.0' })
 		.catch(error => {
 			fastify.log.error(error);
 			process.exit(1);

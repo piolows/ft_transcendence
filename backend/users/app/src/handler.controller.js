@@ -45,8 +45,8 @@ const endpointHandler = (fastify, options, done) => {
 
 	fastify.post("/", postSchema, async (req, reply) => {
 		try {
-			const userfind = fastify.sqlite.prepare('SELECT * FROM users WHERE username=?');
-			const user = await userfind.get(req.body.username);
+			const userfind = fastify.sqlite.prepare('SELECT * FROM users WHERE username=? OR email=?');
+			const user = await userfind.get(req.body.username, req.body.email);
 			if (user) {
 				return reply.code(403).send({ error: 'User already exists!' });
 			}
@@ -63,7 +63,7 @@ const endpointHandler = (fastify, options, done) => {
 			const userfind = fastify.sqlite.prepare('SELECT * FROM users WHERE username=?');
 			const user = await userfind.get(req.body.username);
 			if (!user) {
-				return reply.code(404).send({ error: 'User doesn not exists!' });
+				return reply.code(404).send({ error: 'User does not exists!' });
 			}
 			const statement = fastify.sqlite.prepare('DELETE FROM users WHERE username=?');
 			await statement.run(req.body.username);
