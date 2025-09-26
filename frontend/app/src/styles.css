@@ -16,19 +16,19 @@
 
 /* general styles */
 .custom_header {
-    font-family: var(--font-workbench);
+    font-family: var(--font-sixty);
     font-size: 3rem;
 }
 .custom_subheader {
-    font-family: var(--font-workbench);
+    font-family: var(--font-sixty);
     font-size: 2rem;
 }
 .custom_text {
-    font-family: var(--font-workbench);
+    font-family: var(--font-sixty);
     font-size: 1.5rem;
 }
 .custom_smalltext {
-    font-family: var(--font-workbench);
+    font-family: var(--font-sixty);
     font-size: 1rem;
 }
 
@@ -67,6 +67,10 @@
 @keyframes scanline {
     0% { transform: translateY(-100%); }
     100% { transform: translateY(100%); }
+}
+@keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
 }
 
 /* funsie stuffsies */
@@ -162,8 +166,4 @@
     white-space: nowrap;
     display: inline-block;
     animation: marquee 15s linear infinite;
-}
-@keyframes marquee {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
 }
