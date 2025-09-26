@@ -1,8 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Sixtyfour");
+@import url("https://fonts.googleapis.com/css2?family=Workbench");
+@import url("https://fonts.googleapis.com/css2?family=Pixelify+Sans");
 @import "tailwindcss";
 
 @theme {
     --font-sixty: 'Sixtyfour', sans-serif;
+    --font-workbench: 'Workbench', sans-serif;
+    --font-pixelify: 'Pixelify Sans', sans-serif;
     --retro-yellow: #FFD700;
     --retro-cyan: #00FFFF;
     --retro-magenta: #FF00FF;
@@ -12,19 +16,19 @@
 
 /* general styles */
 .custom_header {
-    font-family: var(--font-sixty);
+    font-family: var(--font-workbench);
     font-size: 3rem;
 }
 .custom_subheader {
-    font-family: var(--font-sixty);
+    font-family: var(--font-workbench);
     font-size: 2rem;
 }
 .custom_text {
-    font-family: var(--font-sixty);
+    font-family: var(--font-workbench);
     font-size: 1.5rem;
 }
 .custom_smalltext {
-    font-family: var(--font-sixty);
+    font-family: var(--font-workbench);
     font-size: 1rem;
 }
 
