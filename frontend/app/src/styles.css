@@ -2,63 +2,164 @@
 @import "tailwindcss";
 
 @theme {
-	--font-sixty: 'Sixtyfour', sans-serif;
+    --font-sixty: 'Sixtyfour', sans-serif;
+    --retro-yellow: #FFD700;
+    --retro-cyan: #00FFFF;
+    --retro-magenta: #FF00FF;
 }
 
 @layer theme, components, utilities;
 
-
 /* general styles */
-
 .custom_header {
-	font-family: var(--font-sixty);
-	font-size: 3rem;
+    font-family: var(--font-sixty);
+    font-size: 3rem;
 }
 .custom_subheader {
-	font-family: var(--font-sixty);
-	font-size: 2rem;
+    font-family: var(--font-sixty);
+    font-size: 2rem;
 }
 .custom_text {
-	font-family: var(--font-sixty);
-	font-size: 1.5rem;
+    font-family: var(--font-sixty);
+    font-size: 1.5rem;
 }
 .custom_smalltext {
-	font-family: var(--font-sixty);
-	font-size: 1rem;
+    font-family: var(--font-sixty);
+    font-size: 1rem;
 }
 
-/* styles for fun effects when hovering over stuff */
-
+/* anims */
 @keyframes popout-scale {
-	0% {
-		transform: scale(1);
-	}
-	50% {
-		transform: scale(1.025);
-	}
-	100% {
-		transform: scale(1);
-	}
+    0% { transform: scale(1); }
+    50% { transform: scale(1.025); }
+    100% { transform: scale(1); }
 }
+@keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+}
+@keyframes rainbow-text {
+    0% { color: #FF0000; }
+    16.666% { color: #FF8000; }
+    33.333% { color: #FFFF00; }
+    50% { color: #00FF00; }
+    66.666% { color: #0000FF; }
+    83.333% { color: #8000FF; }
+    100% { color: #FF0000; }
+}
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+@keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+}
+@keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+}
+
+/* funsie stuffsies */
 .popout {
-	transition: none;
+    transition: none;
 }
 .popout:hover {
-	animation: popout-scale 0.75s ease-in-out infinite;
+    animation: popout-scale 0.75s ease-in-out infinite;
 }
+
 .clicky {
-	cursor: pointer;
-	transition: 0.05s;
+    cursor: pointer;
+    transition: 0.05s;
 }
 .clicky:hover {
-	scale: 1.25;
+    scale: 1.25;
 }
+
 .goodbye {
-	transition: 2s;
+    transition: 2s;
 }
 .goodbye:hover {
-	opacity: 0;
+    opacity: 0;
 }
-.throwaway {
-	transition: 0.5s;
+
+.glitch {
+    position: relative;
+}
+.glitch:hover {
+    animation: glitch 0.2s infinite;
+}
+
+.rainbow {
+    animation: rainbow-text 2s infinite;
+}
+
+.blinker {
+    animation: blink 1s step-start infinite;
+}
+
+.wiggler {
+    display: inline-block;
+}
+.wiggler:hover {
+    animation: wiggle 0.5s infinite;
+}
+
+.retro-border {
+    border: 3px solid;
+    border-image: linear-gradient(45deg, var(--retro-cyan), var(--retro-magenta)) 1;
+}
+
+.crt-text {
+    text-shadow: 
+        0.06rem 0 0.06rem #00fffc,
+        -0.06rem 0 0.06rem #fc00ff;
+}
+
+.pixel-box {
+    image-rendering: pixelated;
+    border: 4px solid #000;
+    box-shadow: 8px 8px 0 #000;
+    transition: all 0.1s ease;
+}
+.pixel-box:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 10px 10px 0 #000;
+}
+
+.scanline-effect {
+    position: relative;
+    overflow: hidden;
+}
+.scanline-effect::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+    animation: scanline 4s linear infinite;
+    pointer-events: none;
+}
+
+.retro-shadow {
+    text-shadow: 
+        2px 2px 0 var(--retro-cyan),
+        4px 4px 0 var(--retro-magenta);
+}
+
+.marquee-text {
+    white-space: nowrap;
+    display: inline-block;
+    animation: marquee 15s linear infinite;
+}
+@keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
 }
