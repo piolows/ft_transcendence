@@ -3,15 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="google-signin-client_id" content="474112302623-dmr5gum816u3trrd98enfnjf6ivtcb6i.apps.googleusercontent.com">
     <title>Pongy Landing</title>
     <link rel="stylesheet" href="styles.css">
-	<script src="https://apis.google.com/js/platform.js" async defer></script>
+	<script src="https://accounts.google.com/gsi/client" async defer></script>
     <script type="module" src="registration.ts" defer></script>
 </head>
 
 <body class="font-sixty min-h-screen bg-red-100">
     <!-- nav bar -->
+	<div id="g_id_onload"
+		data-client_id="474112302623-dmr5gum816u3trrd98enfnjf6ivtcb6i.apps.googleusercontent.com"
+		data-callback="handleCredentialResponse"
+		data-auto_prompt="false">
+	</div>
     <nav class="bg-blue-500 p-4 text-white">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-2xl font-bold popout">Pongy</h1>
@@ -19,6 +23,7 @@
 				<!-- <div class="g-signin2" data-onsuccess="onSignIn"></div> -->
                 <button id="login-button" class="hover:text-blue-200 clicky">Login</button>
                 <button id="signup-button" class="bg-white text-blue-500 px-4 py-2 rounded hover:bg-blue-100 clicky">Sign Up</button>
+				<div class="g_id_signin" data-type="standard"></div>
             </div>
         </div>
     </nav>
@@ -103,9 +108,11 @@
          <!-- footer -->
          <footer class="mt-16 text-center text-gray-500 text-sm">
             &copy; 2025 Pongy Nation. No rights reserved at all.
-            <a href="devpage.html">
-              <button class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 clicky popout" id="to-devpage">Super Secret Dev Page</button>
-            </a>
+            <div>
+                <a href="devpage.html">
+                  <button class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 clicky popout" id="to-devpage">Super Secret Dev Page</button>
+                </a>
+            </div>
         </footer>
     </main>
 </body>
