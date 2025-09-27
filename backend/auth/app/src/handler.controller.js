@@ -11,7 +11,17 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	}
 
-	const postSchema = {
+	const loginSchema = {
+		body: {
+			properties: {
+				username: { type: 'string' },
+				password: { type: 'password' }
+			},
+			required: [ 'username', 'password' ]
+		}
+	}
+
+	const registerSchema = {
 		body: {
 			properties: {
 				username: { type: 'string' },
@@ -44,7 +54,22 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	});
 
-	fastify.post("/", postSchema, async (req, reply) => {
+	fastify.post("/login", loginSchema, async (req, reply) => {
+		try {
+			const user = await fastify.sqlite.prepare('SELECT * FROM users WHERE username=?').get(req.body.username);
+			if (!user) {
+				return reply.code(404).send({ error: "User not found" });
+			}
+			if (user['password'] != req.body.password) {
+				return reply.code(403).send({ error: "Wrong password!" });
+			}
+			return reply.send(`Hello ${req.body.username} with email ${ user['email'] }! Don't tell anyone that your password is ${ user['password'] }`);
+		} catch (error) {
+			return reply.send(error);
+		}
+	});
+
+	fastify.post("/register", registerSchema, async (req, reply) => {
 		try {
 			const user = await fastify.sqlite.prepare('SELECT * FROM users WHERE username=? OR email=?').get(req.body.username, req.body.email);
 			if (user) {

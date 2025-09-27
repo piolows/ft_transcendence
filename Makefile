@@ -1,7 +1,7 @@
 all: build
 
 build:
-	docker compose up --build -d
+	docker compose --env-file .env up --build -d
 
 clean:
 	docker compose down --rmi all --remove-orphans
