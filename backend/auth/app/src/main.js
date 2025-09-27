@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import endpointHandler from "./handler.controller.js";
 import sqlite from './plugins/fastify-sqlite.js';
+import formBody from '@fastify/formbody'
 import 'dotenv/config';
 
 async function startSever() {
@@ -11,6 +12,8 @@ async function startSever() {
 	fastify.register(sqlite, {
 		dbFile: process.env.DB_FILE
 	});
+
+	fastify.register(formBody);
 
 	fastify.register(endpointHandler, { prefix: '/auth' });
 

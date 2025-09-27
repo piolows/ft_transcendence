@@ -1,12 +1,30 @@
 const endpointHandler = (fastify, options, done) => {
+	// const getUserSchema = {
+	// 	schema: {
+	// 		params: {
+	// 			type: 'object',
+	// 			properties: {
+	// 				username: { type: 'string' }
+	// 			},
+	// 			required: [ 'username' ]
+	// 		},
+	// 		body: {
+	// 			properties: {
+	// 				password: { type: 'string' }
+	// 			},
+	// 			required: [ 'password' ]
+	// 		}
+	// 	}
+	// }
+
 	const getUserSchema = {
 		schema: {
-			params: {
-				type: 'object',
+			body: {
 				properties: {
-					username: { type: 'string' }
+					username: { type: 'string' },
+					password: { type: 'password' }
 				},
-				required: [ 'username' ]
+				required: [ 'username', 'password' ]
 			}
 		}
 	}
@@ -32,11 +50,29 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	}
 
-	fastify.get("/:username", getUserSchema, async (req, reply) => {
+	// fastify.get("/:username", getUserSchema, async (req, reply) => {
+	// 	try {
+	// 		const user = await fastify.sqlite.prepare('SELECT * FROM users WHERE username=?').get(req.params.username);
+	// 		if (!user) {
+	// 			return reply.code(404).send({ error: "User not found" });
+	// 		}
+	// 		if (user['password'] != req.body.password) {
+	// 			return reply.code(403).send({ error: "Wrong password!" });
+	// 		}
+	// 		return reply.send(`Hello ${req.params.username} with email ${ user['email'] }! Don't tell anyone that your password is ${ user['password'] }`);
+	// 	} catch (error) {
+	// 		return reply.send(error);
+	// 	}
+	// });
+
+	fastify.get("/", getUserSchema, async (req, reply) => {
 		try {
-			const user = await fastify.sqlite.prepare('SELECT * FROM users WHERE username=?').get(req.params.username);
+			const user = await fastify.sqlite.prepare('SELECT * FROM users WHERE username=?').get(req.body.username);
 			if (!user) {
 				return reply.code(404).send({ error: "User not found" });
+			}
+			if (user['password'] != req.body.password) {
+				return reply.code(403).send({ error: "Wrong password!" });
 			}
 			return reply.send(`Hello ${req.params.username} with email ${ user['email'] }! Don't tell anyone that your password is ${ user['password'] }`);
 		} catch (error) {
