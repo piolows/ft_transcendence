@@ -32,6 +32,15 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	}
 
+	const logoutSchema = {
+		body: {
+			properties: {
+				username: { type: 'string' }
+			},
+			required: [ 'username' ]
+		}
+	}
+
 	const deleteSchema = {
 		body: {
 			properties: {
@@ -82,6 +91,20 @@ const endpointHandler = (fastify, options, done) => {
 			await fastify.sqlite.prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)').run(req.body.username, req.body.email, req.body.password);
 			req.session.user = { id: user['id'], username: user['username'] };
 			return reply.send({ message: "Logged in successfully" });
+		} catch (error) {
+			return reply.send(error);
+		}
+	});
+
+	fastify.post("/logout", registerSchema, async (req, reply) => {
+		try {
+			const user = await fastify.sqlite.prepare('SELECT * FROM users WHERE username=? OR email=?').get(req.body.username, req.body.email);
+			if (!user) {
+				return reply.code(404).send({ error: 'User not found!' });
+			}
+			await fastify.sqlite.prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)').run(req.body.username, req.body.email, req.body.password);
+			req.session.destroy();
+			return reply.send({ message: "Logged out successfully" });
 		} catch (error) {
 			return reply.send(error);
 		}

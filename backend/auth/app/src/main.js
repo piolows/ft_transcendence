@@ -4,21 +4,30 @@ import sqlite from './plugins/fastify-sqlite.js';
 import formBody from '@fastify/formbody';
 import fastifyCookie from "@fastify/cookie";
 import fastifySession from "@fastify/session";
+import BetterSqlite3Store from "better-sqlite3-session-store";
 import 'dotenv/config';
+import Database from "better-sqlite3";
 
 async function startSever() {
 	const fastify = Fastify({
 		logger: true
 	});
 
+	const ONEDAY = 1000 * 60 * 60 * 24;
+
 	await fastify.register(fastifyCookie);
 	await fastify.register(fastifySession, {
-	secret: process.env.SESSION_SECRET,
-	cookie: {
-		secure: false, // true in production (HTTPS required)
-		httpOnly: true,
-		sameSite: "lax"
-	}
+		secret: process.env.SESSION_SECRET,
+		cookie: {
+			secure: process.env.NODE_ENV == "production",
+			httpOnly: true,
+			sameSite: "lax",
+			maxAge: ONEDAY
+		},
+		store: new BetterSqlite3Store({
+			client: new Database(process.env.DB_FILE),
+			table: "sessions"
+		})
 	});
 
 	fastify.register(sqlite, {
