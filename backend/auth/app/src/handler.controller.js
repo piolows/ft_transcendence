@@ -48,6 +48,9 @@ const endpointHandler = (fastify, options, done) => {
 			if (!user) {
 				return reply.code(404).send({ error: "User not found" });
 			}
+			if (!req.session.user) {
+				return reply.code(403).send({ error: "Must be signed in!" });
+			}
 			return reply.send(`Hello ${req.params.username} with email ${ user['email'] }! Don't tell anyone that your password is ${ user['password'] }`);
 		} catch (error) {
 			return reply.send(error);
@@ -63,7 +66,8 @@ const endpointHandler = (fastify, options, done) => {
 			if (user['password'] != req.body.password) {
 				return reply.code(403).send({ error: "Wrong password!" });
 			}
-			return reply.send(`Hello ${req.body.username} with email ${ user['email'] }! Don't tell anyone that your password is ${ user['password'] }`);
+			req.session.user = { id: user['id'], username: user['username'] };
+			return reply.send({ message: "Logged in successfully" });
 		} catch (error) {
 			return reply.send(error);
 		}
@@ -76,7 +80,8 @@ const endpointHandler = (fastify, options, done) => {
 				return reply.code(403).send({ error: 'User already exists!' });
 			}
 			await fastify.sqlite.prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)').run(req.body.username, req.body.email, req.body.password);
-			return reply.send(`Registered ${req.body.username} with email ${ req.body.email } and password ${ req.body.password }!`);
+			req.session.user = { id: user['id'], username: user['username'] };
+			return reply.send({ message: "Logged in successfully" });
 		} catch (error) {
 			return reply.send(error);
 		}

@@ -53,6 +53,7 @@ services:
       - PORT=41610
       - DB_FILE=/app/src/database/auth.db
       - USERS_TABLE=users
+      - SESSION_SECRET=${SESSION_SECRET}
     networks:
       - micro-services
 
