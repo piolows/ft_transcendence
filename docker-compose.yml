@@ -51,6 +51,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=41610
+      - SESSIONS_DB=/app/src/database/sessions.db
       - DB_FILE=/app/src/database/auth.db
       - USERS_TABLE=users
       - SESSION_SECRET=${SESSION_SECRET}

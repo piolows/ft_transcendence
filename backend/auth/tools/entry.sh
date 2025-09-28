@@ -6,6 +6,9 @@ set -e
 if [ ! -f "$DB_FILE" ]; then
 	touch "$DB_FILE"
 fi
+if [ ! -f "$SESSIONS_DB" ]; then
+	touch "$SESSIONS_DB"
+fi
 
 # Using heredoc to provide SQL input to sqlite
 # NOTE: Everything after creating the table is TEMPORARY for TESTING purposes

@@ -26,7 +26,7 @@ async function startSever() {
 			maxAge: ONEDAY
 		},
 		store: new SqliteStore({
-			client: new Database(process.env.DB_FILE),
+			client: new Database(process.env.SESSIONS_DB),
 			table: "sessions"
 		})
 	});
