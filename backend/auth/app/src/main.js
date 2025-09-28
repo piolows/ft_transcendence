@@ -15,7 +15,7 @@ async function startSever() {
 
 	fastify.register(formBody);
 
-	fastify.register(endpointHandler, { prefix: '/auth' });
+	fastify.register(endpointHandler);
 
 	fastify.listen({ port: process.env.PORT, host: '0.0.0.0' })
 		.catch(error => {

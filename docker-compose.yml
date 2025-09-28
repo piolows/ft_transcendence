@@ -4,10 +4,11 @@ services:
     image: alpine:latest
     command: |
       sh -c "
-        chmod -R 777 /front_end /backend_users /backend_auth
+        chmod -R 777 /front_end /backend_controller /backend_auth /backend_users
       "
     volumes:
       - front_end:/front_end
+      - backend_controller:/backend_controller
       - backend_users:/backend_users
       - backend_auth:/backend_auth
 
@@ -27,18 +28,19 @@ services:
   backend:
     container_name: backend
     volumes:
-      - backend_users:/app
-    build: ./backend/users
+      - backend_controller:/app
+    build: ./backend/controller
     restart: on-failure
     environment:
       - NODE_ENV=development
-      - DB_FILE=/app/src/database/users.db
-      - USERS_TABLE=users
       - PORT=4161
+      - AUTH_URI=http://backend_auth:41610
+      - USER_URI=http://backend_users:41611
     ports:
       - "4161:4161"
     networks:
       - transcendence
+      - micro-services
 
   backend_auth:
     container_name: backend_auth
@@ -48,15 +50,25 @@ services:
     restart: on-failure
     environment:
       - NODE_ENV=development
+      - PORT=41610
       - DB_FILE=/app/src/database/auth.db
       - USERS_TABLE=users
-      - PORT=41610
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_PASS=${GOOGLE_CLIENT_PASS}
-    ports:
-      - "41610:41610"
     networks:
-      - transcendence
+      - micro-services
+
+  backend_users:
+    container_name: backend_users
+    volumes:
+      - backend_users:/app
+    build: ./backend/users
+    restart: on-failure
+    environment:
+      - NODE_ENV=development
+      - PORT=41611
+      - DB_FILE=/app/src/database/users.db
+      - USERS_TABLE=users
+    networks:
+      - micro-services
 
 volumes:
   front_end:
@@ -80,15 +92,18 @@ volumes:
       type: none
       device: ${PWD}/backend/auth/app
       o: bind
-  # backend_router:
-  #   name: backend_router
-  #   driver: local
-  #   driver_opts:
-  #     type: none
-  #     device: ${PWD}/backend/router/app
-  #     o: bind
+  backend_controller:
+    name: backend_controller
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/backend/controller/app
+      o: bind
 
 networks:
   transcendence:
     name: transcendence
+    driver: bridge
+  micro-services:
+    name: micro-services
     driver: bridge
