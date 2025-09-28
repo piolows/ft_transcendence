@@ -4,9 +4,9 @@ import sqlite from './plugins/fastify-sqlite.js';
 import formBody from '@fastify/formbody';
 import fastifyCookie from "@fastify/cookie";
 import fastifySession from "@fastify/session";
-import BetterSqlite3Store from "better-sqlite3-session-store";
+import createSqliteStore from "better-sqlite3-session-store";
+import Database from 'better-sqlite3'
 import 'dotenv/config';
-import Database from "better-sqlite3";
 
 async function startSever() {
 	const fastify = Fastify({
@@ -14,6 +14,7 @@ async function startSever() {
 	});
 
 	const ONEDAY = 1000 * 60 * 60 * 24;
+	const SqliteStore = createSqliteStore(fastifySession);
 
 	await fastify.register(fastifyCookie);
 	await fastify.register(fastifySession, {
@@ -24,7 +25,7 @@ async function startSever() {
 			sameSite: "lax",
 			maxAge: ONEDAY
 		},
-		store: new BetterSqlite3Store({
+		store: new SqliteStore({
 			client: new Database(process.env.DB_FILE),
 			table: "sessions"
 		})
