@@ -5,7 +5,7 @@ import formBody from '@fastify/formbody';
 import fastifyCookie from "@fastify/cookie";
 import fastifySession from "@fastify/session";
 import createSqliteStore from "better-sqlite3-session-store";
-import Database from 'better-sqlite3'
+import Database from 'better-sqlite3';
 import 'dotenv/config';
 
 async function startSever() {
@@ -31,13 +31,13 @@ async function startSever() {
 		})
 	});
 
-	fastify.register(sqlite, {
+	await fastify.register(sqlite, {
 		dbFile: process.env.DB_FILE
 	});
 
-	fastify.register(formBody);
+	await fastify.register(formBody);
 
-	fastify.register(endpointHandler);
+	await fastify.register(endpointHandler);
 
 	fastify.listen({ port: process.env.PORT, host: '0.0.0.0' })
 		.catch(error => {

@@ -9,13 +9,13 @@ async function startSever() {
 		logger: true
 	});
 
-	fastify.register(sqlite, {
+	await fastify.register(sqlite, {
 		dbFile: process.env.DB_FILE
 	});
 
-	fastify.register(formBody);
+	await fastify.register(formBody);
 
-	fastify.register(endpointHandler);
+	await fastify.register(endpointHandler);
 
 	fastify.listen({ port: process.env.PORT, host: '0.0.0.0' })
 		.catch(error => {

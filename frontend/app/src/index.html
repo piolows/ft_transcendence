@@ -12,39 +12,30 @@
 <body class="font-sixty min-h-screen bg-red-100">
     <!-- nav bar -->
 	<div id="g_id_onload"
-		data-client_id="474112302623-dmr5gum816u3trrd98enfnjf6ivtcb6i.apps.googleusercontent.com"
+		data-client_id="336093315647-mlq5ufc06999l3vhrvbimtn36jqvmgtk.apps.googleusercontent.com"
 		data-callback="handleCredentialResponse"
 		data-auto_prompt="false">
 	</div>
-	<script type="module">
-		declare global {
-			interface Window {
-				handleCredentialResponse: (response: any) => void;
-			}
-		}
-
-		window.handleCredentialResponse = async function (response) {
-			console.log("Google JWT:", response.credential);
-
-			// Send it to your backend for verification
-			const res = await fetch("http://localhost:4161/auth/google-login", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ token: response.credential }),
-			});
-
-			const data = await res.json();
-			console.log("Backend response:", data);
-		};
-	</script>
     <nav class="bg-blue-500 p-4 text-white">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-2xl font-bold popout">Pongy</h1>
-            <div class="space-x-4">
-                <button id="login-button" class="hover:text-blue-200 clicky">Login</button>
-                <button id="signup-button" class="bg-white text-blue-500 px-4 py-2 rounded hover:bg-blue-100 clicky">Sign Up</button>
-				<div class="g_id_signin" data-type="standard"></div>
-            </div>
+			<div class="flex justify-right">
+				<div id="google-login-button" class="g_id_signin pr-6" data-type="standard" data-client_id="336093315647-mlq5ufc06999l3vhrvbimtn36jqvmgtk.apps.googleusercontent.com"></div>
+				<div id="profile-info" class="pr-6" style="display: none;">
+					<div class="flex">
+						<img id="pfp" class="pr-4" alt="Profile picture" width="64" height="64">
+						<div>
+							<h4 id="uname"></h4>
+							<p class="text-sm" id="umail"></p>
+						</div>
+					</div>
+				</div>
+				<div class="flex space-x-4">
+					<button id="logout-button" class="hover:text-blue-200 clicky" style="display: none;" onclick="logoutSession()">Logout</button>
+					<button id="login-button" class="hover:text-blue-200 clicky">Login</button>
+					<button id="signup-button" class="bg-white text-blue-500 px-4 py-2 rounded hover:bg-blue-100 clicky">Sign Up</button>
+				</div>
+			</div>
         </div>
     </nav>
 
@@ -65,7 +56,7 @@
         <div id="login-screen" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div class="bg-white p-8 rounded-lg shadow-lg w-96">
                 <h2 class="text-2xl font-bold mb-4 text-blue-500">Login</h2>
-                <form class="space-y-4" method="POST" action="http://localhost:4161/auth/login">
+                <form id="loginForm" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Username</label>
                         <input name="username" type="text" class="mt-1 block w-full rounded border-gray-300 shadow-sm p-2" required>
@@ -84,7 +75,7 @@
         <div id="signup-screen" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div class="bg-white p-8 rounded-lg shadow-lg w-96">
                 <h2 class="text-2xl font-bold mb-4 text-blue-500">Sign Up</h2>
-                <form class="space-y-4" method="POST" action="http://localhost:4161/auth/register">
+                <form id="registerForm" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Username</label>
                         <input name="username" type="text" class="mt-1 block w-full rounded border-gray-300 shadow-sm p-2" required>
@@ -97,10 +88,10 @@
                         <label class="block text-sm font-medium text-gray-700">Password</label>
                         <input name="password" type="password" class="mt-1 block w-full rounded border-gray-300 shadow-sm p-2" required>
                     </div>
-                    <!-- <div>
-                        <label class="block text-sm font-medium text-gray-700">Confirm Password</label>
-                        <input type="password" class="mt-1 block w-full rounded border-gray-300 shadow-sm p-2" required>
-                    </div> -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Avatar URL (Optional)</label>
+                        <input name="avatarURL" type="url" class="mt-1 block w-full rounded border-gray-300 shadow-sm p-2">
+                    </div>
                     <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">Create Account</button>
                 </form>
                 <button class="mt-4 text-sm text-gray-500 hover:text-gray-700" id="signup-close-button">Close</button>

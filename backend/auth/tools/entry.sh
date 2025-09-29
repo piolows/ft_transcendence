@@ -18,11 +18,20 @@ CREATE TABLE IF NOT EXISTS $USERS_TABLE (
     username TEXT NOT NULL,
     email TEXT NOT NULL,
     password TEXT NOT NULL,
+	avatarURL TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE IF NOT EXISTS $GOOGLE_AUTH_TABLE (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+	googleID TEXT NOT NULL,
+    username TEXT NOT NULL,
+    email TEXT NOT NULL,
+    avatarURL TEXT NOT NULL
+);
+DELETE FROM $GOOGLE_AUTH_TABLE;
 DELETE FROM $USERS_TABLE;
-INSERT INTO $USERS_TABLE (username, email, password) VALUES ('emad', 'dalimitisdasky@gmail.com', 'etest');
-INSERT INTO $USERS_TABLE (username, email, password) VALUES ('pierce', 'pdpdiet03@gmail.com', 'ptest');
+INSERT INTO $USERS_TABLE (username, email, password, avatarURL) VALUES ('emad', 'dalimitisdasky@gmail.com', 'etest', '$DEFAULT_PIC');
+INSERT INTO $USERS_TABLE (username, email, password, avatarURL) VALUES ('pierce', 'pdpdiet03@gmail.com', 'ptest', '$DEFAULT_PIC');
 SQL
 
 npm i

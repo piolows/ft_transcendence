@@ -32,7 +32,7 @@ const endpointHandler = (fastify, options, done) => {
 
 	fastify.get("/:username", getUserSchema, async (req, reply) => {
 		try {
-			const statement = fastify.sqlite.prepare('SELECT * FROM users WHERE username=?');
+			const statement = fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`);
 			const user = await statement.get(req.params.username);
 			if (!user) {
 				return reply.code(404).send({ error: "User not found" });
@@ -45,12 +45,12 @@ const endpointHandler = (fastify, options, done) => {
 
 	fastify.post("/", postSchema, async (req, reply) => {
 		try {
-			const userfind = fastify.sqlite.prepare('SELECT * FROM users WHERE username=? OR email=?');
+			const userfind = fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=? OR email=?`);
 			const user = await userfind.get(req.body.username, req.body.email);
 			if (user) {
 				return reply.code(403).send({ error: 'User already exists!' });
 			}
-			const statement = fastify.sqlite.prepare('INSERT INTO users (username,email) VALUES (?,?)');
+			const statement = fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username,email) VALUES (?,?)`);
 			await statement.run(req.body.username, req.body.email);
 			return reply.send(`Registered ${req.body.username} with email ${ req.body.email }!`);
 		} catch (error) {
@@ -60,12 +60,12 @@ const endpointHandler = (fastify, options, done) => {
 
 	fastify.delete("/", deleteSchema, async (req, reply) => {
 		try {
-			const userfind = fastify.sqlite.prepare('SELECT * FROM users WHERE username=?');
+			const userfind = fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`);
 			const user = await userfind.get(req.body.username);
 			if (!user) {
 				return reply.code(404).send({ error: 'User does not exists!' });
 			}
-			const statement = fastify.sqlite.prepare('DELETE FROM users WHERE username=?');
+			const statement = fastify.sqlite.prepare(`DELETE FROM ${process.env.USERS_TABLE} WHERE username=?`);
 			await statement.run(req.body.username);
 			return reply.send(`Deleted ${req.body.username}!`);
 		} catch (error) {
