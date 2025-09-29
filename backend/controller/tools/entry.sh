@@ -4,4 +4,4 @@ set -e
 
 npm i
 
-npm run dev
+exec npm run dev
