@@ -28,10 +28,6 @@ CREATE TABLE IF NOT EXISTS $GOOGLE_AUTH_TABLE (
     email TEXT NOT NULL,
     avatarURL TEXT NOT NULL
 );
-DELETE FROM $GOOGLE_AUTH_TABLE;
-DELETE FROM $USERS_TABLE;
-INSERT INTO $USERS_TABLE (username, email, password, avatarURL) VALUES ('emad', 'dalimitisdasky@gmail.com', 'etest', '$DEFAULT_PIC');
-INSERT INTO $USERS_TABLE (username, email, password, avatarURL) VALUES ('pierce', 'pdpdiet03@gmail.com', 'ptest', '$DEFAULT_PIC');
 SQL
 
 npm i

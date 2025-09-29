@@ -16,9 +16,6 @@ CREATE TABLE IF NOT EXISTS $USERS_TABLE (
     email TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
-DELETE FROM $USERS_TABLE;
-INSERT INTO $USERS_TABLE (username, email) VALUES ('emad', 'dalimitisdasky@gmail.com');
-INSERT INTO $USERS_TABLE (username, email) VALUES ('pierce', 'pdpdiet03@gmail.com');
 SQL
 
 npm i
