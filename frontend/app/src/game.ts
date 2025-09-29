@@ -1,14 +1,5 @@
 import "./styles.css";
 
-console.log("This script is written in TypeScript!");
-
-const cv = document.getElementById("gameCanvas");
-const context = cv.getContext('2d');
-const p1_score = document.getElementById("p1_score");
-const p2_score = document.getElementById("p2_score");
-context.fillStyle = 'black';
-context.fillRect(0, 0, cv.width, cv.height);
-
 class Ball
 {
 	x: number;
@@ -57,6 +48,15 @@ class Paddle
 	}
 };
 
+console.log("This script is written in TypeScript!");
+
+const cv = document.getElementById("gameCanvas");
+const context = cv.getContext('2d');
+const p1_score = document.getElementById("p1_score");
+const p2_score = document.getElementById("p2_score");
+context.fillStyle = 'black';
+context.fillRect(0, 0, cv.width, cv.height);
+
 const paddle_speed = 10;
 const ball_speed = 10;
 
@@ -64,13 +64,19 @@ const ball = new Ball(cv.width / 2, cv.height / 2, ball_speed, 15, 'white');
 const left_paddle = new Paddle(90, 20, 20, (cv.height - 90) / 2, 'orange');
 const right_paddle = new Paddle(90, 20, cv.width - (20 * 2), (cv.height - 90) / 2, 'red');
 
+let lastTime = performance.now();
 
-function drawPaddle(paddle: Paddle)
+const image = new Image();
+image.src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmJnHdxB4R5ZaBO2w7l-llydLWZcRmNAiaIA&s"; 
+
+
+function drawPaddle(paddle: Paddle, delta: number)
 {
 	if (paddle.up)
-		paddle.yPos = Math.max(paddle.yPos - paddle_speed, 0);
+		paddle.yPos = Math.max(paddle.yPos - (paddle_speed * delta), 0);
 	if (paddle.down)
-		paddle.yPos = Math.min(paddle.yPos + paddle_speed, cv.height - paddle.height);
+		paddle.yPos = Math.min(paddle.yPos + (paddle_speed * delta), cv.height - paddle.height);
+	// context.drawImage(image, paddle.xPos, paddle.yPos, image.width, paddle.height);
 	context.beginPath();
 	context.rect(paddle.xPos, paddle.yPos, paddle.width, paddle.height);
 	context.fillStyle = paddle.color;
@@ -83,7 +89,6 @@ function hit_wall(ball: Ball)
 	if (ball.x + ball.speed > cv.width - ball.r)
 	{
 		ball.xVel *= -1;
-		console.log('right wall hit');
 		return ('right');
 	}
 	if (ball.x + ball.speed < ball.r)
@@ -161,6 +166,11 @@ function draw_bg()
 	context.fillText(p1_score.innerHTML, cv.width / 4, 20);
 	context.fillText(p2_score.innerHTML, (cv.width / 4) * 3, 20);
 
+	// draw usernames beneath the score
+	context.font = "1em SixtyFour";
+	context.fillText("player 1", cv.width / 4, 60);
+	context.fillText("player 2", (cv.width / 4) * 3, 60);
+
 	context.fillStyle = 'white';
 	context.beginPath();
 	context.arc(cv.width / 2 + 5, cv.height / 2, 100, 0, Math.PI * 2);
@@ -168,10 +178,13 @@ function draw_bg()
 	context.lineWidth = 5;
 	context.stroke();
 	context.closePath();
+	// context.drawImage(image, 0, 0, cv.width, cv.height);
 }
 
-function draw()
+function draw(currentTime)
 {
+	const delta = (currentTime - lastTime) / 15;
+	lastTime = currentTime;
 	if (ball.starting === true)
 		resetBall(ball);
 	draw_bg();
@@ -195,9 +208,9 @@ function draw()
 		resetBall(ball);
 		ball.first_collision = false;
 	}
-	drawPaddle(left_paddle);
-	drawPaddle(right_paddle);
-	drawBall(ball);
+	drawPaddle(left_paddle, delta);
+	drawPaddle(right_paddle, delta);
+	drawBall(ball, delta);
 	requestAnimationFrame(draw);
 }
 
@@ -225,7 +238,7 @@ function keyUpHandler(event)
 		left_paddle.down = false;
 }
 
-function drawBall(ball: Ball)
+function drawBall(ball: Ball, delta: number)
 {
 	context.beginPath();
 	// context.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
@@ -233,10 +246,11 @@ function drawBall(ball: Ball)
 	context.fillRect(ball.x, ball.y, ball.r, ball.r);
 	context.fill();
 	context.closePath();
-	ball.x += ball.xVel;
-	ball.y += ball.yVel;
+	ball.x += ball.xVel * delta;
+	ball.y += ball.yVel * delta;
 }
 
 document.addEventListener('keydown', keyDownHandler, false);
 document.addEventListener('keyup', keyUpHandler, false);
-draw();
+// requestAnimationFrame(draw);
+draw(lastTime);
