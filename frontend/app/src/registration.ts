@@ -94,21 +94,23 @@ async function checkSession() {
 }
 
 // Attach it to window
-window.handleCredentialResponse = (response) => {
-	// Example: send the credential to your backend
-	fetch(backend_url + "/auth/google-login", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ token: response.credential }),
-		credentials: "include"
-	})
-	.then(res => res.json())
-	.then(data => {
-		console.log("Backend response:", data)
-		checkSession()
-	})
-	.catch(err => console.error("Error sending token to backend:", err));
-};
+if (!window.handleCredentialResponse) {
+	window.handleCredentialResponse = (response) => {
+		// Example: send the credential to your backend
+		fetch(backend_url + "/auth/google-login", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ token: response.credential }),
+			credentials: "include"
+		})
+		.then(res => res.json())
+		.then(data => {
+			console.log("Backend response:", data)
+			checkSession()
+		})
+		.catch(err => console.error("Error sending token to backend:", err));
+	};
+}
 
 interface Registration {
     loginButton: HTMLElement | null;

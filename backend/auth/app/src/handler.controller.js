@@ -150,6 +150,7 @@ const endpointHandler = (fastify, options, done) => {
 				}
 				if (user['googleID'] != req.session.user.id || user['email'] != req.session.user.email) {
 					return reply.code(403).send({ error: 'Credentials do not match cookie!' });
+					// return reply.code(403).send({ error: `Credentials do not match cookie! ${user['googleID']} ${req.session.user.id} ${user['email']} ${req.session.user.email}` });
 				}
 				req.session.destroy();
 				return reply.send({ message: "Logged out successfully" });

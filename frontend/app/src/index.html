@@ -40,7 +40,7 @@
     </nav>
 
     <!-- main content -->
-    <main class="container mx-auto mt-16 px-4">
+    <main class="container mx-auto mt-16 px-4" style="height: 100%;">
         <!-- title / play button -->
         <div class="text-center mb-16">
             <h1 class="text-6xl font-bold text-blue-500 mb-4 popout">Welcome to Pongy</h1>
@@ -99,13 +99,13 @@
         </div>
 
         <!-- selection grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 popout">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 popout"">
             <div class="text-center p-6 bg-white rounded-lg shadow-lg clicky">
                 <h3 class="text-xl font-bold text-blue-500 mb-2 clicky">Multiplayer Match</h3>
                 <p>Play online against strangers or friends!</p>
             </div>
             <div class="text-center p-6 bg-white rounded-lg shadow-lg clicky">
-                <h3 class="text-xl font-bold text-blue-500 mb-2 clicky">Leaderboards</h3>
+                <h3 class="text-xl font-bold text-blue-500 mb-2 clicky">Tournaments</h3>
                 <p>Compete for the top spot!</p>
             </div>
             <a href = "game.html" >
@@ -115,16 +115,15 @@
             </div>
             </a>
         </div>
-
-         <!-- footer -->
-         <footer class="mt-16 text-center text-gray-500 text-sm">
-            &copy; 2025 Pongy Nation. No rights reserved at all.
-            <div>
-                <a href="devpage.html">
-                  <button class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 clicky popout" id="to-devpage">Super Secret Dev Page</button>
-                </a>
-            </div>
-        </footer>
     </main>
+	<!-- footer -->
+	<footer class="mt-16 text-center text-gray-500 text-sm" style="position: absolute; bottom: 10px; width: 100%;">
+	&copy; 2025 Pongy Nation. No rights reserved at all.
+		<div class="pt-2">
+			<a href="devpage.html">
+				<button class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 clicky popout" id="to-devpage">Super Secret Dev Page</button>
+			</a>
+		</div>
+	</footer>
 </body>
 </html>
