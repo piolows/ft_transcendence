@@ -4,13 +4,14 @@ services:
     image: alpine:latest
     command: |
       sh -c "
-        chmod -R 777 /front_end /backend_controller /backend_auth /backend_users
+        chmod -R 777 /front_end /backend_controller /backend_auth /backend_users /backend_games
       "
     volumes:
       - front_end:/front_end
       - backend_controller:/backend_controller
-      - backend_users:/backend_users
       - backend_auth:/backend_auth
+      - backend_users:/backend_users
+      - backend_games:/backend_games
 
   frontend:
     container_name: frontend
@@ -74,6 +75,20 @@ services:
     networks:
       - micro-services
 
+  backend_games:
+    container_name: backend_games
+    volumes:
+      - backend_games:/app
+    build: ./backend/games
+    restart: on-failure
+    environment:
+      - NODE_ENV=development
+      - PORT=41612
+      - DB_FILE=/app/src/database/games.db
+      - GAMES_TABLE=games
+    networks:
+      - micro-services
+
 volumes:
   front_end:
     name: front_end
@@ -102,6 +117,13 @@ volumes:
     driver_opts:
       type: none
       device: ${PWD}/backend/controller/app
+      o: bind
+  backend_games:
+    name: backend_games
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/backend/games/app
       o: bind
 
 networks:
