@@ -1,8 +1,11 @@
-import sect_navbar from "../components/nav_bar";
-import sect_title from "../components/main_title";
-import sect_menu from "../components/menu";
-import sect_footer from "../components/footer";
+import Webpage from "../scripts/router";
+import title from "../components/main_title";
+import navbar from "../components/nav_bar";
+import footer from "../components/footer";
+import menu from "../components/menu";
 
-export default function page_home() {
-	return sect_navbar() + "<div class=\"container mx-auto mt-16 px-4\">" + sect_title() + sect_menu() + "</div>" + sect_footer();
+export default class Homepage implements Webpage {
+	load(app: HTMLDivElement | HTMLElement) {
+		app.innerHTML = navbar() + "<div class=\"container mx-auto mt-16 px-4\">" + title() + menu() + "</div>" + footer();
+	}
 }

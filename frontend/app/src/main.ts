@@ -1,49 +1,21 @@
-import page_dev from "./pages/dev";
-import page_home from "./pages/home";
-import page_pong from "./pages/pong";
-import page_login from "./pages/login";
-import page_signup from "./pages/signup";
+import { Router } from "./scripts/router";
+import ErrorHandler from "./pages/error";
+import Homepage from "./pages/home";
+import Roshambo from "./pages/roshambo";
+import SignUp from "./pages/signup";
+import Login from "./pages/login";
+import Pong from "./pages/pong";
+import Dev from "./pages/dev";
 
-class Router {
-	
-}
+const app_div = document.querySelector<HTMLDivElement>("#app");
 
-var app_div = document.querySelector<HTMLDivElement>("#app");
+const router = new Router(app_div, new ErrorHandler());
 
-// Simple router: maps paths to components
-const routes: Record<string, () => string> = {
-  "/": page_home,
-  "/dev": page_dev,
-  "/pong": page_pong,
-  "/roshambo": page_pong,
-  "/login": page_login,
-  "/signup": page_signup,
-};
+router.add_route("/", new Homepage());
+router.add_route("/dev", new Dev());
+router.add_route("/pong", new Pong());
+router.add_route("/roshambo", new Roshambo());
+router.add_route("/login", new Login());
+router.add_route("/signup", new SignUp());
 
-// Render a route into #app
-function navigateTo(path: string) {
-  const viewFn = routes[path] || (() => "<h1>404 Not Found</h1>");
-  app_div!.innerHTML = viewFn();
-
-  // Push state so back/forward buttons work
-  history.pushState({ path }, "", path);
-}
-
-// Handle back/forward buttons
-window.onpopstate = (event) => {
-	const path = event.state?.path || "/";
-	const viewFn = routes[path] || (() => "<h1>404 Not Found</h1>");
-	app_div!.innerHTML = viewFn();
-};
-
-// Intercept clicks on <a data-link>
-document.addEventListener("click", (e) => {
-  const target = e.target as HTMLAnchorElement;
-  if (target.matches("[data-link]")) {
-    e.preventDefault();
-    navigateTo(target.getAttribute("href")!);
-  }
-});
-
-// Initial load
-navigateTo(location.pathname);
+router.route(location.pathname);

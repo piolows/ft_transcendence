@@ -1,4 +1,4 @@
-import "./styles.css";
+import "../styles.css";
 
 var backend_url = "http://localhost:4161";
 

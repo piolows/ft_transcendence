@@ -1,7 +1,10 @@
-import sect_navbar from "../components/nav_bar";
+import Webpage from "../scripts/router";
+import navbar from "../components/nav_bar";
 
-export default function page_dev() {
-	return sect_navbar() + `<!-- main content -->
+export default class Dev implements Webpage {
+	load(app: HTMLDivElement | HTMLElement) {
+		app.innerHTML = navbar() + `
+	<!-- main content -->
     <main class="container mx-auto mt-8 px-4">
         <section class="mb-16">
             <h2 class="text-5xl font-bold mb-10 text-center">Effects Showcase</h3>
@@ -78,4 +81,5 @@ export default function page_dev() {
     <footer class="text-center pb-8">
         <p class="rainbow">Footer! Goodbye.</p>
     </footer>`;
+	}
 }

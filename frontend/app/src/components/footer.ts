@@ -1,4 +1,4 @@
-export default function sect_footer() {
+export default function footer() {
 	return `<!-- footer -->
 	<footer class="mt-16 text-center text-gray-500 text-sm py-5 mt-15" style="bottom: 0px; width: 100%;">
 	&copy; 2025 Pongy Nation. No rights reserved at all.
