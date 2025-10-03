@@ -50,10 +50,10 @@ class Paddle
 
 console.log("This script is written in TypeScript!");
 
-const cv = document.getElementById("gameCanvas");
-const context = cv.getContext('2d');
-const p1_score = document.getElementById("p1_score");
-const p2_score = document.getElementById("p2_score");
+const cv = document.getElementById("gameCanvas") as HTMLCanvasElement;
+const context = cv.getContext('2d')!;
+const p1_score = document.getElementById("p1_score")!;
+const p2_score = document.getElementById("p2_score")!;
 context.fillStyle = 'black';
 context.fillRect(0, 0, cv.width, cv.height);
 
@@ -181,7 +181,7 @@ function draw_bg()
 	// context.drawImage(image, 0, 0, cv.width, cv.height);
 }
 
-function draw(currentTime)
+function draw(currentTime: number)
 {
 	const delta = (currentTime - lastTime) / 15;
 	lastTime = currentTime;
@@ -214,7 +214,7 @@ function draw(currentTime)
 	requestAnimationFrame(draw);
 }
 
-function keyDownHandler(event)
+function keyDownHandler(event: any)
 {
 	if (event.key == 'ArrowUp')
 		right_paddle.up = true;
@@ -226,7 +226,7 @@ function keyDownHandler(event)
 		left_paddle.down = true;
 }
 
-function keyUpHandler(event)
+function keyUpHandler(event: any)
 {
 	if (event.key == 'ArrowUp')
 		right_paddle.up = false;

@@ -13,7 +13,6 @@ export default class Pong implements Webpage {
 			<div id="p2_score" class="hidden">0</div>
 			<div id="parent-container" class="flex justify-center">
 				<canvas id="gameCanvas" width="800" height="600"></canvas>
-			</div>
-			<script type="module" src="./game.ts" async=true></script>`;
+			</div>`;
 	}
 }

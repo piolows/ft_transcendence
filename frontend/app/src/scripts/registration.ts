@@ -41,7 +41,7 @@ function showLoginButton() {
 	if (logoutBtn) logoutBtn.style.display = "none";
 }
 
-async function logoutSession(): void {
+async function logoutSession() {
   try {
     const res = await fetch(backend_url + "/auth/me", {
     	credentials: "include"
