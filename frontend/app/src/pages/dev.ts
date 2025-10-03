@@ -1,22 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dev Page</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
+import sect_navbar from "../components/nav_bar";
 
-<body class="font-sixty min-h-screen bg-red-100">
-    <!-- nav bar -->
-    <nav class="bg-blue-500 p-4 text-white">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold popout crt-text">Dev Page</h1>
-            <a href="./index.html" class="bg-white text-blue-500 px-4 py-2 rounded hover:bg-blue-100 clicky">Back to Landing</a>
-        </div>
-    </nav>
-
-    <!-- main content -->
+export default function page_dev() {
+	return sect_navbar() + `<!-- main content -->
     <main class="container mx-auto mt-8 px-4">
         <section class="mb-16">
             <h2 class="text-5xl font-bold mb-10 text-center">Effects Showcase</h3>
@@ -92,6 +77,5 @@
 
     <footer class="text-center pb-8">
         <p class="rainbow">Footer! Goodbye.</p>
-    </footer>
-</body>
-</html>
+    </footer>`;
+}
