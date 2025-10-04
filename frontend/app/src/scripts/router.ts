@@ -4,6 +4,8 @@ export default interface Webpage {
 	unload?(): void;
 }
 
+export var backend_url = "http://localhost:4161";
+
 class DefaultErrorPage implements Webpage {
 	load(app: HTMLDivElement | HTMLElement, err_code: string = "404") {
 		app.innerHTML = `
@@ -55,8 +57,8 @@ export class Router {
 			this.currpage = this.errpage;
 		} else {
 			this.currpage = this.routes.get(path) ?? null;
-			this.currpage?.init?.();
 			this.currpage?.load(this.app);
+			this.currpage?.init?.();
 		}
 		if (push)
 			history.pushState({ route: path }, '', path);

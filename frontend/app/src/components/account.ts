@@ -12,8 +12,8 @@ export default function account() {
 				</div>
 				<div class="flex space-x-4">
 					<button id="logout-button" class="hover:text-blue-200 clicky" style="display: none;" onclick="logoutSession()">Logout</button>
-					<button id="login-button" class="hover:text-blue-200 clicky">Login</button>
-					<button id="signup-button" class="bg-white text-blue-500 px-4 py-2 rounded hover:bg-blue-100 clicky">Sign Up</button>
+					<a href="/login"><button id="login-button" class="hover:text-blue-200 clicky">Login</button></a>
+					<a href="/register"><button id="signup-button" class="bg-white text-blue-500 px-4 py-2 rounded hover:bg-blue-100 clicky">Sign Up</button></a>
 				</div>
 			</div>`;
 }
