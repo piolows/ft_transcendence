@@ -4,7 +4,7 @@ import navbar from "../components/nav_bar";
 import footer from "../components/footer";
 import menu from "../components/menu";
 
-export default class Homepage implements Webpage {
+export default class PongMenu implements Webpage {
 	private router: Router;
 
 	constructor(router: Router) {
@@ -13,9 +13,8 @@ export default class Homepage implements Webpage {
 
 	load(app: HTMLDivElement | HTMLElement) {
 		let cards = [
-			["Roshambo Game", "Challenge your opponent in a 1 on 1 game of Rock, Paper, Scissors."],
-			["Tournaments", "Compete for the top spot in a multiple-round elimination-style tournament!"],
-			["Pong Game", "Play the recreation of the classic pong game from 1985.", "/pong/menu"]
+			["VS Player", "Play against a human opponent locally on the same device.", "/pong"],
+			["VS Bot", "Play against AI opponent and practice your pong skills."],
 		];
 		app.innerHTML = navbar(this.router.is_logged_in()) + "<div class=\"container mx-auto mt-16 px-4\">" + title() + menu(cards) + "</div>" + footer();
 	}
