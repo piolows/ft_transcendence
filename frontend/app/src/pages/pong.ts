@@ -2,6 +2,8 @@ import Webpage from "../scripts/router";
 import { Ball, Paddle, start_game } from "../scripts/game";
 
 export default class Pong implements Webpage {
+	private end_game: () => void = () => {};
+
 	load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML = 
 			`<a href = "/">
@@ -28,12 +30,10 @@ export default class Pong implements Webpage {
 		const left_paddle = new Paddle(90, 20, 20, (cv.height - 90) / 2, 10, 'orange');
 		const right_paddle = new Paddle(90, 20, cv.width - (20 * 2), (cv.height - 90) / 2, 10, 'red');
 		
-		start_game(cv, ball, left_paddle, right_paddle, p1_score, p2_score);
+		this.end_game = start_game(cv, ball, left_paddle, right_paddle, p1_score, p2_score);
 	}
 
-	// unload() {
-	// 	document.addEventListener('keydown', keyDownHandler, false);
-	// 	document.addEventListener('keyup', keyUpHandler, false);
-	// 	document.removeEventListener('keydown', keyDown);
-	// }
+	unload() {
+		this.end_game();
+	}
 }

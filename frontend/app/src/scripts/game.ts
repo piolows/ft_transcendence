@@ -177,7 +177,9 @@ function drawBall(cv: HTMLCanvasElement, ball: Ball, delta: number)
 }
 
 export function start_game(cv: HTMLCanvasElement, ball: Ball, left_paddle: Paddle, right_paddle: Paddle, p1_score: HTMLDivElement, p2_score: HTMLDivElement) {
+
 	let lastTime = performance.now();
+	let animationId: number;
 
 	function keyDownHandler(event: any)
 	{
@@ -236,8 +238,15 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_paddle: Paddl
 		drawPaddle(cv, left_paddle, delta);
 		drawPaddle(cv, right_paddle, delta);
 		drawBall(cv, ball, delta);
-		requestAnimationFrame(draw);
+		animationId = requestAnimationFrame(draw);
 	}
 
-	requestAnimationFrame(draw);
+	animationId = requestAnimationFrame(draw);
+
+	// Return a controller to stop the game
+    return () => {
+            cancelAnimationFrame(animationId);
+            document.removeEventListener('keydown', keyDownHandler);
+            document.removeEventListener('keyup', keyUpHandler);
+        };
 }
