@@ -1,4 +1,5 @@
 import Webpage from "../scripts/router";
+import { Ball, Paddle, start_game } from "../scripts/game";
 
 export default class Pong implements Webpage {
 	load(app: HTMLDivElement | HTMLElement) {
@@ -15,4 +16,24 @@ export default class Pong implements Webpage {
 				<canvas id="gameCanvas" width="800" height="600"></canvas>
 			</div>`;
 	}
+
+	init() {
+		const cv = document.getElementById("gameCanvas") as HTMLCanvasElement;
+		const context = cv.getContext('2d')!;
+		context.fillStyle = 'black';
+		context.fillRect(0, 0, cv.width, cv.height);
+		const p1_score = document.getElementById("p1_score")! as HTMLDivElement;
+		const p2_score = document.getElementById("p2_score")! as HTMLDivElement;
+		const ball = new Ball(cv.width / 2, cv.height / 2, 10, 15, 'white');
+		const left_paddle = new Paddle(90, 20, 20, (cv.height - 90) / 2, 10, 'orange');
+		const right_paddle = new Paddle(90, 20, cv.width - (20 * 2), (cv.height - 90) / 2, 10, 'red');
+		
+		start_game(cv, ball, left_paddle, right_paddle, p1_score, p2_score);
+	}
+
+	// unload() {
+	// 	document.addEventListener('keydown', keyDownHandler, false);
+	// 	document.addEventListener('keyup', keyUpHandler, false);
+	// 	document.removeEventListener('keydown', keyDown);
+	// }
 }
