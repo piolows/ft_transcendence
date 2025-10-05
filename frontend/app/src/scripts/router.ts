@@ -30,6 +30,7 @@ export class Router {
 		// Handle back/forward buttons
 		window.onpopstate = (event) => {
 			const path = event.state?.route || "/";
+			console.log(event.state.route);
 			this.route(path, false);
 		};
 

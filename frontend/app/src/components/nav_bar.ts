@@ -1,3 +1,4 @@
+import { isConstructorDeclaration, isInterfaceDeclaration } from "typescript";
 import account from "./account";
 
 export default function navbar(loggedin: boolean, site_title?: string) {
