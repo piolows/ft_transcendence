@@ -1,85 +1,143 @@
-import Webpage from "../scripts/router";
+import { Router, backend_url } from "../scripts/router";
 import navbar from "../components/nav_bar";
+import Webpage from "../scripts/router";
 
 export default class Dev implements Webpage {
+	private router: Router;
+	
+	constructor(router: Router) {
+		this.router = router;
+	}
+
 	load(app: HTMLDivElement | HTMLElement) {
-		app.innerHTML = navbar() + `
-	<!-- main content -->
-    <main class="container mx-auto mt-8 px-4">
-        <section class="mb-16">
-            <h2 class="text-5xl font-bold mb-10 text-center">Effects Showcase</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button class="bg-green-500 text-white py-2 px-4 rounded clicky">Clicky effect</button>
-                <button class="bg-yellow-500 text-white py-2 px-4 rounded popout">Popout effect</button>
-                <button class="bg-red-500 text-white py-2 px-4 rounded goodbye">Goodbye effect</button>
-            </div>
-        </section>
+		app.innerHTML = navbar(this.router.is_logged_in()) + `
+			<!-- main content -->
+			<main class="container mx-auto mt-8 px-4">
+				<section class="mb-16">
+					<h2 class="text-5xl font-bold mb-10 text-center">Effects Showcase</h3>
+					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+						<button class="bg-green-500 text-white py-2 px-4 rounded clicky">Clicky effect</button>
+						<button class="bg-yellow-500 text-white py-2 px-4 rounded popout">Popout effect</button>
+						<button class="bg-red-500 text-white py-2 px-4 rounded goodbye">Goodbye effect</button>
+					</div>
+				</section>
 
-        <!-- text effects -->
-        <section class="mb-16">
-            <h2 class="text-2xl select-none font-bold mb-6 retro-shadow">Text Effects</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="text-center p-4">
-                    <h3 class="rainbow mb-4">Rainbow Text</h3>
-                    <p class="glitch text-xl mb-4">Glitch Effect (hover)</p>
-                    <p class="crt-text text-xl mb-4">CRT Text Effect</p>
-                    <p class="blinker text-xl">Blinking Text</p>
-                </div>
-                <div class="text-center p-4">
-                    <h3 class="wiggler text-xl mb-4">Wiggle Effect (hover)</h3>
-                    <p class="retro-shadow text-xl mb-4">Retro Shadow</p>
-                    <div class="overflow-hidden">
-                        <p class="marquee-text text-xl">Marque text like the one we saw at F1 crazy right</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+				<!-- text effects -->
+				<section class="mb-16">
+					<h2 class="text-2xl select-none font-bold mb-6 retro-shadow">Text Effects</h2>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+						<div class="text-center p-4">
+							<h3 class="rainbow mb-4">Rainbow Text</h3>
+							<p class="glitch text-xl mb-4">Glitch Effect (hover)</p>
+							<p class="crt-text text-xl mb-4">CRT Text Effect</p>
+							<p class="blinker text-xl">Blinking Text</p>
+						</div>
+						<div class="text-center p-4">
+							<h3 class="wiggler text-xl mb-4">Wiggle Effect (hover)</h3>
+							<p class="retro-shadow text-xl mb-4">Retro Shadow</p>
+							<div class="overflow-hidden">
+								<p class="marquee-text text-xl">Marque text like the one we saw at F1 crazy right</p>
+							</div>
+						</div>
+					</div>
+				</section>
 
-        <!-- box styles -->
-        <section class="mb-16">
-            <h2 class="text-2xl font-bold mb-6 retro-shadow">Box Styles</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="retro-border bg-white p-6 text-center">
-                    <p>Retro Border Box</p>
-                </div>
-                <div class="pixel-box bg-white p-6 text-center">
-                    <p>Pixel Box Style</p>
-                </div>
-                <div class="scanline-effect bg-white p-6 text-center">
-                    <p>Scanline Effect</p> <!-- not really working -->
-                </div>
-            </div>
-        </section>
+				<!-- box styles -->
+				<section class="mb-16">
+					<h2 class="text-2xl font-bold mb-6 retro-shadow">Box Styles</h2>
+					<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+						<div class="retro-border bg-white p-6 text-center">
+							<p>Retro Border Box</p>
+						</div>
+						<div class="pixel-box bg-white p-6 text-center">
+							<p>Pixel Box Style</p>
+						</div>
+						<div class="scanline-effect bg-white p-6 text-center">
+							<p>Scanline Effect</p> <!-- not really working -->
+						</div>
+					</div>
+				</section>
 
-        <!-- combination demos -->
-        <section class="mb-16">
-            <h2 class="text-2xl font-bold mb-6 retro-shadow">Combined Effects</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="pixel-box bg-white p-6 scanline-effect">
-                    <h3 class="rainbow wiggler mb-4">Super crazy wazy box</h3>
-                    <p class="crt-text">With like many effects</p>
-                </div>
-                <div class="retro-border bg-white p-6">
-                    <h3 class="glitch blinker mb-4">Crazy wazy colorzy box</h3>
-                    <p class="retro-shadow">With cool stuff</p>
-                </div>
-            </div>
-        </section>
+				<!-- combination demos -->
+				<section class="mb-16">
+					<h2 class="text-2xl font-bold mb-6 retro-shadow">Combined Effects</h2>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+						<div class="pixel-box bg-white p-6 scanline-effect">
+							<h3 class="rainbow wiggler mb-4">Super crazy wazy box</h3>
+							<p class="crt-text">With like many effects</p>
+						</div>
+						<div class="retro-border bg-white p-6">
+							<h3 class="glitch blinker mb-4">Crazy wazy colorzy box</h3>
+							<p class="retro-shadow">With cool stuff</p>
+						</div>
+					</div>
+				</section>
 
-        <!-- typography -->
-        <section class="mb-16">
-            <h2 class="text-2xl font-bold mb-6 retro-shadow">Typography</h2>
-            <div class="space-y-4">
-                <h3 class="custom_header rainbow">Header Style</h3>
-                <h4 class="custom_subheader crt-text">Subheader Style</h4>
-                <p class="custom_text glitch">Regular Text Style</p>
-                <p class="custom_smalltext retro-shadow">Small Text Style</p>
-            </div>
-        </section>
-    </main>
+				<!-- typography -->
+				<section class="mb-16">
+					<h2 class="text-2xl font-bold mb-6 retro-shadow">Typography</h2>
+					<div class="space-y-4">
+						<h3 class="custom_header rainbow">Header Style</h3>
+						<h4 class="custom_subheader crt-text">Subheader Style</h4>
+						<p class="custom_text glitch">Regular Text Style</p>
+						<p class="custom_smalltext retro-shadow">Small Text Style</p>
+					</div>
+				</section>
+			</main>
 
-    <footer class="text-center pb-8">
-        <p class="rainbow">Footer! Goodbye.</p>
-    </footer>`;
+			<footer class="text-center pb-8">
+				<p class="rainbow">Footer! Goodbye.</p>
+			</footer>`;
+	}
+
+	init() {
+		if (!this.router.is_logged_in()) {
+			google.accounts.id.renderButton(
+				document.getElementById("google-login-button")!,
+				{ theme: "outline", size: "large" }
+			);
+		}
+		else {
+			fetch(backend_url + "/auth/me", {
+				credentials: "include", // VERY IMPORTANT! Sends cookies with request
+			}).then(async (res) => {
+				const data = await res.json();
+
+				if (data.loggedIn) {
+					const profile = document.getElementById('profile-info');
+					const pfp = document.getElementById('pfp') as HTMLImageElement;
+					const uname = document.getElementById('uname');
+					const umail = document.getElementById('umail');
+					profile && (profile.style.display = "block");
+					pfp && (pfp.src = data.user.avatarURL);
+					uname && (uname.innerText = data.user.username);
+					umail && (umail.innerText = data.user.email);
+				}
+			}).catch ((err) => {
+				console.error("Failed to check session:", err);
+			});
+				
+			const logout = document.getElementById("logout-button") as HTMLButtonElement;
+
+			logout.onclick = async () => {
+				try {
+					const res = await fetch(backend_url + "/auth/me", {
+						credentials: "include"
+					});
+					const data = await res.json();
+
+					if (data.loggedIn) {
+						await fetch(backend_url + "/auth/logout", {
+							method: "POST",
+							body: JSON.stringify({}),
+							credentials: "include"
+						})
+					}
+					this.router.route("/", true);
+				} catch (err) {
+					console.error("Failed to log out:", err);
+				}
+			}
+		}
 	}
 }

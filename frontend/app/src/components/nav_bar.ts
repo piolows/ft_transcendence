@@ -1,7 +1,7 @@
 import account from "./account";
 
-export default function navbar(site_title?: string) {
-	const log_sect = account();
+export default function navbar(loggedin: boolean, site_title?: string) {
+	const log_sect = account(loggedin);
 
 	return `<!-- nav bar -->
     <nav class="bg-blue-500 p-4 text-white">

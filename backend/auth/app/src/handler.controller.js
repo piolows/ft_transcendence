@@ -91,6 +91,9 @@ const endpointHandler = (fastify, options, done) => {
 			if (!user) {
 				return reply.code(404).send({ error: "User not found" });
 			}
+			if (user['password'] == null) {
+				return reply.code(402).send({ error: "Account only registered through google sign-in, try signing up with the same email" });
+			}
 			if (user['password'] != req.body.password) {
 				return reply.code(403).send({ error: "Wrong password!" });
 			}
@@ -109,8 +112,12 @@ const endpointHandler = (fastify, options, done) => {
 			if (req.session.user) {
 				req.session.user = null;
 			}
-			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=? OR email=?`).get(req.body.username, req.body.email);
+			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`).get(req.body.username);
 			if (user) {
+				return reply.code(403).send({ error: 'User already exists!' });
+			}
+			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
+			if (user && user['password'] != null) {
 				return reply.code(403).send({ error: 'User already exists!' });
 			}
 			if (req.body.username.length < 3 || req.body.username.length > 20) {
@@ -128,7 +135,10 @@ const endpointHandler = (fastify, options, done) => {
 				return reply.code(400).send({ error: 'Invalid email' });
 			}
 			const avatarURL = req.body.avatarURL && req.body.avatarURL != "" ? req.body.avatarURL : process.env.DEFAULT_PIC;
-			await fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username, email, password, avatarURL) VALUES (?, ?, ?, ?)`).run(req.body.username, req.body.email, req.body.password, avatarURL);
+			if (user)
+				await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(req.body.username, req.body.email, req.body.password, avatarURL, req.body.email);
+			else
+				await fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username, email, password, avatarURL) VALUES (?, ?, ?, ?)`).run(req.body.username, req.body.email, req.body.password, avatarURL);
 			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: avatarURL };
 			return reply.send({ message: "Logged in successfully" });
@@ -143,19 +153,9 @@ const endpointHandler = (fastify, options, done) => {
 				return reply.code(401).send({ error: 'Not logged in!' });
 			}
 			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=? OR email=?`).get(req.session.user.username, req.session.user.email);
-			if (!user) {
-				user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.GOOGLE_AUTH_TABLE} WHERE username=? OR email=?`).get(req.session.user.username, req.session.user.email);
-				if (!user) {
-					return reply.code(404).send({ error: 'User not found!' });
-				}
-				if (user['googleID'] != req.session.user.id || user['email'] != req.session.user.email) {
-					return reply.code(403).send({ error: 'Credentials do not match cookie!' });
-					// return reply.code(403).send({ error: `Credentials do not match cookie! ${user['googleID']} ${req.session.user.id} ${user['email']} ${req.session.user.email}` });
-				}
-				req.session.destroy();
-				return reply.send({ message: "Logged out successfully" });
-			}
-			if (user['id'] != req.session.user.id || user['username'] != req.session.user.username) {
+			if (!user)
+				return reply.code(404).send({ error: 'User not found!' });
+			if (user['id'] != req.session.user.id || user['username'] != req.session.user.username || user['email'] != req.session.user.email) {
 				return reply.code(403).send({ error: 'Credentials do not match cookie!' });
 			}
 			req.session.destroy();
@@ -203,16 +203,16 @@ const endpointHandler = (fastify, options, done) => {
 			const { sub, email, name, picture } = payload;
 
 			// Upsert user in database
-			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.GOOGLE_AUTH_TABLE} WHERE email=?`).get(email);
+			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(email);
 
 			if (!user) {
-				await fastify.sqlite.prepare(`INSERT INTO ${process.env.GOOGLE_AUTH_TABLE} (googleID, username, email, avatarURL) VALUES (?, ?, ?, ?)`)
-					.run(sub, name, email, picture);
-				user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.GOOGLE_AUTH_TABLE} WHERE email=?`).get(email);
+				await fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username, email, password, avatarURL) VALUES (?, ?, ?, ?)`)
+					.run(name, email, null, picture);
+				user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(email);
 			}
 
 			// Create a session (just like normal login)
-			req.session.user = { id: user['googleID'], username: user['username'], email: user['email'], avatarURL: user['avatarURL'] };
+			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: user['avatarURL'] };
 			reply.send({ success: true, user, message: "Logged in successfully" });
 		} catch (error) {
 			return reply.send(error);

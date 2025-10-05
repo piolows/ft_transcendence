@@ -56,7 +56,6 @@ services:
       - DB_FILE=/app/src/database/auth.db
       - USERS_TABLE=users
       - DEFAULT_PIC=https://lumiere-a.akamaihd.net/v1/images/character_themuppets_kermit_b77a431b.jpeg
-      - GOOGLE_AUTH_TABLE=gauth
       - SESSION_SECRET=${SESSION_SECRET}
     networks:
       - micro-services
