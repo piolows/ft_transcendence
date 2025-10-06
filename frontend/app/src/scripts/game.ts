@@ -282,10 +282,10 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_paddle: Paddl
 			resetBall(cv, ball);
 			ball.first_collision = false;
 		}
+		bot?.update();
 		drawPaddle(cv, left_paddle, delta);
 		drawPaddle(cv, right_paddle, delta);
 		drawBall(cv, ball, delta);
-		bot?.update();
 		animationId = requestAnimationFrame(draw);
 	}
 
