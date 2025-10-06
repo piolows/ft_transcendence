@@ -50,6 +50,55 @@ export class Paddle
 	}
 };
 
+export class Bot {
+	private cv: HTMLCanvasElement;
+	private paddle: Paddle;
+	private ball: Ball;
+	private difficulty: number;
+
+	constructor(cv: HTMLCanvasElement, paddle: Paddle, ball: Ball, difficulty: number) {
+		this.cv = cv;
+		this.paddle = paddle;
+		this.ball = ball;
+		this.difficulty = difficulty;
+	}
+
+	update() {
+		const easy = 0, medium = 1, hard = 2, impossible = 3;
+		let range: any;
+		switch (this.difficulty) {
+			case easy:
+				range = 0.35;
+				break;
+			case medium:
+				range = 0.5;
+				break;
+			case hard:
+				range = 0.7;
+				break;
+			case impossible:
+				range = 1;
+				break;
+			default:
+				range = 1;
+				break;
+		}
+		this.paddle.up = false;
+		this.paddle.down = false;
+		if (this.ball.x >= this.cv.width - this.cv.width * range) {
+			console.log("Within range!");
+			if (this.ball.yVel > 0 && this.ball.y + this.ball.yVel >= this.paddle.yPos + this.paddle.height / 2) {
+				this.paddle.down = true;
+				this.paddle.up = false;
+			}
+			if (this.ball.yVel < 0 && this.ball.y + this.ball.yVel <= this.paddle.yPos + this.paddle.height / 2) {
+				this.paddle.down = false;
+				this.paddle.up = true;
+			}
+		}
+	}
+}
+
 function drawPaddle(cv: HTMLCanvasElement, paddle: Paddle, delta: number)
 {
 	if (paddle.up)
@@ -176,16 +225,16 @@ function drawBall(cv: HTMLCanvasElement, ball: Ball, delta: number)
 	ball.y += ball.yVel * delta;
 }
 
-export function start_game(cv: HTMLCanvasElement, ball: Ball, left_paddle: Paddle, right_paddle: Paddle, p1_score: HTMLDivElement, p2_score: HTMLDivElement) {
+export function start_game(cv: HTMLCanvasElement, ball: Ball, left_paddle: Paddle, right_paddle: Paddle, p1_score: HTMLDivElement, p2_score: HTMLDivElement, bot: Bot | null = null) {
 
 	let lastTime = performance.now();
 	let animationId: number;
 
 	function keyDownHandler(event: any)
 	{
-		if (event.key == 'ArrowUp')
+		if (event.key == 'ArrowUp' && !bot)
 			right_paddle.up = true;
-		else if (event.key == 'ArrowDown')
+		else if (event.key == 'ArrowDown' && !bot)
 			right_paddle.down = true;
 		if (event.key == 'w' || event.key == 'W')
 			left_paddle.up = true;
@@ -195,9 +244,9 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_paddle: Paddl
 
 	function keyUpHandler(event: any)
 	{
-		if (event.key == 'ArrowUp')
+		if (event.key == 'ArrowUp' && !bot)
 			right_paddle.up = false;
-		else if (event.key == 'ArrowDown')
+		else if (event.key == 'ArrowDown' && !bot)
 			right_paddle.down = false;
 		if (event.key == 'w' || event.key == 'W')
 			left_paddle.up = false;
@@ -223,7 +272,6 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_paddle: Paddl
 		{
 			let current = p1_score.innerHTML;
 			p1_score.innerHTML = (parseInt(current) + 1).toString();
-			// start_game(ball, left_paddle, right_paddle);
 			resetBall(cv, ball);
 			ball.first_collision = false;
 		}
@@ -231,13 +279,13 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_paddle: Paddl
 		{
 			let current = p2_score?.innerHTML;
 			p2_score.innerHTML = (parseInt(current) + 1).toString();
-			// start_game(ball, left_paddle, right_paddle);
 			resetBall(cv, ball);
 			ball.first_collision = false;
 		}
 		drawPaddle(cv, left_paddle, delta);
 		drawPaddle(cv, right_paddle, delta);
 		drawBall(cv, ball, delta);
+		bot?.update();
 		animationId = requestAnimationFrame(draw);
 	}
 

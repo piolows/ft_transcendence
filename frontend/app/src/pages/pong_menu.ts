@@ -13,8 +13,8 @@ export default class PongMenu implements Webpage {
 
 	load(app: HTMLDivElement | HTMLElement) {
 		let cards = [
-			["VS Player", "Play against a human opponent locally on the same device.", "/pong"],
-			["VS Bot", "Play against AI opponent and practice your pong skills."],
+			["VS Player", "Play against a human opponent locally on the same device.", "/pong?op=player"],
+			["VS Bot", "Play against AI opponent and practice your pong skills.", "/pong?op=bot"],
 		];
 		app.innerHTML = navbar(this.router.is_logged_in()) + "<div class=\"container mx-auto mt-16 px-4\">" + title() + menu(cards) + "</div>" + footer();
 	}
