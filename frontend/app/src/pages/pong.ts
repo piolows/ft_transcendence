@@ -32,6 +32,9 @@ export default class Pong implements Webpage {
 			}
 		};
 
+		const ball_speed = 8;
+		const ball_radius = 16;
+		const paddle_speed = 8;
 		const params = new URLSearchParams(location.search);
 		const op = params.get("op");
 		const difficulty = parseInt(params.get("difficulty") ?? "1");
@@ -41,9 +44,9 @@ export default class Pong implements Webpage {
 		context.fillRect(0, 0, cv.width, cv.height);
 		const p1_score = document.getElementById("p1_score")! as HTMLDivElement;
 		const p2_score = document.getElementById("p2_score")! as HTMLDivElement;
-		const ball = new Ball(cv.width / 2, cv.height / 2, 10, 15, 'white');
-		const left_paddle = new Paddle(90, 20, 20, (cv.height - 90) / 2, 10, 'orange');
-		const right_paddle = new Paddle(90, 20, cv.width - (20 * 2), (cv.height - 90) / 2, 10, 'red');
+		const ball = new Ball(cv.width / 2, cv.height / 2, ball_speed, ball_radius, 'white');
+		const left_paddle = new Paddle(90, 20, 20, (cv.height - 90) / 2, paddle_speed, 'orange');
+		const right_paddle = new Paddle(90, 20, cv.width - (20 * 2), (cv.height - 90) / 2, paddle_speed, 'red');
 		const bot = (op == "bot") ? new Bot(cv, right_paddle, ball, difficulty) : null;
 
 		this.end_game = start_game(cv, ball, left_paddle, right_paddle, p1_score, p2_score, bot);

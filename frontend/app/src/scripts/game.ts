@@ -86,14 +86,15 @@ export class Bot {
 		this.paddle.up = false;
 		this.paddle.down = false;
 		if (this.ball.x >= this.cv.width - this.cv.width * range) {
-			console.log("Within range!");
-			if (this.ball.yVel > 0 && this.ball.y + this.ball.yVel >= this.paddle.yPos + this.paddle.height / 2) {
-				this.paddle.down = true;
-				this.paddle.up = false;
-			}
-			if (this.ball.yVel < 0 && this.ball.y + this.ball.yVel <= this.paddle.yPos + this.paddle.height / 2) {
+			if (this.ball.y <= this.paddle.yPos + this.paddle.height / 4) {
+				console.log("Moving up");
 				this.paddle.down = false;
 				this.paddle.up = true;
+			}
+			if (this.ball.y >= this.paddle.yPos + this.paddle.height * 0.75) {
+				console.log("Moving down");
+				this.paddle.down = true;
+				this.paddle.up = false;
 			}
 		}
 	}
@@ -132,8 +133,8 @@ function hit_wall(cv: HTMLCanvasElement, ball: Ball)
 
 function resetBall(cv: HTMLCanvasElement, ball: Ball)
 {
-	ball.x = cv.width / 2 - ball.r / 2 + 1;
-	ball.y = cv.height / 2;
+	ball.x = cv.width / 2 - ball.r / 2;
+	ball.y = cv.height / 2 - ball.r / 2;
 	ball.xVel = 0;
 	ball.yVel = 0;
 	ball.speed = ball.init_speed;
@@ -182,13 +183,13 @@ function hit_paddle(left_paddle: Paddle, right_paddle: Paddle, ball: Ball)
 function draw_bg(cv: HTMLCanvasElement, p1_score: HTMLDivElement, p2_score: HTMLDivElement)
 {
 	const context = cv.getContext('2d')!;
-	const middle_line_width = 5;
+	const middle_line_width = 6;
 	context.clearRect(0, 0, cv.width, cv.height);
 	context.fillStyle = 'black';
 	context.fillRect(0, 0, cv.width, cv.height);
 	// draw center vertical line
 	context.fillStyle = 'white';
-	context.fillRect(cv.width / 2, 0, middle_line_width, cv.height);
+	context.fillRect(cv.width / 2 - middle_line_width / 2, 0, middle_line_width, cv.height);
 
 	// draw the score
 	context.font = "30px SixtyFour";
@@ -204,7 +205,7 @@ function draw_bg(cv: HTMLCanvasElement, p1_score: HTMLDivElement, p2_score: HTML
 
 	context.fillStyle = 'white';
 	context.beginPath();
-	context.arc(cv.width / 2 + 5, cv.height / 2, 100, 0, Math.PI * 2);
+	context.arc(cv.width / 2 + 1, cv.height / 2, 101, 0, Math.PI * 2);
 	context.strokeStyle = 'white';
 	context.lineWidth = 5;
 	context.stroke();
