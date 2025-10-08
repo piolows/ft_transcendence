@@ -148,35 +148,23 @@ function resetBall(cv: HTMLCanvasElement, ball: Ball)
 	ball.starting = false;
 }
 
-function hit_paddle(left_paddle: Paddle, right_paddle: Paddle, ball: Ball)
+function hit_paddle(paddle: Paddle, ball: Ball, is_left: boolean = false)
 {
-	if (ball.y >= left_paddle.yPos && ball.y <= left_paddle.yPos + left_paddle.height  && (ball.x + ball.speed) - ball.r < left_paddle.xPos + left_paddle.width)
+	const future_pos = ball.x + ball.speed + (is_left ? -ball.r : ball.r);
+	if (ball.y >= paddle.yPos && ball.y <= paddle.yPos + paddle.height)
 	{
-		// console.log('ball hit left paddle');
-		const center = left_paddle.yPos + left_paddle.height / 2;
-		const normal_intersect = (ball.y - center) / (left_paddle.height / 2);
-		const angle = normal_intersect * (Math.PI / 4);
-		// const speed = Math.sqrt(ball.xVel**2 + ball.yVel**2);
-		ball.xVel = ball.speed * Math.cos(angle);
-		ball.yVel = ball.speed * Math.sin(angle);
-		// if (ball.first_collision != true)
-		// 	ball.first_collision = true;
-		ball.speed *= 1.05;
-		// ball.xVel *= -1;
-	}
-	if (ball.y >= right_paddle.yPos && ball.y <= right_paddle.yPos + right_paddle.height && (ball.x + ball.speed) + ball.r > right_paddle.xPos)
-	{
-		// console.log('ball hit right paddle');
-		const center = right_paddle.yPos + right_paddle.height / 2;
-		const normal_intersect = (ball.y - center) / (right_paddle.height / 2);
-		const angle = normal_intersect * (Math.PI / 4);
-		// const speed = Math.sqrt(ball.xVel**2 + ball.yVel**2); // constant speed
-		ball.xVel = ball.speed * Math.cos(angle);
-		ball.yVel = ball.speed * Math.sin(angle);
-		// if (ball.first_collision != true)
-		// 	ball.first_collision = true;
-		ball.xVel *= -1;
-		ball.speed *= 1.05;
+		if ((is_left && future_pos < paddle.xPos + paddle.width) 
+		|| (!is_left && future_pos > paddle.xPos))
+		{
+			const center = paddle.yPos + paddle.height / 2;
+			const normal_intersect = (ball.y - center) / (paddle.height / 2);
+			const angle = normal_intersect * (Math.PI / 4);
+			ball.xVel = ball.speed * Math.cos(angle);
+			ball.yVel = ball.speed * Math.sin(angle);
+			ball.speed *= 1.05;
+			if (!is_left)
+				ball.xVel *= -1;
+		}
 	}
 }
 
@@ -265,7 +253,8 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_paddle: Paddl
 		if (ball.starting === true)
 			resetBall(cv, ball);
 		draw_bg(cv, p1_score, p2_score);
-		hit_paddle(left_paddle, right_paddle, ball);	// if the ball touched a paddle
+		hit_paddle(left_paddle, ball, true);	// if the ball touched a paddle
+		hit_paddle(right_paddle, ball);	// if the ball touched a paddle
 		if (ball.y + ball.speed > cv.height - ball.r || ball.y + ball.speed < ball.r)	// ball hit the top or bottom boundaries
 			ball.yVel *= -1;
 		const wherehit = hit_wall(cv, ball);
