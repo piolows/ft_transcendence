@@ -21,6 +21,7 @@ export default function google_button(router: Router)
 		// fetch(backend_url + '/auth/me', {
 		fetch(backend_url + '/auth/me', {
 			credentials: 'include',
+			headers: {'Referrer-Policy': 'no-referrer'}
 		}).then(async (res) => {
 			const data = await res.json();
 

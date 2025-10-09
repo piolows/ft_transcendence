@@ -205,7 +205,30 @@ const endpointHandler = (fastify, options, done) => {
 			// Upsert user in database
 			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(email);
 
+			// const avatarDirectory = path.join(process.cwd(), 'uploads/avatars');
+			// if (!fs.existsSync(avatarDirectory))
+			// 	fs.mkdirSync(avatarDirectory, { recursive: true });
+
+			// let localAvatarPath = '';
+			// add user to the database
 			if (!user) {
+				// const avatarFile = `${sub}.jpg`;
+				// const avatarPath = path.join(avatarDirectory, avatarFile);
+				// const avatarURL = `/avatars/${avatarFile}`;
+
+				// try fetching the avatar from Google and save it
+				// try {
+				// 	const prom = await fetch(picture);
+				// 	if (!prom.ok)
+				// 		throw new Error("Failed to fetch avatar");
+				// 	const buf = await prom.arrayBuffer();
+				// 	fs.writeFileSync(avatarPath, Buffer.from(buf));
+				// 	localAvatarPath = avatarURL;
+				// } catch (error) {
+				// 	localAvatarPath = '/avatars/default.png';
+				// }
+				// await fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username, email, password, avatarURL) VALUES (?, ?, ?, ?)`)
+				// 	.run(name, email, null, localAvatarPath);
 				await fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username, email, password, avatarURL) VALUES (?, ?, ?, ?)`)
 					.run(name, email, null, picture);
 				user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(email);

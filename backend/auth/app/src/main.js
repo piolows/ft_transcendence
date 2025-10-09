@@ -8,6 +8,10 @@ import createSqliteStore from "better-sqlite3-session-store";
 import Database from 'better-sqlite3';
 import 'dotenv/config';
 
+// needed for the user avatar for Google-sign in
+import fastifyStatic from '@fastify/static';
+import path from 'path';
+
 async function startSever() {
 	const fastify = Fastify({
 		logger: true
@@ -16,7 +20,12 @@ async function startSever() {
 	const ONEDAY = 1000 * 60 * 60 * 24;
 	const SqliteStore = createSqliteStore(fastifySession);
 
+	await fastify.register()
 	await fastify.register(fastifyCookie);
+	await fastify.register(fastifyStatic, {
+		root: path.join(process.cwd(), 'uploads/avatars'),
+		prefix: '/avatars/', // URL prefix
+	});
 	await fastify.register(fastifySession, {
 		secret: process.env.SESSION_SECRET,
 		cookie: {
