@@ -23,5 +23,4 @@ export default class Homepage implements Webpage {
 
 	init() {
 		google_button(this.router);
-	}
 }

@@ -45,9 +45,8 @@ export default class SignUp implements Webpage {
 
 			const formData = new FormData(form);
 			const body = Object.fromEntries(formData.entries());
-
 			try {
-				const response = await fetch(`${backend_url}/auth/register`, {
+				const response = await fetch(`${backend_url}/auth/register/`, {
 					method: "POST",
 					credentials: "include", // IMPORTANT for sending/receiving cookies!
 					headers: { "Content-Type": "application/json" },

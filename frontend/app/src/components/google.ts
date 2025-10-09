@@ -1,37 +1,47 @@
 import { Router } from '../scripts/router';
+import { backend_url } from '../scripts/router';
 
 export default function google_button(router: Router)
 {
-	const backend_url = 'https://localhost:4161';
-	if (!router.is_logged_in()) {
+	if (router.is_logged_in())
+		console.log('the user is logged in');
+	else
+		console.log('the user is not logged in');
+	if (router.is_logged_in() === false)
+	{
+		// put the google sign in button
 		google.accounts.id.renderButton(
-			document.getElementById("google-login-button")!,
-			{ theme: "outline", size: "large" }
+			document.getElementById('google-login-button'),
+			{ theme: 'outline', size: 'large' }
 		);
 	}
-	else {
-		fetch(backend_url + "/auth/me", {
-			credentials: "include", // VERY IMPORTANT! Sends cookies with request
+	else
+	{
+		// get information for the user from the backend
+		// fetch(backend_url + '/auth/me', {
+		fetch(backend_url + '/auth/me', {
+			credentials: 'include',
 		}).then(async (res) => {
 			const data = await res.json();
 
-			if (data.loggedIn) {
+			console.log(data);
+			if (data.loggedIn)
+			{
 				const profile = document.getElementById('profile-info');
 				const pfp = document.getElementById('pfp') as HTMLImageElement;
 				const uname = document.getElementById('uname');
 				const umail = document.getElementById('umail');
-				profile && (profile.style.display = "block");
-				pfp && (pfp.src = data.user.avatarURL);
-				uname && (uname.innerText = data.user.username);
-				umail && (umail.innerText = data.user.email);
+				profile && (profile.style.display = "block") && console.log('true');
+				pfp && (pfp.src = data.user.avatarURL) && console.log('true');
+				uname && (uname.innerText = data.user.username) && console.log('true');
+				umail && (umail.innerText = data.user.email) && console.log('true');
 			}
-		}).catch ((err) => {
-			console.error("Failed to check session:", err);
+		}).catch ((error) => {
+			console.log('Failed to check session: ', error);
 		});
-			
-		const logout = document.getElementById("logout-button") as HTMLButtonElement;
+		const logout_button = document.getElementById('logout-button');
 
-		logout.onclick = async () => {
+		logout_button.onclick = async () => {
 			try {
 				const res = await fetch(backend_url + "/auth/me", {
 					credentials: "include"
@@ -45,7 +55,7 @@ export default function google_button(router: Router)
 						credentials: "include"
 					})
 				}
-				this.router.route("/", true);
+				router.route("/", true);
 			} catch (err) {
 				console.error("Failed to log out:", err);
 			}
