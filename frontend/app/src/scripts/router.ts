@@ -4,7 +4,7 @@ export default interface Webpage {
 	unload?(): void;
 }
 
-export var backend_url = "http://localhost:4161";
+export var backend_url = "https://localhost:4161";
 
 class DefaultErrorPage implements Webpage {
 	load(app: HTMLDivElement | HTMLElement, err_code: string = "404") {

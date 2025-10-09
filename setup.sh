@@ -12,4 +12,4 @@ alias dnls='docker network ls'
 alias dvls='docker volume ls'
 
 make
-echo "Services ready and open on localhost:4116"
+echo "Services ready and open on https://localhost"
