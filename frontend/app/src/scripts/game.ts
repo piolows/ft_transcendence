@@ -87,12 +87,10 @@ export class Bot {
 		this.paddle.down = false;
 		if (this.ball.x >= this.cv.width - this.cv.width * range) {
 			if (this.ball.y <= this.paddle.yPos + this.paddle.height / 4) {
-				console.log("Moving up");
 				this.paddle.down = false;
 				this.paddle.up = true;
 			}
 			if (this.ball.y >= this.paddle.yPos + this.paddle.height * 0.75) {
-				console.log("Moving down");
 				this.paddle.down = true;
 				this.paddle.up = false;
 			}
@@ -125,7 +123,6 @@ function hit_wall(cv: HTMLCanvasElement, ball: Ball)
 	if (ball.x + ball.speed < ball.r)
 	{
 		ball.xVel *= -1;
-		console.log('left wall hit');
 		return ('left');
 	}
 	return ('none');
@@ -198,7 +195,6 @@ function draw_bg(cv: HTMLCanvasElement, p1_score: HTMLDivElement, p2_score: HTML
 	context.lineWidth = 5;
 	context.stroke();
 	context.closePath();
-	// context.drawImage(image, 0, 0, cv.width, cv.height);
 }
 
 function drawBall(cv: HTMLCanvasElement, ball: Ball, delta: number)
@@ -214,10 +210,24 @@ function drawBall(cv: HTMLCanvasElement, ball: Ball, delta: number)
 	ball.y += ball.yVel * delta;
 }
 
-export function start_game(cv: HTMLCanvasElement, ball: Ball, left_paddle: Paddle, right_paddle: Paddle, p1_score: HTMLDivElement, p2_score: HTMLDivElement, bot: Bot | null = null) {
+function getTimePlus(timeStr: string) {
+	const time = parseInt(timeStr);
 
+	if (time < 9) {
+		return `0${time + 1}`;
+	}
+	else if (time < 59) {
+		return `${time + 1}`;
+	}
+	return "00";
+}
+
+export function start_game(cv: HTMLCanvasElement, ball: Ball, left_paddle: Paddle, right_paddle: Paddle, p1_score: HTMLDivElement, p2_score: HTMLDivElement, timer: HTMLDivElement, bot: Bot | null = null) {
+	let lastSecond = performance.now();
 	let lastTime = performance.now();
 	let animationId: number;
+	const mins = timer.children[1];
+	const secs = timer.children[2];
 
 	function keyDownHandler(event: any)
 	{
@@ -271,6 +281,16 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_paddle: Paddl
 			p2_score.innerHTML = (parseInt(current) + 1).toString();
 			resetBall(cv, ball);
 			ball.first_collision = false;
+		}
+		// Runs every second
+		if (currentTime - lastSecond >= 1000)
+		{
+			const seconds = parseInt(secs.innerHTML);
+			secs.innerHTML = getTimePlus(secs.innerHTML);
+			if (seconds == 59)
+				mins.innerHTML = getTimePlus(mins.innerHTML);
+			lastSecond = currentTime;
+			//Update bot here
 		}
 		bot?.update();
 		drawPaddle(cv, left_paddle, delta);

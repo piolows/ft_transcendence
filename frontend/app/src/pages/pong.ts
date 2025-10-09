@@ -14,7 +14,14 @@ export default class Pong implements Webpage {
 			<button id="back-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded absolute top-4 left-4">
 				Back
 			</button>
-			<h1 class="text-4xl font-bold text-blue-500 underline italic text-center mb-5">Pongoid</h1>
+			<div class="w-screen flex pb-5 pt-3 items-center justify-center">
+				<div class="flex w-200">
+					<div id="timer" class="my-auto text-blue-800">
+						<label>Timer: </label><label id="minutes">00</label>:<label id="seconds">00</label>
+					</div>
+					<h1 class="text-4xl font-bold text-blue-500 underline italic text-center my-auto ml-20">Pongoid</h1>
+				</div>
+			</div>
 			<div id="p1_score" class="hidden">0</div>
 			<div id="p2_score" class="hidden">0</div>
 			<div id="parent-container" class="flex justify-center">
@@ -44,12 +51,13 @@ export default class Pong implements Webpage {
 		context.fillRect(0, 0, cv.width, cv.height);
 		const p1_score = document.getElementById("p1_score")! as HTMLDivElement;
 		const p2_score = document.getElementById("p2_score")! as HTMLDivElement;
+		const timer = document.getElementById('timer')! as HTMLDivElement;
 		const ball = new Ball(cv.width / 2, cv.height / 2, ball_speed, ball_radius, 'white');
 		const left_paddle = new Paddle(90, 20, 20, (cv.height - 90) / 2, paddle_speed, 'orange');
 		const right_paddle = new Paddle(90, 20, cv.width - (20 * 2), (cv.height - 90) / 2, paddle_speed, 'red');
 		const bot = (op == "bot") ? new Bot(cv, right_paddle, ball, difficulty) : null;
 
-		this.end_game = start_game(cv, ball, left_paddle, right_paddle, p1_score, p2_score, bot);
+		this.end_game = start_game(cv, ball, left_paddle, right_paddle, p1_score, p2_score, timer, bot);
 	}
 
 	unload() {
