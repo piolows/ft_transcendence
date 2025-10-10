@@ -1,12 +1,18 @@
 @import url("https://fonts.googleapis.com/css2?family=Sixtyfour");
 @import url("https://fonts.googleapis.com/css2?family=Workbench");
 @import url("https://fonts.googleapis.com/css2?family=Pixelify+Sans");
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P");
+@import url("https://fonts.googleapis.com/css2?family=VT323");
+@import url("https://fonts.googleapis.com/css2?family=Silkscreen");
 @import "tailwindcss";
 
 @theme {
     --font-sixty: 'Sixtyfour', sans-serif;
     --font-workbench: 'Workbench', sans-serif;
     --font-pixelify: 'Pixelify Sans', sans-serif;
+    --font-pressstart: 'Press Start 2P', cursive;
+    --font-vt323: 'VT323', monospace;
+    --font-silkscreen: 'Silkscreen', cursive;
     --retro-yellow: #FFD700;
     --retro-cyan: #00FFFF;
     --retro-magenta: #FF00FF;
@@ -20,15 +26,15 @@
     font-size: 3rem;
 }
 .custom_subheader {
-    font-family: var(--font-sixty);
+    font-family: var(--font-pressstart);
     font-size: 2rem;
 }
 .custom_text {
-    font-family: var(--font-sixty);
+    font-family: var(--font-silkscreen);
     font-size: 1.5rem;
 }
 .custom_smalltext {
-    font-family: var(--font-sixty);
+    font-family: var(--font-vt323);
     font-size: 1rem;
 }
 
@@ -36,6 +42,11 @@
 @keyframes popout-scale {
     0% { transform: scale(1); }
     50% { transform: scale(1.025); }
+    100% { transform: scale(1); }
+}
+@keyframes popout-scale-huge {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); }
     100% { transform: scale(1); }
 }
 @keyframes glitch {
@@ -79,6 +90,11 @@
 }
 .popout:hover {
     animation: popout-scale 0.75s ease-in-out infinite;
+}
+
+.popout-huge {
+    transition: none;
+    animation: popout-scale-huge 2.5s ease-in-out infinite;
 }
 
 .clicky {
