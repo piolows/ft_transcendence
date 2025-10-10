@@ -1,8 +1,23 @@
 import { OAuth2Client } from 'google-auth-library';
+import * as argon2 from 'argon2';
 import { promises as fs } from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
 import { randomUUID } from 'crypto';
+
+async function hash(password) {
+	try {
+		const hashed = await argon2.hash(password, {
+      type: argon2.argon2id,
+      memoryCost: 65536,     // Memory cost in KiB (e.g., 64MB)
+      timeCost: 3,           // Number of iterations
+      parallelism: 1         // Number of threads
+    });
+		return hashed;
+	} catch(err) {
+		throw err;
+	}
+}
 
 function shortUUID() {
   return randomUUID().replace(/-/g, "").slice(0, 16);
@@ -137,8 +152,8 @@ const endpointHandler = (fastify, options, done) => {
 			if (user['password'] == null) {
 				return reply.code(402).send({ error: "Account only registered through google sign-in, try signing up with the same email" });
 			}
-			if (user['password'] != req.body.password) {
-				return reply.code(403).send({ error: "Wrong password!" });
+			if (!await argon2.verify(user['password'], req.body.password)) {
+				return reply.code(403).send({ error: "Wrong password" });
 			}
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: user['avatarURL'] };
 			return reply.send({ message: "Logged in successfully" });
@@ -156,32 +171,46 @@ const endpointHandler = (fastify, options, done) => {
 				req.session.user = null;
 			}
 			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`).get(req.body.username);
-			if (user) {
-				return reply.code(403).send({ error: 'User already exists!' });
+			if (user && (user['email'] != req.body.email || user['password'] != null)) {
+				return reply.code(403).send({ error: 'User already exists' });
 			}
 			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
 			if (user && user['password'] != null) {
-				return reply.code(403).send({ error: 'User already exists!' });
+				return reply.code(403).send({ error: 'User already exists' });
 			}
-			if (req.body.username.length < 3 || req.body.username.length > 20) {
-				return reply.code(400).send({ error: 'Username length should be between 3-20 characters' });
+			if (req.body.username.length < 3) {
+				return reply.code(400).send({ error: 'Username too short: min 3' });
+			}
+			if (req.body.username.length > 20) {
+				return reply.code(400).send({ error: 'Username too long: max 20' });
 			}
 			const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 			if (!email_regex.test(req.body.email)) {
-				return reply.code(400).send({ error: 'Invalid email' });
+				return reply.code(400).send({ error: 'Invalid email format' });
 			}
-			if (req.body.password.length < 6 || req.body.password.length > 256) {
-				return reply.code(400).send({ error: 'Invalid password length' });
+			if (req.body.password.length < 8) {
+				return reply.code(400).send({ error: 'Password too short: min 8' });
+			}
+			if (req.body.password.length > 64) {
+				return reply.code(400).send({ error: 'Password too long: max 64' });
+			}
+			if (req.body.password.includes(req.body.username) || req.body.password.includes(req.body.email.split('@')[0])) {
+				return reply.code(400).send({ error: 'Unsafe password: Must not contain username or email address' });
+			}
+			const password_regex = /^(?=.{8,64}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9_]).{8,64}$/;
+			if (!password_regex.test(req.body.password)) {
+				return reply.code(400).send({ error: 'Unsafe password: Must contain at least 1 Small letter, 1 Capital letter, 1 Digit and 1 Symbol' });
 			}
 			const url_regex = /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp|svg)(\?.*)?)$/i;
 			if (req.body.avatarURL && !url_regex.test(req.body.avatarURL)) {
 				return reply.code(400).send({ error: 'Invalid email' });
 			}
+			const password = await hash(req.body.password);
 			const avatarURL = req.body.avatarURL && req.body.avatarURL != "" ? req.body.avatarURL : process.env.DEFAULT_PIC;
 			if (user)
-				await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(req.body.username, req.body.email, req.body.password, avatarURL, req.body.email);
+				await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(req.body.username, req.body.email, password, avatarURL, req.body.email);
 			else
-				await fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username, email, password, avatarURL) VALUES (?, ?, ?, ?)`).run(req.body.username, req.body.email, req.body.password, avatarURL);
+				await fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username, email, password, avatarURL) VALUES (?, ?, ?, ?)`).run(req.body.username, req.body.email, password, avatarURL);
 			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: avatarURL };
 			return reply.send({ message: "Logged in successfully" });

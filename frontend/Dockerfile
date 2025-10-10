@@ -11,7 +11,7 @@ COPY ./tools/* /usr/entry
 
 RUN chmod +x /usr/entry/entry.sh
 
-EXPOSE 4116
+EXPOSE 443
 
 USER nodeuser
 

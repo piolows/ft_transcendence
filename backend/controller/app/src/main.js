@@ -3,17 +3,22 @@ import formBody from '@fastify/formbody';
 import endpointHandler from "./handler.controller.js";
 import fastifyCors from "@fastify/cors";
 import 'dotenv/config';
+import fs from "fs";
 
 async function startSever() {
 	const fastify = Fastify({
-		logger: true
+		logger: true,
+		https: {
+			cert: fs.readFileSync("/app/certs/localhost-cert.pem"),
+			key: fs.readFileSync("/app/certs/localhost-key.pem")
+		}
 	});
 
 	await fastify.register(formBody);
 
 	// Enable CORS
 	await fastify.register(fastifyCors, {
-		origin: ["http://localhost:4116"], // allow your frontend
+		origin: [process.env.FRONTEND_URL], // allow your frontend
 		credentials: true,                 // allow cookies / session
 	});
 

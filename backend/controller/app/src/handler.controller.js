@@ -3,7 +3,7 @@ const endpointHandler = (fastify, options, done) => {
 		try {
 			const subPath = req.params["*"] ?? "";
 			const queryString = req.raw.url.includes("?") ? "?" + req.raw.url.split("?")[1] : "";
-			const serviceURI = process.env.AUTH_URI + (process.env.AUTH_URI.endsWith("/") ? "" : "/");
+			const serviceURI = process.env.AUTH_URL + (process.env.AUTH_URL.endsWith("/") ? "" : "/");
 			const URL = `${serviceURI}${subPath}${queryString}`;
 
 			let body = undefined;
@@ -49,7 +49,7 @@ const endpointHandler = (fastify, options, done) => {
 		try {
 			const subPath = "avatars/" + req.params["*"] ?? "";
 			const queryString = req.raw.url.includes("?") ? "?" + req.raw.url.split("?")[1] : "";
-			const serviceURI = process.env.AUTH_URI + (process.env.AUTH_URI.endsWith("/") ? "" : "/");
+			const serviceURI = process.env.AUTH_URL + (process.env.AUTH_URL.endsWith("/") ? "" : "/");
 			const URL = `${serviceURI}${subPath}${queryString}`;
 
 			let body = undefined;
@@ -96,7 +96,7 @@ const endpointHandler = (fastify, options, done) => {
 		try {
 			const subPath = req.params["*"] ?? "";
 			const queryString = req.raw.url.includes("?") ? "?" + req.raw.url.split("?")[1] : "";
-			const serviceURI = process.env.USER_URI + (process.env.USER_URI.endsWith("/") ? "" : "/");
+			const serviceURI = process.env.USER_URL + (process.env.USER_URL.endsWith("/") ? "" : "/");
 			const URL = `${serviceURI}${subPath}${queryString}`;
 
 			let body = undefined;

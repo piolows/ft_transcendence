@@ -15,4 +15,6 @@ RUN chmod +x /usr/entry/entry.sh
 
 USER nodeuser
 
+EXPOSE 41611
+
 ENTRYPOINT ["sh", "/usr/entry/entry.sh"]
