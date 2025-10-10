@@ -3,7 +3,7 @@ import title from "../components/main_title";
 import navbar from "../components/nav_bar";
 import footer from "../components/footer";
 import menu from "../components/menu";
-import google_button from "../components/google";
+import isGoogleSignedIn from "../components/google";
 
 export default class Homepage implements Webpage {
 	private router: Router;
@@ -22,6 +22,6 @@ export default class Homepage implements Webpage {
 	}
 
 	init() {
-		google_button(this.router);
+		isGoogleSignedIn(this.router);
 	}
 }

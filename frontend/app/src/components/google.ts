@@ -1,12 +1,8 @@
 import { Router } from '../scripts/router';
 import { backend_url } from '../scripts/router';
 
-export default function google_button(router: Router)
+export default function isGoogleSignedIn(router: Router)
 {
-	if (router.is_logged_in())
-		console.log('the user is logged in');
-	else
-		console.log('the user is not logged in');
 	if (router.is_logged_in() === false)
 	{
 		// put the google sign in button
@@ -17,13 +13,11 @@ export default function google_button(router: Router)
 	}
 	else
 	{
-		// get information for the user from the backend
-		// fetch(backend_url + '/auth/me', {
 		fetch(backend_url + '/auth/me', {
 			credentials: 'include',
+			headers: {'Referrer-Policy': 'no-referrer'}
 		}).then(async (res) => {
 			const data = await res.json();
-
 			console.log(data);
 			if (data.loggedIn)
 			{
@@ -32,7 +26,7 @@ export default function google_button(router: Router)
 				const uname = document.getElementById('uname');
 				const umail = document.getElementById('umail');
 				profile && (profile.style.display = "block") && console.log('true');
-				pfp && (pfp.src = data.user.avatarURL) && console.log('true');
+				pfp && (pfp.src = (data.user.avatarURL.includes("http") ? "" : backend_url) + data.user.avatarURL) && console.log('true');
 				uname && (uname.innerText = data.user.username) && console.log('true');
 				umail && (umail.innerText = data.user.email) && console.log('true');
 			}
