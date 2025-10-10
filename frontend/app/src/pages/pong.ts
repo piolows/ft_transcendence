@@ -1,5 +1,5 @@
 import Webpage, { Router } from "../scripts/router";
-import { Ball, Bot, Paddle, start_game } from "../scripts/game";
+import { Player, Ball, Bot, Paddle, start_game } from "../scripts/game";
 
 export default class Pong implements Webpage {
 	private router: Router;
@@ -55,9 +55,10 @@ export default class Pong implements Webpage {
 		const ball = new Ball(cv.width / 2, cv.height / 2, ball_speed, ball_radius, 'white');
 		const left_paddle = new Paddle(90, 20, 20, (cv.height - 90) / 2, paddle_speed, 'orange');
 		const right_paddle = new Paddle(90, 20, cv.width - (20 * 2), (cv.height - 90) / 2, paddle_speed, 'red');
-		const bot = (op == "bot") ? new Bot(cv, right_paddle, ball, difficulty) : null;
+		const player1 = new Player("Player 1", left_paddle);
+		const player2 = (op == "bot") ? new Bot("AI Bot", right_paddle, cv, difficulty) : new Player("Player 2", right_paddle);
 
-		this.end_game = start_game(cv, ball, left_paddle, right_paddle, p1_score, p2_score, timer, bot);
+		this.end_game = start_game(cv, ball, player1, player2, p1_score, p2_score, timer);
 	}
 
 	unload() {

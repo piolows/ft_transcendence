@@ -14,9 +14,8 @@ export default class DifficultyMenu implements Webpage {
 	load(app: HTMLDivElement | HTMLElement) {
 		let cards = [
 			["Easy", "Challenge the AI bot on Easy difficulty", "/pong?op=bot&difficulty=0"],
-			["Medium", "Challenge the AI bot on Medium difficulty", "/pong?op=bot&difficulty=1"],
-			["Hard", "Challenge the AI bot on Hard difficulty", "/pong?op=bot&difficulty=2"],
-			["Extreme", "Challenge the AI bot on Extreme difficulty", "/pong?op=bot&difficulty=3"],
+			["Hard", "Challenge the AI bot on Hard difficulty", "/pong?op=bot&difficulty=1"],
+			["Extreme", "Challenge the AI bot on Extreme difficulty", "/pong?op=bot&difficulty=2"],
 		];
 		app.innerHTML = navbar(this.router.is_logged_in()) + "<div class=\"container mx-auto mt-16 px-4\">" + title() + menu(cards) + "</div>" + footer();
 	}
