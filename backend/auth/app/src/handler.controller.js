@@ -130,7 +130,7 @@ const endpointHandler = (fastify, options, done) => {
 				req.session.user = null;
 			}
 			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`).get(req.body.username);
-			if (user) {
+			if (user && (user['email'] != req.body.email || user['password'] != null)) {
 				return reply.code(403).send({ error: 'User already exists' });
 			}
 			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
