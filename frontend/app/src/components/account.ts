@@ -1,5 +1,6 @@
 export default function account(loggedin: boolean) {
 	if (loggedin)
+	{
 		return `<div class="flex justify-right mr-3">
 					<div id="profile-info" class="pr-6">
 						<div class="flex">
@@ -14,7 +15,9 @@ export default function account(loggedin: boolean) {
 						<button id="logout-button" class="hover:text-blue-200 clicky">Logout</button>
 					</div>
 				</div>`;
+	}
 	if (!loggedin)
+	{
 		return `<div class="flex justify-right mr-3">
 					<div id="google-login-button" class="g_id_signin pr-6" data-type="standard" data-client_id="336093315647-mlq5ufc06999l3vhrvbimtn36jqvmgtk.apps.googleusercontent.com"></div>
 					<div class="flex space-x-4">
@@ -22,4 +25,5 @@ export default function account(loggedin: boolean) {
 						<a href="/register"><button id="signup-button" class="bg-white text-blue-500 px-4 py-2 rounded hover:bg-blue-100 clicky">Sign Up</button></a>
 					</div>
 				</div>`;
+	}
 }

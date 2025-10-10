@@ -1,7 +1,9 @@
 import { OAuth2Client } from 'google-auth-library';
 import * as argon2 from 'argon2';
-
-
+import { promises as fs } from 'fs';
+import path from 'path';
+import fetch from 'node-fetch';
+import { randomUUID } from 'crypto';
 
 async function hash(password) {
 	try {
@@ -15,6 +17,45 @@ async function hash(password) {
 	} catch(err) {
 		throw err;
 	}
+}
+
+function shortUUID() {
+  return randomUUID().replace(/-/g, "").slice(0, 16);
+}
+
+function getExt(url, contentType) {
+	const fromUrl = path.extname(new URL(url).pathname);
+	if (fromUrl) return fromUrl;
+
+	if (contentType) {
+		const mapping = {
+			"image/jpeg": ".jpg",
+			"image/png": ".png",
+			"image/gif": ".gif",
+			"image/webp": ".webp",
+			"image/bmp": ".bmp",
+			"image/svg+xml": ".svg",
+		};
+		return mapping[contentType] || ".png";
+	}
+	return ".png";
+}
+
+async function saveURL(url, contentType)
+{
+	const response = await fetch(url);
+	if (!response.ok) {
+		return "";
+	}
+	const buffer = Buffer.from(await response.arrayBuffer());
+	const ext = getExt(url, contentType);
+	const filename = `${shortUUID()}${ext}`;
+	const savePath = path.join(process.cwd(), "/uploads/avatars", filename);
+
+	await fs.mkdir(path.dirname(savePath), { recursive: true });
+	await fs.writeFile(savePath, buffer);
+
+	return filename;
 }
 
 const endpointHandler = (fastify, options, done) => {
@@ -236,9 +277,20 @@ const endpointHandler = (fastify, options, done) => {
 			// Upsert user in database
 			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(email);
 
+			// add user to the database
 			if (!user) {
+				const url = picture;
+				let avatarURI = "/avatars/kermit.webp";
+				try {
+					avatarURI = "/avatars/" + await saveURL(url);
+					if (avatarURI === "") {
+						throw new Error("Failed to fetch avatar image");
+					}
+				} catch (err) {
+					return reply.code(500).send(err.message);
+				}
 				await fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username, email, password, avatarURL) VALUES (?, ?, ?, ?)`)
-					.run(name, email, null, picture.split('=')[0]);
+					.run(name, email, null, avatarURI);
 				user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(email);
 			}
 
