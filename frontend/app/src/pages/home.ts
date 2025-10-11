@@ -3,7 +3,7 @@ import title from "../components/main_title";
 import navbar from "../components/nav_bar";
 import footer from "../components/footer";
 import menu from "../components/menu";
-import isGoogleSignedIn from "../components/google";
+import isGoogleSignedIn from "../components/signedInCheck";
 
 export default class Homepage implements Webpage {
 	private router: Router;

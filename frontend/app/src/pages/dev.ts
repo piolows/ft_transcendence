@@ -1,7 +1,7 @@
 import { Router, backend_url } from "../scripts/router";
 import navbar from "../components/nav_bar";
 import Webpage from "../scripts/router";
-import isGoogleSignedIn from "../components/google";
+import isGoogleSignedIn from "../components/signedInCheck";
 
 export default class Dev implements Webpage {
 	private router: Router;

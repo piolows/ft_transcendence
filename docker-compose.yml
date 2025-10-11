@@ -12,6 +12,7 @@ services:
       - backend_auth:/backend_auth
       - backend_users:/backend_users
       - backend_games:/backend_games
+      - backend_assets:/backend_assets
 
   frontend:
     container_name: frontend
@@ -90,6 +91,16 @@ services:
     networks:
       - micro-services
 
+  backend_assets:
+    container_name: backend_assets
+    build: ./backend/assets
+    volumes:
+      - backend_assets:/app
+    restart: on-failure
+    # environment:
+    networks:
+      - micro-services
+
 volumes:
   front_end:
     name: front_end
@@ -125,6 +136,13 @@ volumes:
     driver_opts:
       type: none
       device: ${PWD}/backend/games/app
+      o: bind
+  backend_assets:
+    name: backend_assets
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/backend/assets/app
       o: bind
 
 networks:
