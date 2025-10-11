@@ -23,8 +23,8 @@ Desired Modules:
 Pierce & Piolo:
 Game - Second game (M)
 Frontend - 3D Graphics (M)
-Game - AI Algorithm (M) (AI-Algo 1)									(DONE)
 Frontend - Tailwind (m) (Web 2)										(DONE)
+Game - AI Algorithm (M) (AI-Algo 1)									(DONE)
 
 PEAP:
 Game/Backend - Remote Players (M)
