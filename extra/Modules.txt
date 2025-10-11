@@ -1,0 +1,65 @@
+Mandatory:
+Pong game similar to the old 1972 pong. 							(DONE)
+Two local players can play pong.									(DONE)
+Frontend in Typescript.												(DONE)
+Connections only through HTTPS (Even backend).						(DONE)
+Validation for all inputs.											(DONE)
+Passwords must be hashed. (Strong algorithm)						(DONE)
+All players and AI must adhere to the same rules (e.g paddle speed)	(DONE)
+No unhandled errors or warnings.									(DONE)
+Must use Docker.													(DONE)
+Must run project from /goinfre										(DONE)
+Never push .env														(DONE)
+Protection against SQL/XSS attacks.
+Tournaments that allow multiple winners.
+Registration system for the Tournaments.
+Matchmaking system for Tournaments that organizes participants.
+Fully compatible with Mozilla Firefox.
+
+----------------
+
+Desired Modules:
+
+Pierce & Piolo:
+Game - Second game (M)
+Frontend - 3D Graphics (M)
+Game - AI Algorithm (M) (AI-Algo 1)									(DONE)
+Frontend - Tailwind (m) (Web 2)										(DONE)
+
+PEAP:
+Game/Backend - Remote Players (M)
+Game/Backend - User stats (AI-Algo 2) (m)
+
+Alex & Emad:
+Backend - User Auth & Info (M) (User management 1)					(Auth DONE, Info not)
+Backend - Google sign in (M) (User management 2)					(DONE)
+Backend - as microservices (M)										(DONE)
+Backend - SQLite (m) (Web 3)										(DONE)
+Backend - NodeJS / Fastify (M) (Web 1)								(DONE)
+
+----------------
+
+Excess Modules:
+
+Cybersecurity - JWT & 2FA (M)
+Cybersecurity - GDPR (m)
+Game - Customization (m)
+Game - Multiple Players (M)
+Frontend - Multiple Language Support (m)
+Frontend - Support on all devices (Accessibility 1) (m)
+Frontend - Expand Browser Compatibilitiy (Accessibility 1) (m)
+Backend/Game/Frontend - Server-Side Pong (Server-Side Pong 1) (M)
+
+-----------------
+
+Maybe:
+DevOps - ELK (M)
+Frontend - SSR (m)
+Game - Live chat (M)
+Cybersecurity - WAF (M)
+
+------------------
+
+Dummy Accounts:
+username: pierce
+password: PDP@12is24

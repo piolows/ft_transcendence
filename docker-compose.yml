@@ -57,7 +57,7 @@ services:
       - SESSIONS_DB=/app/src/database/sessions.db
       - DB_FILE=/app/src/database/auth.db
       - USERS_TABLE=users
-      - DEFAULT_PIC=https://lumiere-a.akamaihd.net/v1/images/character_themuppets_kermit_b77a431b.jpeg
+      - DEFAULT_PIC=/avatars/kermit.webp
       - SESSION_SECRET=${SESSION_SECRET}
     networks:
       - micro-services

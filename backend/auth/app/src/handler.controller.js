@@ -206,7 +206,19 @@ const endpointHandler = (fastify, options, done) => {
 				return reply.code(400).send({ error: 'Invalid email' });
 			}
 			const password = await hash(req.body.password);
-			const avatarURL = req.body.avatarURL && req.body.avatarURL != "" ? req.body.avatarURL : process.env.DEFAULT_PIC;
+			let avatarURL = process.env.DEFAULT_PIC;
+			if (req.body.avatarURL && req.body.avatarURL != "") {
+				try {
+					avatarURL = await saveURL(req.body.avatarURL);
+					if (avatarURL === "") {
+						throw new Error("Failed to fetch avatar image");
+					}
+					avatarURL = "/avatars/" + avatarURL;
+				} catch (err) {
+					return reply.code(500).send(err.message);
+				}
+			}
+			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(email);
 			if (user)
 				await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(req.body.username, req.body.email, password, avatarURL, req.body.email);
 			else
@@ -280,7 +292,7 @@ const endpointHandler = (fastify, options, done) => {
 			// add user to the database
 			if (!user) {
 				const url = picture;
-				let avatarURI = "/avatars/kermit.webp";
+				let avatarURI = process.env.DEFAULT_PIC;
 				try {
 					avatarURI = "/avatars/" + await saveURL(url);
 					if (avatarURI === "") {
