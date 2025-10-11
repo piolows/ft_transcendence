@@ -5,14 +5,10 @@ WORKDIR /app
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodeuser -u 1001 -G nodejs
 
-RUN mkdir -p /usr/entry
-
-COPY ./tools/* /usr/entry
-
-RUN chmod +x /usr/entry/entry.sh
+COPY ./tools/* /usr
 
 USER nodeuser
 
 EXPOSE 41613
 
-ENTRYPOINT ["sh", "/usr/entry/entry.sh"]
+ENTRYPOINT ["sh", "/usr/entry.sh"]

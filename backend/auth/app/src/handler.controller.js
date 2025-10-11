@@ -43,17 +43,14 @@ function getExt(url, contentType) {
 
 async function saveURL(url, contentType)
 {
-	const response = await fetch(url);
-	if (!response.ok) {
-		return "";
-	}
-	const buffer = Buffer.from(await response.arrayBuffer());
+	const response = await fetch(url); 
+	// const buffer = Buffer.from(await response.arrayBuffer());
 	const ext = getExt(url, contentType);
 	const filename = `${shortUUID()}${ext}`;
-	const savePath = path.join(process.cwd(), "/uploads/avatars", filename);
+	// const savePath = path.join(process.cwd(), "/uploads/avatars", filename);
 
-	await fs.mkdir(path.dirname(savePath), { recursive: true });
-	await fs.writeFile(savePath, buffer);
+	// await fs.mkdir(path.dirname(savePath), { recursive: true });
+	// await fs.writeFile(savePath, buffer);
 
 	return filename;
 }
@@ -282,12 +279,21 @@ const endpointHandler = (fastify, options, done) => {
 				const url = picture;
 				let avatarURI = "/avatars/kermit.webp";
 				try {
-					avatarURI = "/avatars/" + await saveURL(url);
-					if (avatarURI === "") {
-						throw new Error("Failed to fetch avatar image");
+					// const assetServiceURL = process.env.CDN_URL;
+					const assetServiceURL = 'https://backend_assets:41613';
+					const res = await fetch(`${assetServiceURL}/api/avatar/from-url`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify( {url} )
+					});
+					if (!res.ok)
+						fastify.log.error('Failed to fetch avatar: ', await res.text(), ' from CDN');
+					else {
+						const data = await res.json();
+						avatarURI = data.avatarURL;
 					}
 				} catch (err) {
-					return reply.code(500).send(err.message);
+					fastify.log.error('Failed to make contact with CDN service: ', err);
 				}
 				await fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username, email, password, avatarURL) VALUES (?, ?, ?, ?)`)
 					.run(name, email, null, avatarURI);

@@ -3,6 +3,7 @@ import fastifyMultipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import fastifyCors from '@fastify/cors';
 import path from 'path';
+import endpointHandler from './handler.controller.js';
 import 'dotenv/config';
 
 async function startSever() {

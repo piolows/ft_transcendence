@@ -40,6 +40,7 @@ services:
       - AUTH_URL=http://backend_auth:41610
       - USER_URL=http://backend_users:41611
       - GAME_URL=http://backend_games:41612
+      - CDN_URL=http://backend_assets:41613
     ports:
       - "4161:4161"
     networks:

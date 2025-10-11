@@ -49,7 +49,7 @@ const endpointHandler = (fastify, options, done) => {
 		try {
 			const subPath = "avatars/" + req.params["*"] ?? "";
 			const queryString = req.raw.url.includes("?") ? "?" + req.raw.url.split("?")[1] : "";
-			const serviceURI = process.env.AUTH_URL + (process.env.AUTH_URL.endsWith("/") ? "" : "/");
+			const serviceURI = process.env.CDN_URL + (process.env.CDN_URL.endsWith("/") ? "" : "/");
 			const URL = `${serviceURI}${subPath}${queryString}`;
 
 			let body = undefined;
