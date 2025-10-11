@@ -280,7 +280,7 @@ const endpointHandler = (fastify, options, done) => {
 				let avatarURI = "/avatars/kermit.webp";
 				try {
 					// const assetServiceURL = process.env.CDN_URL;
-					const assetServiceURL = 'https://backend_assets:41613';
+					const assetServiceURL = 'http://backend_assets:41613';
 					const res = await fetch(`${assetServiceURL}/api/avatar/from-url`, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
