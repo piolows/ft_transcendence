@@ -290,6 +290,7 @@ const endpointHandler = (fastify, options, done) => {
 						fastify.log.error('Failed to fetch avatar: ', await res.text(), ' from CDN');
 					else {
 						const data = await res.json();
+						fastify.log.info('Fetched avatar from CDN: ', data);
 						avatarURI = data.avatarURL;
 					}
 				} catch (err) {

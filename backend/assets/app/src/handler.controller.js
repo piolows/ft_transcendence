@@ -57,6 +57,7 @@ export default async function endpointHandler(fastify) {
     const { url } = req.body;
     if (!url) return reply.code(400).send({ error: "Missing URL" });
 
+    fastify.log.info('here info: ', url);
     try {
       fastify.log.info(`Fetching avatar from ${url}`);
 

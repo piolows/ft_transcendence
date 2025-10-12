@@ -98,7 +98,10 @@ services:
     volumes:
       - backend_assets:/app
     restart: on-failure
-    # environment:
+    environment:
+    - NODE_ENV=development
+    - PORT=41613
+    - FRONTEND_URL=https://localhost
     networks:
       - micro-services
 
