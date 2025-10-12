@@ -37,7 +37,6 @@ const endpointHandler = (fastify, options, done) => {
 			for (const [key, value] of response.headers.entries()) {
 				reply.header(key, value);
 			}
-
 			// Stream response body directly (doesn't assume JSON)
 			return reply.send(response.body);
 		} catch (error) {

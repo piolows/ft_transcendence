@@ -203,7 +203,7 @@ const endpointHandler = (fastify, options, done) => {
 				return reply.code(400).send({ error: 'Invalid email' });
 			}
 			const password = await hash(req.body.password);
-			const avatarURL = req.body.avatarURL && req.body.avatarURL != "" ? req.body.avatarURL : process.env.DEFAULT_PIC;
+			const avatarURL = req.body.avatarURL && req.body.avatarURL != "" ? req.body.avatarURL : '/avatars/kermit.webp';
 			if (user)
 				await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(req.body.username, req.body.email, password, avatarURL, req.body.email);
 			else
@@ -280,7 +280,7 @@ const endpointHandler = (fastify, options, done) => {
 				let avatarURI = "/avatars/kermit.webp";
 				try {
 					// const assetServiceURL = process.env.CDN_URL;
-					const assetServiceURL = 'http://backend_assets:41613';
+					const assetServiceURL = process.env.ASSETS_URL;
 					const res = await fetch(`${assetServiceURL}/api/avatar/from-url`, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
@@ -291,7 +291,7 @@ const endpointHandler = (fastify, options, done) => {
 					else {
 						const data = await res.json();
 						fastify.log.info('Fetched avatar from CDN: ', data);
-						avatarURI = data.avatarURL;
+						avatarURI = data.public_url;
 					}
 				} catch (err) {
 					fastify.log.error('Failed to make contact with CDN service: ', err);
