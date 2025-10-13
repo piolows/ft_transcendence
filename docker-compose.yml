@@ -38,7 +38,6 @@ services:
       - FRONTEND_URL=https://localhost
       - AUTH_URL=http://backend_auth:41610
       - USER_URL=http://backend_users:41611
-      - GAME_URL=http://backend_games:41612
     ports:
       - "4161:4161"
     networks:
@@ -84,9 +83,9 @@ services:
     restart: on-failure
     environment:
       - NODE_ENV=development
-      - PORT=41612
-      - DB_FILE=/app/src/database/games.db
-      - GAMES_TABLE=games
+      - PORT=4116
+    ports:
+      - "4116:4116"
     networks:
       - micro-services
 

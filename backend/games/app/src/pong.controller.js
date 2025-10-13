@@ -1,35 +1,23 @@
 const pongHandler = (fastify, options, done) => {
-	let players = [];
-	let p_info = [];
+	let conns = {};
 
-	fastify.get("/pong", { websocket: true }, (connection, req) => {
-		players.push(connection);
+	fastify.get("/", { websocket: true }, (connection, req) => {
+		const id = crypto.randomUUID();
+		conns[id] = connection;
 
-		connection.socket.on("message", (msg) => {
-			const data = JSON.parse(msg.toString());
-			if (data.moving) {
-				p_info
-			}
-			else {
-				p_info
-			}
+		console.log(`Client connected: ${id} (Total: ${Object.keys(conns).length})`);
+
+		connection.on('message', (msg) => {
+			const text = msg.toString();
+			console.log(`Message from ${id}:`, text);
+			connection.send(`You said: ${text}`);
 		});
 
-		connection.socket.on("close", () => {
-			players = players.filter((p) => p !== connection);
-			p_info = p_info.filter((p) => p.conn !== connection);
+		connection.on('close', () => {
+			delete conns[id];
+			console.log(`Client disconnected: ${id} (Total: ${Object.keys(conns).length})`);
 		});
 	});
-
-	// Game loop: runs 60 times/sec
-	setInterval(() => {
-		// update ball + paddles
-		const gameState = { /* positions, scores, etc */ };
-		for (const player of players) {
-			player.socket.send(JSON.stringify({ type: "state", gameState }));
-		}
-	}, 1000 / 60);
-
 	done();
 };
 

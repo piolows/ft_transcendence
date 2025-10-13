@@ -13,8 +13,8 @@ COPY ./tools/* /usr/entry
 
 RUN chmod +x /usr/entry/entry.sh
 
-USER nodeuser
-
 EXPOSE 41611
+
+USER nodeuser
 
 ENTRYPOINT ["sh", "/usr/entry/entry.sh"]
