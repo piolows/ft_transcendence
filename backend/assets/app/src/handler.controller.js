@@ -16,6 +16,7 @@ export default async function endpointHandler(fastify) {
       const response = await fetch(url, {
         headers: { "User-Agent": "Mozilla/5.0" },
       });
+      fastify.log.info(`Response status: ${response}`);
       if (!response.ok)
         throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
 

@@ -204,6 +204,28 @@ const endpointHandler = (fastify, options, done) => {
 			}
 			const password = await hash(req.body.password);
 			const avatarURL = req.body.avatarURL && req.body.avatarURL != "" ? req.body.avatarURL : '/avatars/kermit.webp';
+			// let avatarURL = '/avatars/kermit.webp';
+			// if (req.body.avatarURL && req.body.avatarURL != "") {
+			if (avatarURL !== '/avatars/kermit.webp') {
+				try {
+					// const assetServiceURL = process.env.CDN_URL;
+					const assetServiceURL = process.env.ASSETS_URL;
+					const res = await fetch(`${assetServiceURL}/api/avatar/from-url`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify( { avatarURL } )
+					});
+					if (!res.ok)
+						fastify.log.error('Failed to fetch avatar: ', await res.text(), ' from CDN');
+					else {
+						const data = await res.json();
+						fastify.log.info('Fetched avatar from CDN: ', data);
+						avatarURL = data.public_url;
+					}
+				} catch (err) {
+					fastify.log.error('Failed to make contact with CDN service: ', err);
+				}
+			}
 			if (user)
 				await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(req.body.username, req.body.email, password, avatarURL, req.body.email);
 			else

@@ -31,10 +31,10 @@ async function startSever() {
 			table: "sessions"
 		})
 	});
-	await fastify.register(FastifyStatic, {
-		root: path.join(process.cwd(), '/uploads/avatars'),
-		prefix: '/avatars/', 
-	});
+	// await fastify.register(FastifyStatic, {
+	// 	root: path.join(process.cwd(), '/uploads/avatars'),
+	// 	prefix: '/avatars/', 
+	// });
 
 	await fastify.register(sqlite, {
 		dbFile: process.env.DB_FILE
