@@ -30,7 +30,7 @@ export class Router {
 		// Handle back/forward buttons
 		window.onpopstate = (event) => {
 			const path = event.state?.route || "/";
-			console.log(event.state.route);
+			console.log("PIOLO", event.state?.route);
 			this.route(path, false);
 		};
 
@@ -96,6 +96,7 @@ export class Router {
 	}
 
 	route(path: string, push: boolean = false) {
+		console.log("EMAD", path);
 		this.check_session().then(() => {
 			this.currpage?.unload?.();
 			if (!this.routes.has(path)) {

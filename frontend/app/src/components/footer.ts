@@ -1,11 +1,15 @@
 export default function footer() {
 	return `<!-- footer -->
-	<footer class="mt-16 text-center text-gray-500 text-sm py-5 mt-15" style="bottom: 0px; width: 100%;">
-	&copy; 2025 Pongy Nation. No rights reserved at all.
-		<div class="pt-2">
-			<a href="dev">
-				<button class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 clicky popout" id="to-devpage">Super Secret Dev Page</button>
-			</a>
-		</div>
-	</footer>`;
+	<footer class="py-16 mt-20 text-center border-t border-blue-800">
+            <div class="container mx-auto">
+                <p class="font-silkscreen text-sm mb-6 rainbow">&copy; 2025 PONGY NATION</p>
+                <div class="flex justify-center space-x-8">
+                    <a href="devpage.html">
+                        <button class="pixel-box bg-purple-900 p-4 font-pixelify clicky wiggler blinker">
+                            DEV MODE
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </footer>`;
 }

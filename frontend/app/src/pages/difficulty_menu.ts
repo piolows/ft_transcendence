@@ -13,14 +13,23 @@ export default class DifficultyMenu implements Webpage {
 
 	load(app: HTMLDivElement | HTMLElement) {
 		let cards = [
-			["Easy", "Challenge the AI bot on Easy difficulty", "/pong?op=bot&difficulty=0"],
-			["Hard", "Challenge the AI bot on Hard difficulty", "/pong?op=bot&difficulty=1"],
-			["Extreme", "Challenge the AI bot on Extreme difficulty", "/pong?op=bot&difficulty=2"],
+			["Easy", "Challenge the AI bot on Easy difficulty", "blue"],
+			["Hard", "Challenge the AI bot on Hard difficulty", "blue"],
+			["Extreme", "Challenge the AI bot on Extreme difficulty", "blue"],
 		];
-		app.innerHTML = navbar(this.router.is_logged_in()) + "<div class=\"container mx-auto mt-16 px-4\">" + title() + menu(cards) + "</div>" + footer();
+		app.innerHTML = navbar(this.router.is_logged_in()) + "<div class=\"container mx-auto mt-16 px-4\">" + menu(cards, "CHOOSE YOUR DIFFICULTY") + "</div>" + footer();
 	}
 
 	init() {
+		const login_btn = document.getElementById("login-button")! as HTMLButtonElement;
+		login_btn.onclick = () => {
+			this.router.route("/login", true);
+		}
+		const signup_btn = document.getElementById("signup-button")! as HTMLButtonElement;
+		signup_btn.onclick = () => {
+			this.router.route("/register", true);
+		}
+
 		if (!this.router.is_logged_in()) {
 			google.accounts.id.renderButton(
 				document.getElementById("google-login-button")!,

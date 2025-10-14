@@ -24,10 +24,9 @@ router.set_error_handler(new ErrorHandler(router));
 router.add_route("/", new Homepage(router));
 router.add_route("/dev", new Dev(router));
 router.add_route("/pong", new Pong(router));
-router.add_route("/pong/menu", new PongMenu(router));
 router.add_route("/pong/difficulty", new DifficultyMenu(router));
 router.add_route("/roshambo", new Roshambo());
-router.add_route("/login", new Login(router));
 router.add_route("/register", new SignUp(router));
+router.add_route("/login", new Login(router));
 
 router.start();
