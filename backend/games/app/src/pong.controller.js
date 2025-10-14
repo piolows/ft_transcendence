@@ -43,7 +43,7 @@ const pongHandler = (fastify, options, done) => {
 
 	class Game {
 		id;
-		admin;
+		admin;       //cookie info (id, username, email, avatarURL)
 		players = {};
 		specs = {};
 		all = {};
@@ -54,8 +54,6 @@ const pongHandler = (fastify, options, done) => {
 		constructor(admin) {
 			this.id = crypto.randomUUID();
 			this.admin = admin;
-			this.specs[admin.id] = admin;
-			this.all[admin.id] = admin;
 		}
 
 		player_count() {
@@ -67,56 +65,53 @@ const pongHandler = (fastify, options, done) => {
 		}
 
 		join(member) {
-			if (this.players[member.id] || this.specs[member.id])
+			if (this.players[member.user_info.username] || this.specs[member.user_info.username])
 				throw new Error("User already in game");
-			if (Object.keys(this.players).length == 2)
+			if (this.player_count() == 2)
 				this.spec_join(member);
 			else
 				this.player_join(member);
 		}
 
 		player_join(player) {
-			if (player.id == this.admin.id) {
-				throw new Error("WTF jaksdfljalksdfjlaskjlfdsa");
-			}
-			if (this.players[player.id])
+			if (this.players[player.user_info.username])
 				throw new Error("Player already in game");
-			if (Object.keys(this.players).length == 2)
+			if (this.player_count() == 2)
 				throw new Error("Max players in current game");
 			player.is_player = true;
 			player.game = this;
-			this.players[player.id] = player;
-			delete this.specs[player.id];
-			this.all[player.id] = player;
+			this.players[player.user_info.username] = player;
+			delete this.specs[player.user_info.username];
+			this.all[player.user_info.username] = player;
 		}
 
 		player_leave(player) {
-			if (!this.players[player.id])
+			if (!this.players[player.user_info.username])
 				throw new Error("Player not in this game");
-			this.players[player.id].game = null;
-			this.players[player.id].is_player = false;
-			delete this.players[player.id];
-			delete this.all[player.id];
+			this.players[player.user_info.username].game = null;
+			this.players[player.user_info.username].is_player = false;
+			delete this.players[player.user_info.username];
+			delete this.all[player.user_info.username];
 		}
 
 		spec_join(spec) {
 			spec.is_player = false;
-			this.specs[spec.id] = spec;
-			this.all[spec.id] = spec;
+			this.specs[spec.user_info.username] = spec;
+			this.all[spec.user_info.username] = spec;
 		}
 
 		spec_leave(spec) {
-			if (!this.specs[spec.id])
+			if (!this.specs[spec.user_info.username])
 				throw new Error("User not in this game");
-			delete this.specs[spec.id];
-			delete this.all[spec.id];
+			delete this.specs[spec.user_info.username];
+			delete this.all[spec.user_info.username];
 		}
 	}
 
 	let games = {};
 
 	fastify.post("/new", (req, resp) => {
-		if (Object.keys(games).length > 256) {
+		if (Object.keys(games).length > 1024) {
 			return resp.code(501).send({ status: "failed", error: "Maximum game limit reached" });
 		}
 		if (!req.session || !req.session.user) {
@@ -153,7 +148,7 @@ const pongHandler = (fastify, options, done) => {
 				const { game_id, action, param } = data;
 
 				const getinfo = (guy) => {return `${guy.id} - ${guy.email} - ${guy.username}`;}
-				const getinfos = (guys) => {let ret = ""; for (const guy of guys) ret += getinfo(guy) + "  "; return ret;}
+				const getinfos = (guys) => {let ret = ""; for (const guy of guys) ret += getinfo(guy.user_info) + "  "; return ret;}
 				if (action == "INFO") {
 					for (const game of Object.values(games)) {
 						socket.send(`Game of ID #${game.id} has admin ${getinfo(game.admin)} with ${getinfos(Object.values(game.specs))} spectators and ${getinfos(Object.values(game.players))} players.`);

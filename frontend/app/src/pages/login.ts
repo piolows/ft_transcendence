@@ -41,34 +41,34 @@ export default class Login implements Webpage {
 	}
 
 	init() {
-		// const form = document.getElementById("loginForm") as HTMLFormElement;
+		const form = document.getElementById("loginForm") as HTMLFormElement;
 	
-		// form.addEventListener("submit", async (event) => {
-		// 	event.preventDefault();
+		form.addEventListener("submit", async (event) => {
+			event.preventDefault();
 
-		// 	const formData = new FormData(form);
-		// 	const body = Object.fromEntries(formData.entries());
+			const formData = new FormData(form);
+			const body = Object.fromEntries(formData.entries());
 
-		// 	try {
-		// 		const response = await fetch(`${backend_url}/auth/login`, {
-		// 			method: "POST",
-		// 			credentials: "include",
-		// 			headers: { "Content-Type": "application/json" },
-		// 			body: JSON.stringify(body)
-		// 		});
+			try {
+				const response = await fetch(`${backend_url}/auth/login`, {
+					method: "POST",
+					credentials: "include",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(body)
+				});
 
-		// 		const data = await response.json();
+				const data = await response.json();
 
-		// 		if (response.ok) {
-		// 			this.router.route("/", true);
-		// 		} else {
-		// 			alert(`Error: ${data.message}`);
-		// 		}
-		// 	} catch (error) {
-		// 		document.getElementById("message")!.textContent = "❌ Network error";
-		// 		console.error("Fetch error:", error);
-		// 	}
-		// });
+				if (response.ok) {
+					this.router.route("/", true);
+				} else {
+					alert(`Error: ${data.message}`);
+				}
+			} catch (error) {
+				document.getElementById("message")!.textContent = "❌ Network error";
+				console.error("Fetch error:", error);
+			}
+		});
 
 		const close = document.getElementById("close-button") as HTMLButtonElement;
 

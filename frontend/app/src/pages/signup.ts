@@ -51,32 +51,32 @@ export default class SignUp implements Webpage {
 	}
 
 	init() {
-		// const form = document.getElementById("registerForm") as HTMLFormElement;
+		const form = document.getElementById("registerForm") as HTMLFormElement;
 	
-		// form.addEventListener("submit", async (event) => {
-		// 	event.preventDefault();
+		form.addEventListener("submit", async (event) => {
+			event.preventDefault();
 
-		// 	const formData = new FormData(form);
-		// 	const body = Object.fromEntries(formData.entries());
-		// 	try {
-		// 		const response = await fetch(`${backend_url}/auth/register/`, {
-		// 			method: "POST",
-		// 			credentials: "include", // IMPORTANT for sending/receiving cookies!
-		// 			headers: { "Content-Type": "application/json" },
-		// 			body: JSON.stringify(body)
-		// 		});
+			const formData = new FormData(form);
+			const body = Object.fromEntries(formData.entries());
+			try {
+				const response = await fetch(`${backend_url}/auth/register/`, {
+					method: "POST",
+					credentials: "include", // IMPORTANT for sending/receiving cookies!
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(body)
+				});
 
-		// 		const data = await response.json();
+				const data = await response.json();
 
-		// 		if (response.ok) {
-		// 			this.router.route("/", true);
-		// 		} else {
-		// 			alert(`Error: ${data.message}`);
-		// 		}
-		// 	} catch (error) {
-		// 		alert(`Error: ${error}`);
-		// 	}
-		// });
+				if (response.ok) {
+					this.router.route("/", true);
+				} else {
+					alert(`Error: ${data.message}`);
+				}
+			} catch (error) {
+				alert(`Error: ${error}`);
+			}
+		});
 
 		const close = document.getElementById("close-button") as HTMLButtonElement;
 
