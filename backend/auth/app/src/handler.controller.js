@@ -121,10 +121,6 @@ const endpointHandler = (fastify, options, done) => {
 
 	fastify.get("/:username", getUserSchema, async (req, reply) => {
 		try {
-			const user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`).get(req.params.username);
-			if (!user) {
-				return reply.code(404).send({ error: "User not found" });
-			}
 			if (!req.session || !req.session.user) {
 				return reply.code(403).send({ error: "Must be signed in!" });
 			}

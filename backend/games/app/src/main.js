@@ -2,6 +2,10 @@ import Fastify from "fastify";
 import websocketPlugin from "@fastify/websocket";
 import pongHandler from  "./pong.controller.js";
 // import roshamboHandler from "./roshambo.controller.js";
+import fastifyCookie from "@fastify/cookie";
+import fastifySession from "@fastify/session";
+import createSqliteStore from "better-sqlite3-session-store";
+import Database from 'better-sqlite3';
 import fs from "fs";
 import 'dotenv/config';
 
@@ -12,6 +16,25 @@ async function startSever() {
 			cert: fs.readFileSync("/app/certs/localhost-cert.pem"),
 			key: fs.readFileSync("/app/certs/localhost-key.pem")
 		}
+	});
+
+	const ONEDAY = 1000 * 60 * 60 * 24;
+	const SqliteStore = createSqliteStore(fastifySession);
+
+	await fastify.register(fastifyCookie);
+
+	await fastify.register(fastifySession, {
+		secret: process.env.SESSION_SECRET,
+		cookie: {
+			secure: process.env.NODE_ENV == "production",
+			httpOnly: true,
+			sameSite: "lax",
+			maxAge: ONEDAY
+		},
+		store: new SqliteStore({
+			client: new Database(process.env.SESSIONS_DB),
+			table: "sessions"
+		})
 	});
 	
 	await fastify.register(websocketPlugin, {
@@ -25,6 +48,7 @@ async function startSever() {
 			}
 		}
 	});
+
 	await fastify.register(pongHandler, { prefix: "/pong" });
 	// await fastify.register(roshamboHandler, { prefix: "/roshambo" });
 

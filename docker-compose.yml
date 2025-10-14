@@ -4,10 +4,12 @@ services:
     image: alpine:latest
     command: |
       sh -c "
-        chmod -R 777 /front_end /backend_controller /backend_auth /backend_users /backend_games
+        chmod -R 777 /front_end /db_storage /uploads /backend_controller /backend_auth /backend_users /backend_games
       "
     volumes:
       - front_end:/front_end
+      - db_storage:/db_storage
+      - uploads:/uploads
       - backend_controller:/backend_controller
       - backend_auth:/backend_auth
       - backend_users:/backend_users
@@ -48,41 +50,46 @@ services:
     container_name: backend_auth
     volumes:
       - backend_auth:/app
+      - db_storage:/app/src/database
+      - uploads:/app/uploads
     build: ./backend/auth
     restart: on-failure
     environment:
       - NODE_ENV=development
-      - PORT=41610
-      - SESSIONS_DB=/app/src/database/sessions.db
+      - DEFAULT_PIC=/avatars/kermit.webp
       - DB_FILE=/app/src/database/auth.db
       - USERS_TABLE=users
-      - DEFAULT_PIC=/avatars/kermit.webp
+      - SESSIONS_DB=/app/src/database/sessions.db
       - SESSION_SECRET=${SESSION_SECRET}
+      - PORT=41610
     networks:
       - micro-services
 
-  backend_users:
-    container_name: backend_users
-    volumes:
-      - backend_users:/app
-    build: ./backend/users
-    restart: on-failure
-    environment:
-      - NODE_ENV=development
-      - PORT=41611
-      - DB_FILE=/app/src/database/users.db
-      - USERS_TABLE=users
-    networks:
-      - micro-services
+  # backend_users:
+  #   container_name: backend_users
+  #   volumes:
+  #     - backend_users:/app
+  #   build: ./backend/users
+  #   restart: on-failure
+  #   environment:
+  #     - NODE_ENV=development
+  #     - PORT=41611
+  #     - DB_FILE=/app/src/database/users.db
+  #     - USERS_TABLE=users
+  #   networks:
+  #     - micro-services
 
   backend_games:
     container_name: backend_games
     volumes:
       - backend_games:/app
+      - db_storage:/app/src/database
     build: ./backend/games
     restart: on-failure
     environment:
       - NODE_ENV=development
+      - SESSIONS_DB=/app/src/database/sessions.db
+      - SESSION_SECRET=${SESSION_SECRET}
       - PORT=4116
     ports:
       - "4116:4116"
@@ -96,6 +103,20 @@ volumes:
     driver_opts:
       type: none
       device: ${PWD}/frontend/app
+      o: bind
+  db_storage:
+    name: db_storage
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/backend/storage/databases
+      o: bind
+  uploads: 
+    name: uploads
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/backend/storage/uploads
       o: bind
   backend_users:
     name: backend_users
