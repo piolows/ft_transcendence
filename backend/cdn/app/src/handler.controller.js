@@ -34,7 +34,7 @@ export default async function endpointHandler(fastify) {
     }
   });
 
-  fastify.post("/avatars", async (req, reply) => {
+  fastify.post("/cdn/avatars", async (req, reply) => {
     const { url } = req.body;
     if (!url) return reply.code(400).send({ error: "Missing URL" });
 
