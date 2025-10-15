@@ -64,6 +64,12 @@ const pongHandler = (fastify, options, done) => {
 					};
 					return;
 				}
+				if (action == "START") {
+					games[game_id].start_game();
+					socket.send(`Game #${game_id} started.`);
+					console.log(`Game #${game_id} started.`);
+					return;
+				}
 				//============ TEMPORARY FOR TESTING =============//
 
 				if (!game_id || !action) {
@@ -93,6 +99,8 @@ const pongHandler = (fastify, options, done) => {
 								member.join(games[game_id]);
 								socket.send("Joined game #" + game_id);
 							}
+							if (!games[game_id].started && games[game_id].player_count() == 2)
+								games[game_id].start_game();
 							console.log(`User ${member.user_info.username} - ${member.user_info.email} joined game #${game_id}`);
 							return;
 						case "LEAVE":
@@ -139,6 +147,7 @@ const pongHandler = (fastify, options, done) => {
 			});
 
 			socket.on('close', () => {
+				console.log(`User ${member.uuid} - ${member.user_info.username} - ${member.user_info.email} has disconnected from the socket.`);
 				if (member.game) {
 					const id = member.game.uuid;
 					member.leave();
@@ -150,6 +159,32 @@ const pongHandler = (fastify, options, done) => {
 				return;
 			});
 	});
+
+	setInterval(() => {
+		for (const game of Object.values(games)) {
+			if (!game.started)
+				continue ;
+			const gameState = {
+				over: false,
+				p1_score: game.setup.p1_score,
+				p2_score: game.setup.p2_score,
+				left_paddle: {
+					y: game.setup.left_player.paddle.y
+				},
+				right_paddle: {
+					y: game.setup.right_player.paddle.y
+				},
+				ball: {
+					x: game.setup.ball.x,
+					y: game.setup.ball.y
+				}
+			};
+			for (const member of Object.values(game.all)) {
+				member.socket.send(JSON.stringify(gameState));
+			}
+		}
+	}, 1000 );// / 60);
+
 	done();
 };
 

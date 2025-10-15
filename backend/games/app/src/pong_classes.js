@@ -76,7 +76,6 @@ class Setup {
 export class Game {
 	uuid;
 	admin_info;
-	bot_game = false;
 	started = false;
 	setup;
 	players = {};		// username -> Member
@@ -94,7 +93,7 @@ export class Game {
 			this.setup.right_player = new Bot("right", this.setup.arena_width, this.setup.arena_height);
 		if (this.player_count() < 1)
 			this.setup.right_player = new Bot("left", this.setup.arena_width, this.setup.arena_height);
-		started = true;
+		this.started = true;
 	}
 
 	player_count() {
@@ -166,10 +165,10 @@ export class Ball
 	moving;
 	first_collision;
 
-	constructor(xPos, yPos, speed, radius, c)
+	constructor(x, y, speed, radius, c)
 	{
-		this.x = xPos;
-		this.y = yPos;
+		this.x = x;
+		this.y = y;
 		this.speed = speed;
 		this.init_speed = speed;
 		this.r = radius;
@@ -186,8 +185,8 @@ export class Paddle
 {
 	height;
 	width;
-	xPos;
-	yPos;
+	x;
+	y;
 	up;
 	down;
 	speed;
@@ -196,8 +195,8 @@ export class Paddle
 	{
 		this.height = h;
 		this.width = w;
-		this.xPos = x;
-		this.yPos = y;
+		this.x = x;
+		this.y = y;
 		this.speed = speed;
 		this.up = false;
 		this.down = false;
@@ -238,31 +237,31 @@ export class Bot extends Player {
 			this.name = name;
 		else
 			this.name = `AI Bot ${crypto.randomUUID().substring(0, 4)}`;
-		this.dest_y = arena.height / 2;
+		this.dest_y = arena_height / 2;
 		this.difficulty = difficulty;
 	}
 
 	update(ball_x, ball_y, ball_xvel, ball_yvel, moving) {
 		if (!moving) {
-			this.dest_y = this.arena.height / 2;
+			this.dest_y = this.arena_height / 2;
 			return;
 		}
 		const modifier = 2 - this.difficulty;
-		const variation = modifier * (Math.random() + Math.random()) * (0.05 * this.arena.height)
+		const variation = modifier * (Math.random() + Math.random()) * (0.05 * this.arena_height)
 			* (Math.random() > 0.5 ? -1 : 1) * (Math.random() < (0.4 * modifier) ? 1 : 0);
 		console.log(variation);
-		const intersect = ball_xvel > 0 ? this.arena.width : -this.arena.width;
+		const intersect = ball_xvel > 0 ? this.arena_width : -this.arena_width;
 		const steps = Math.abs(intersect - ball_x) / ball_xvel;
 		const dest = Math.abs(ball_y + ball_yvel * steps);
-		const reflects = Math.floor(dest / this.arena.height);
+		const reflects = Math.floor(dest / this.arena_height);
 		if (reflects % 2 == 0)
-			this.dest_y = (dest % this.arena.height) + variation;
+			this.dest_y = (dest % this.arena_height) + variation;
 		else
-			this.dest_y = this.arena.height * (reflects + 1) - (dest % this.arena.height) + variation;
+			this.dest_y = this.arena_height * (reflects + 1) - (dest % this.arena_height) + variation;
 	}
 
 	play() {
-		const y = this.paddle.yPos + this.paddle.height / 2;
+		const y = this.paddle.y + this.paddle.height / 2;
 		const diff = this.paddle.speed / 2;
 		if (y < this.dest_y - diff)
 			this.paddle.down = true;
