@@ -1,5 +1,9 @@
 const endpointHandler = (fastify, options, done) => {
 	fastify.all("/auth/*", async (req, reply) => {
+		// fastify.log.info('reqreqreq: ', req.body);
+		// fastify.log.error('reqreqreq: ', req.body);
+		// console.log('reqreqreq: ', req.body);
+		// fastify.log.error("ERROR");
 		try {
 			const subPath = req.params["*"] ?? "";
 			const queryString = req.raw.url.includes("?") ? "?" + req.raw.url.split("?")[1] : "";
@@ -44,20 +48,24 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	});
 
-	fastify.all("/avatars/*", async (req, reply) => {
+	fastify.all('/cdn/*', async (req, reply) => {
 		try {
-			const subPath = "avatars/" + req.params["*"] ?? "";
-			const queryString = req.raw.url.includes("?") ? "?" + req.raw.url.split("?")[1] : "";
-			const serviceURI = process.env.CDN_URL + (process.env.CDN_URL.endsWith("/") ? "" : "/");
+			// const subPath = 'cdn/' + req.params['*'] ?? '';
+			const subPath = req.params["*"] ?? "";
+			const queryString = req.raw.url.includes('?') ? '?' + req.raw.url.split('?')[1] : '';
+			const serviceURI = process.env.CDN_URL + (process.env.CDN_URL.endsWith('/') ? '' : '/');
 			const URL = `${serviceURI}${subPath}${queryString}`;
 
+			fastify.log.info('url: ', URL);
+			fastify.log.info('in here');
 			let body = undefined;
 			let response = undefined;
-			if (req.method != "GET" && req.method != "HEAD") {
-				const contentType = req.headers["content-type"] ?? "";
-				if (contentType.includes("application/json")) {
+			if (req.method != 'GET' && req.method != 'HEAD') {
+				const contentType = req.headers['content-type'] ?? '';
+				// if (!req.body) {
+				if (contentType.includes('application/json')) {
 					body = JSON.stringify(req.body);
-				} else if (contentType.includes("application/x-www-form-urlencoded")) {
+				} else if (contentType.includes('application/x-www-form-urlencoded')) {
 					body = new URLSearchParams(req.body).toString();
 				} else {
 					body = req.body;
@@ -66,7 +74,7 @@ const endpointHandler = (fastify, options, done) => {
 					method: req.method,
 					headers: {
 						...req.headers,
-						"content-length": body ? Buffer.byteLength(body).toString() : undefined
+						'content-length': body ? Buffer.byteLength(body).toString() : undefined
 					},
 					body: body
 				});
@@ -77,7 +85,7 @@ const endpointHandler = (fastify, options, done) => {
 					headers: req.headers
 				});
 			}
-			
+
 			// Set response status & headers before streaming
 			reply.status(response.status);
 			for (const [key, value] of response.headers.entries()) {
@@ -90,6 +98,53 @@ const endpointHandler = (fastify, options, done) => {
 			return reply.code(500).send(error);
 		}
 	});
+
+	// fastify.all("/avatars/*", async (req, reply) => {
+	// 	try {
+	// 		const subPath = "avatars/" + req.params["*"] ?? "";
+	// 		const queryString = req.raw.url.includes("?") ? "?" + req.raw.url.split("?")[1] : "";
+	// 		const serviceURI = process.env.CDN_URL + (process.env.CDN_URL.endsWith("/") ? "" : "/");
+	// 		const URL = `${serviceURI}${subPath}${queryString}`;
+
+	// 		let body = undefined;
+	// 		let response = undefined;
+	// 		if (req.method != "GET" && req.method != "HEAD") {
+	// 			const contentType = req.headers["content-type"] ?? "";
+	// 			if (contentType.includes("application/json")) {
+	// 				body = JSON.stringify(req.body);
+	// 			} else if (contentType.includes("application/x-www-form-urlencoded")) {
+	// 				body = new URLSearchParams(req.body).toString();
+	// 			} else {
+	// 				body = req.body;
+	// 			}
+	// 			response = await fetch(URL, {
+	// 				method: req.method,
+	// 				headers: {
+	// 					...req.headers,
+	// 					"content-length": body ? Buffer.byteLength(body).toString() : undefined
+	// 				},
+	// 				body: body
+	// 			});
+	// 		}
+	// 		else {
+	// 			response = await fetch(URL, {
+	// 				method: req.method,
+	// 				headers: req.headers
+	// 			});
+	// 		}
+			
+	// 		// Set response status & headers before streaming
+	// 		reply.status(response.status);
+	// 		for (const [key, value] of response.headers.entries()) {
+	// 			reply.header(key, value);
+	// 		}
+
+	// 		// Stream response body directly (doesn't assume JSON)
+	// 		return reply.send(response.body);
+	// 	} catch (error) {
+	// 		return reply.code(500).send(error);
+	// 	}
+	// });
 
 	fastify.all("/users/*", async (req, reply) => {
 		try {

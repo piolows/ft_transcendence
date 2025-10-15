@@ -4,7 +4,7 @@ services:
     image: alpine:latest
     command: |
       sh -c "
-        chmod -R 777 /front_end /backend_controller /backend_auth /backend_users /backend_games
+        chmod -R 777 /front_end /backend_controller /backend_auth /backend_users /backend_games /backend_cdn
       "
     volumes:
       - front_end:/front_end
@@ -12,7 +12,7 @@ services:
       - backend_auth:/backend_auth
       - backend_users:/backend_users
       - backend_games:/backend_games
-      - backend_assets:/backend_assets
+      - backend_cdn:/backend_cdn
 
   frontend:
     container_name: frontend
@@ -40,7 +40,7 @@ services:
       - AUTH_URL=http://backend_auth:41610
       - USER_URL=http://backend_users:41611
       - GAME_URL=http://backend_games:41612
-      - CDN_URL=http://backend_assets:41613
+      - CDN_URL=http://backend_cdn:41613
     ports:
       - "4161:4161"
     networks:
@@ -56,7 +56,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=41610
-      - ASSETS_URL=http://backend_assets:41613
+      - CDN_URL=http://backend_cdn:41613
       - SESSIONS_DB=/app/src/database/sessions.db
       - DB_FILE=/app/src/database/auth.db
       - USERS_TABLE=users
@@ -93,11 +93,11 @@ services:
     networks:
       - micro-services
 
-  backend_assets:
-    container_name: backend_assets
-    build: ./backend/assets
+  backend_cdn:
+    container_name: backend_cdn
+    build: ./backend/cdn
     volumes:
-      - backend_assets:/app
+      - backend_cdn:/app
     restart: on-failure
     environment:
     - NODE_ENV=development
@@ -142,12 +142,12 @@ volumes:
       type: none
       device: ${PWD}/backend/games/app
       o: bind
-  backend_assets:
-    name: backend_assets
+  backend_cdn:
+    name: backend_cdn
     driver: local
     driver_opts:
       type: none
-      device: ${PWD}/backend/assets/app
+      device: ${PWD}/backend/cdn/app
       o: bind
 
 networks:

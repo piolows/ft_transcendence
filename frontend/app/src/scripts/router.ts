@@ -80,7 +80,7 @@ export class Router {
 		}
 
 		// Initialize the Google API manually
-		google.accounts.id.initialize({
+		(window as any).google?.accounts.id.initialize({
 			client_id: "336093315647-mlq5ufc06999l3vhrvbimtn36jqvmgtk.apps.googleusercontent.com",
 			callback: window.handleCredentialResponse,
 			auto_select: false,

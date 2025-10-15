@@ -24,10 +24,14 @@ async function startSever() {
 		}
 	})
 
+	// await fastify.register(fastifyStatic, {
+	// 	root: path.join(process.cwd(), '/public/uploads/avatars'),
+	// 	prefix: '/avatars/',
+	// });
 	await fastify.register(fastifyStatic, {
-		root: path.join(process.cwd(), '/public/uploads/avatars'),
-		prefix: '/avatars/',
-	});
+		root: path.join(process.cwd(), 'public'),
+		prefix: '/cdn/',
+	})
 
 	await fastify.register(endpointHandler);
 

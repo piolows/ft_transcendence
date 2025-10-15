@@ -209,8 +209,8 @@ const endpointHandler = (fastify, options, done) => {
 			if (avatarURL !== '/avatars/kermit.webp') {
 				try {
 					// const assetServiceURL = process.env.CDN_URL;
-					const assetServiceURL = process.env.ASSETS_URL;
-					const res = await fetch(`${assetServiceURL}/api/avatar/from-url`, {
+					const assetServiceURL = process.env.CDN_URL;
+					const res = await fetch(`${assetServiceURL}/cdn/avatars`, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify( { avatarURL } )
@@ -299,11 +299,10 @@ const endpointHandler = (fastify, options, done) => {
 			// add user to the database
 			if (!user) {
 				const url = picture;
-				let avatarURI = "/avatars/kermit.webp";
+				let avatarURI = "/cdn/avatars/kermit.webp";
 				try {
-					// const assetServiceURL = process.env.CDN_URL;
-					const assetServiceURL = process.env.ASSETS_URL;
-					const res = await fetch(`${assetServiceURL}/api/avatar/from-url`, {
+					const assetServiceURL = process.env.CDN_URL;
+					const res = await fetch(`${assetServiceURL}/cdn/avatars`, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify( {url} )
