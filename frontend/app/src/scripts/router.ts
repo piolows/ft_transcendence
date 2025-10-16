@@ -55,10 +55,10 @@ export class Router {
 
 		// Intercept clicks on <a router-link>
 		document.addEventListener("click", (e) => {
-			e.preventDefault();
 			const target = (e.target as HTMLElement).closest("a[router-link]") as HTMLAnchorElement | null;
 			if (!target || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
 				return;
+			e.preventDefault();
 			this.route(target.getAttribute("href")!, true);
 		});
 	}
