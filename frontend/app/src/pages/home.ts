@@ -1,42 +1,39 @@
-import Webpage, { Router, backend_url } from "../scripts/router";
-import title from "../components/main_title";
-import navbar from "../components/nav_bar";
-import footer from "../components/footer";
-import menu from "../components/menu";
-import leaderboard from "../components/leaderboard";
-import isGoogleSignedIn from "../components/google";
+import Component, { Router, backend_url } from "../scripts/router";
+import NavBar from "../components/nav_bar";
+import Footer from "../components/footer";
+import Leaderboard from "../components/leaderboard";
+import MainTitle from "../components/main_title";
+import Menu from "../components/menu";
+import MenuCard from "../components/menu_card";
 
-export default class Homepage implements Webpage {
-	private router: Router;
-
-	constructor(router: Router) {
-		this.router = router;
-	}
+export default class Homepage extends Component {
+	private navbar = new NavBar(this.router);
+	private title = new MainTitle(this.router);
+	private leaderboard = new Leaderboard(this.router);
+	private footer = new Footer(this.router);
+	private menu = new Menu(this.router, "CHOOSE YOUR BATTLE");
 
 	load(app: HTMLDivElement | HTMLElement) {
-		let cards = [
-			["Roshambo Game", "Challenge your opponent in a 1 on 1 game of Rock, Paper, Scissors.", "yellow"],
-			["Tournaments", "Compete for the top spot in a multiple-round elimination-style tournament!", "pink"],
-			["Pong Game", "Play the recreation of the classic pong game from 1985.", "green", [
-				["game", "/game"],
-				["menu", "/pong/menu"]
-			]]
-		];
+		let card = new MenuCard(this.router, "ROSHAMBO", "CHALLENGE OTHERS TO A GAME OF ROCK-PAPER-SCISSORS", "yellow");
+		card.add_button("PLAY", "/roshambo");
+		this.menu.add_card(card);
 
-		app.innerHTML = navbar(this.router.is_logged_in()) + "<div class=\"container mx-auto px-4\">"
-			+ title() + menu(cards, "CHOOSE YOUR BATTLE")
-			+ leaderboard() + "</div>" + footer();
+		card = new MenuCard(this.router, "TOURNAMENTS", "FIGHT IN BRACKET-STYLE TOURNAMENTS AND CROWN THE ULTIMATE WINNER", "pink");
+		card.add_button("LIST", "/tournaments");
+		card.add_button("CREATE", "/tournaments/create");
+		card.add_button("JOIN", "/tournaments/join");
+		this.menu.add_card(card);
+
+		card = new MenuCard(this.router, "PONG GAME", "PLAY THE RECREATION OF THE 1972 CLASSIC PONG GAME", "green");
+		card.add_button("PLAY", "/pong");
+		this.menu.add_card(card);
+
+		this.navbar.load(app);
+		app.innerHTML += "<div class=\"container mx-auto px-4\">" + this.title.get_html() + this.menu.get_html()
+			+ this.leaderboard.get_html() + "</div>" + this.footer.get_html();
 	}
 
 	init() {
-		isGoogleSignedIn(this.router);
-		const login_btn = document.getElementById("login-button")! as HTMLButtonElement;
-		login_btn.onclick = () => {
-			this.router.route("/login", true);
-		}
-		const signup_btn = document.getElementById("signup-button")! as HTMLButtonElement;
-		signup_btn.onclick = () => {
-			this.router.route("/register", true);
-		}
+		this.navbar.init();
 	}
 }

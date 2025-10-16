@@ -1,17 +1,12 @@
-import { Router, backend_url } from "../scripts/router";
-import navbar from "../components/nav_bar";
-import Webpage from "../scripts/router";
-import isGoogleSignedIn from "../components/google";
+import Component, { Router } from "../scripts/router";
+import NavBar from "../components/nav_bar";
 
-export default class Dev implements Webpage {
-	private router: Router;
-	
-	constructor(router: Router) {
-		this.router = router;
-	}
+export default class Dev extends Component {
+	private navbar = new NavBar(this.router);
 
 	load(app: HTMLDivElement | HTMLElement) {
-		app.innerHTML = navbar(this.router.is_logged_in()) + `
+		this.navbar.load(app);
+		app.innerHTML += `
 			<!-- main content -->
 			<main class="container mx-auto mt-8 px-4">
 				<section class="mb-16">
@@ -92,6 +87,6 @@ export default class Dev implements Webpage {
 	}
 
 	init() {
-		isGoogleSignedIn(this.router);
+		this.navbar.init();
 	}
 }

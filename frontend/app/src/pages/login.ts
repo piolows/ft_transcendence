@@ -1,15 +1,11 @@
-import Webpage, { Router, backend_url } from "../scripts/router";
+import Component, { Router, backend_url } from "../scripts/router";
 
-export default class Login implements Webpage {
-	private router: Router;
-	
-	constructor(router: Router) {
-		this.router = router;
-	}
-
+export default class Login extends Component {
 	load(app: HTMLDivElement | HTMLElement) {
+		if (history.length == 0)
+			this.router.route("/", true);
 		app.innerHTML += 
-			`<!-- login screen -->
+		`<!-- login screen -->
         <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center">
             <div class="absolute inset-0 bg-black opacity-80"></div>
             <div class="relative pixel-box bg-blue-900 p-8 w-96 text-white">
@@ -32,6 +28,7 @@ export default class Login implements Webpage {
                         LOGIN
                     </button>
                 </form>
+				<div id="google-login-button" class="g_id_signin pr-6" data-type="standard" data-client_id="336093315647-mlq5ufc06999l3vhrvbimtn36jqvmgtk.apps.googleusercontent.com"></div>
                 <button id="close-button" 
                     class="absolute top-2 right-2 text-white hover:text-red-500 font-bold text-xl">
                     ×
@@ -40,6 +37,12 @@ export default class Login implements Webpage {
         </div>`;
 	}
 
+	// 	if (!this.router.is_logged_in()) {
+	// 		google.accounts.id.renderButton(
+	// 			document.getElementById("google-login-button")!,
+	// 			{ theme: "outline", size: "large" }
+	// 		);
+	// 	}
 	init() {
 		const form = document.getElementById("loginForm") as HTMLFormElement;
 	
@@ -60,6 +63,7 @@ export default class Login implements Webpage {
 				const data = await response.json();
 
 				if (response.ok) {
+					this.router.login_info = data.user;
 					this.router.route("/", true);
 				} else {
 					alert(`Error: ${data.message}`);
@@ -70,10 +74,10 @@ export default class Login implements Webpage {
 			}
 		});
 
-		const close = document.getElementById("close-button") as HTMLButtonElement;
-
+		const close = document.getElementById("close-button")! as HTMLButtonElement;
+		close.style.cursor = "pointer";
 		close.onclick = () => {
-			if (history.length > 1) {
+			if (history.length > 0) {
 				history.back();
 			} else {
 				this.router.route('/', true);

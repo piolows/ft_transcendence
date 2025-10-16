@@ -32,7 +32,7 @@ async function startSever() {
 		})
 	});
 	await fastify.register(FastifyStatic, {
-		root: path.join(process.cwd(), '/uploads/avatars'),
+		root: path.join(process.cwd(), '../uploads/avatars'),
 		prefix: '/avatars/', 
 	});
 

@@ -152,7 +152,7 @@ const endpointHandler = (fastify, options, done) => {
 				return reply.code(403).send({ error: "Wrong password" });
 			}
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: user['avatarURL'] };
-			return reply.send({ message: "Logged in successfully" });
+			reply.send({ user: req.session.user });
 		} catch (error) {
 			return reply.send(error);
 		}
@@ -166,10 +166,12 @@ const endpointHandler = (fastify, options, done) => {
 			if (req.session.user) {
 				req.session.user = null;
 			}
+
 			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`).get(req.body.username);
 			if (user && (user['email'] != req.body.email || user['password'] != null)) {
 				return reply.code(403).send({ error: 'User already exists' });
 			}
+
 			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
 			if (user && user['password'] != null) {
 				return reply.code(403).send({ error: 'User already exists' });
@@ -180,6 +182,7 @@ const endpointHandler = (fastify, options, done) => {
 			if (req.body.username.length > 20) {
 				return reply.code(400).send({ error: 'Username too long: max 20' });
 			}
+
 			const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 			if (!email_regex.test(req.body.email)) {
 				return reply.code(400).send({ error: 'Invalid email format' });
@@ -193,14 +196,17 @@ const endpointHandler = (fastify, options, done) => {
 			if (req.body.password.includes(req.body.username) || req.body.password.includes(req.body.email.split('@')[0])) {
 				return reply.code(400).send({ error: 'Unsafe password: Must not contain username or email address' });
 			}
+
 			const password_regex = /^(?=.{8,64}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9_]).{8,64}$/;
 			if (!password_regex.test(req.body.password)) {
 				return reply.code(400).send({ error: 'Unsafe password: Must contain at least 1 Small letter, 1 Capital letter, 1 Digit and 1 Symbol' });
 			}
+
 			const url_regex = /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp|svg)(\?.*)?)$/i;
 			if (req.body.avatarURL && !url_regex.test(req.body.avatarURL)) {
 				return reply.code(400).send({ error: 'Invalid email' });
 			}
+
 			const password = await hash(req.body.password);
 			let avatarURL = process.env.DEFAULT_PIC;
 			if (req.body.avatarURL && req.body.avatarURL != "") {
@@ -214,14 +220,16 @@ const endpointHandler = (fastify, options, done) => {
 					return reply.code(500).send(err.message);
 				}
 			}
-			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(email);
+
+			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
 			if (user)
 				await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(req.body.username, req.body.email, password, avatarURL, req.body.email);
 			else
 				await fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username, email, password, avatarURL) VALUES (?, ?, ?, ?)`).run(req.body.username, req.body.email, password, avatarURL);
+
 			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: avatarURL };
-			return reply.send({ message: "Logged in successfully" });
+			reply.send({ user: req.session.user });
 		} catch (error) {
 			return reply.send(error);
 		}
@@ -304,7 +312,7 @@ const endpointHandler = (fastify, options, done) => {
 
 			// Create a session (just like normal login)
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: user['avatarURL'] };
-			reply.send({ success: true, user, message: "Logged in successfully" });
+			reply.send({ user: req.session.user });
 		} catch (error) {
 			return reply.send(error);
 		}

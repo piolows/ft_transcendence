@@ -30,7 +30,7 @@ PEAP:
 Game/Backend - Remote Players (M)
 Game/Backend - User stats (AI-Algo 2) (m)
 
-Alex & Emad:
+Alex & ej:
 Backend - User Auth & Info (M) (User management 1)					(Auth DONE, Info not)
 Backend - Google sign in (M) (User management 2)					(DONE)
 Backend - as microservices (M)										(DONE)

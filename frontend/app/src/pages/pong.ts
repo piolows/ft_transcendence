@@ -1,13 +1,8 @@
-import Webpage, { Router } from "../scripts/router";
+import Component, { Router } from "../scripts/router";
 import { Player, Ball, Bot, Paddle, start_game } from "../scripts/game";
 
-export default class Pong implements Webpage {
-	private router: Router;
+export default class Pong extends Component {
 	private end_game: () => void = () => {};
-
-	constructor(router: Router) {
-		this.router = router;
-	}
 
 	load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML = `

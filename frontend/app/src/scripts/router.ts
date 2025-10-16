@@ -1,36 +1,63 @@
-export default interface Webpage {
-	init?(): void;
-	load(app: HTMLDivElement | HTMLElement): void;
-	unload?(): void;
+export const HTTP_CODES: any = {
+	400: "Bad Request",
+	401: "Unauthorized",
+	403: "Forbidden",
+	404: "Page Not Found",
+	500: "Internal Server Error",
+	503: "Service Unavailable",
+}
+
+export default abstract class Component {
+	router: Router;
+
+	constructor(router: Router) {
+		this.router = router;
+	}
+
+	load(app: HTMLDivElement | HTMLElement) {
+		return ;
+	}
+
+	init() {
+
+	}
+
+	unload() {
+
+	}
 }
 
 export var backend_url = "https://localhost:4161";
 
-class DefaultErrorPage implements Webpage {
+class DefaultErrorPage extends Component {
+	constructor(router: Router) {
+		super(router);
+	}
+	
 	load(app: HTMLDivElement | HTMLElement, err_code: string = "404") {
 		app.innerHTML = `
 			<div class="center text-center mt-50">
-				<h1>Unexpected Error</h1>
-				<h4>Error code ${err_code}</h4>
+				<h1>${ HTTP_CODES[err_code] }</h1>
+				<h4>Error code ${ err_code }</h4>
 			</div>`;
 	}
 }
 
 export class Router {
-	private routes = new Map<string, Webpage>();
-	private currpage: Webpage | null = null;
-	private errpage: Webpage;
+	private routes = new Map<string, Component>();
+	private currpage: Component | null = null;
+	private errpage: Component;
 	private app: HTMLDivElement | HTMLElement;
-	private loggedin = false;
+	login_info: any = null;
+	loggedin = false;
 
 	constructor(app: HTMLDivElement | null) {
-		this.errpage = new DefaultErrorPage();
+		this.errpage = new DefaultErrorPage(this);
 		this.app = app ?? document.body;
 
 		// Handle back/forward buttons
 		window.onpopstate = (event) => {
 			const path = event.state?.route || "/";
-			console.log("PIOLO", event.state?.route);
 			this.route(path, false);
 		};
 
@@ -73,6 +100,7 @@ export class Router {
 				})
 				.then(res => res.json())
 				.then(data => {
+					this.login_info = data.user;
 					this.route("/", true);
 				})
 				.catch(err => console.error("Error sending token to backend:", err));
@@ -86,52 +114,18 @@ export class Router {
 			auto_select: false,
 		});
 	}
-	
-	set_error_handler(error_handler: Webpage) {
-		this.errpage = error_handler;
-	}
 
-	add_route(route: string, page: Webpage) {
-		this.routes.set(route, page);
-	}
-
-	route(path: string, push: boolean = false) {
-		console.log("EMAD", path);
-		this.check_session().then(() => {
-			this.currpage?.unload?.();
-			if (!this.routes.has(path)) {
-				this.errpage.load(this.app);
-				this.currpage = this.errpage;
-			} else {
-				this.currpage = this.routes.get(path) ?? null;
-				this.currpage?.load(this.app);
-				this.currpage?.init?.();
-			}
-			if (push)
-				history.pushState({ route: path }, '', path);
-		});
-	}
-
-	async check_session() {
+	private async check_session() {
 		try {
 			const res = await fetch(backend_url + "/auth/me", {
-				credentials: "include", // VERY IMPORTANT! Sends cookies with request
+				credentials: "include",
 			});
 			const data = await res.json();
 
 			if (data.loggedIn) {
-				// const profile = document.getElementById('profile-info');
-				// const pfp = document.getElementById('pfp') as HTMLImageElement;
-				// const uname = document.getElementById('uname');
-				// const umail = document.getElementById('umail');
-				// profile && (profile.style.display = "block");
-				// pfp && (pfp.src = data.user.avatarURL);
-				// uname && (uname.innerText = data.user.username);
-				// umail && (umail.innerText = data.user.email);
-				// showLogoutButton(data.user);
+				this.login_info = data.user;
 				this.loggedin = true;
 			} else {
-				// showLoginButton();
 				this.loggedin = false;
 			}
 		} catch (err) {
@@ -139,8 +133,28 @@ export class Router {
 		}
 	}
 
-	is_logged_in(): boolean {
-		return this.loggedin;
+	set_error_handler(handler: Component) {
+		this.errpage = handler;
+	}
+
+	add_route(route: string, page: Component) {
+		this.routes.set(route, page);
+	}
+
+	route(path: string, push: boolean = false) {
+		this.check_session().then(() => {
+			this.currpage?.unload();
+			if (!this.routes.has(path)) {
+				this.errpage.load(this.app);
+				this.currpage = this.errpage;
+			} else {
+				this.currpage = this.routes.get(path) ?? null;
+				this.currpage?.load(this.app);
+				this.currpage?.init();
+			}
+			if (push)
+				history.pushState({ route: path }, '', path);
+		});
 	}
 
 	async start() {

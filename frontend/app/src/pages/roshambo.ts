@@ -1,6 +1,6 @@
-import Webpage from "../scripts/router";
+import Component from "../scripts/router";
 
-export default class Roshambo implements Webpage {
+export default class Roshambo extends Component {
 	load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML = 
 			`<a href = "/">

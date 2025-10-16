@@ -1,19 +1,43 @@
-import menu_card from "./menu_card";
+import Component, { Router } from "../scripts/router";
+import MenuCard from "./menu_card";
 
-export default function menu(info: any, title?: string) { // str str a
-	// let cards: Array<string> = [];
-	// info.forEach(element => {
-	// 	cards.push(menu_card(element[0], element[1], element.length > 2 ? element[2] : "#"));
-	// });
-	let cards = "";
-	for (let i = 0; i < info.length; i++) {
-		cards += menu_card(info[i][0], info[i][1], info[i][2], info[i][3] ?? []);
+export default class Menu extends Component {
+	title?: string;
+	cards: Array<MenuCard> = [];
+
+	constructor(router: Router, title?: string) {
+		super(router);
+		if (title)
+			this.title = title;
 	}
-	return `<!-- selection grid -->
-		${title ? `<div class="py-16">
-            <h2 class="text-4xl font-bold text-center mb-12 retro-shadow">${title}</h2>` : ""}
-		<div class="center grid grid-cols-1 sm:grid-cols-${info.length >= 2 ? 2 : info.length} lg:grid-cols-${info.length >= 3 ? 3 : info.length} gap-8">
-			${cards}
-			${title ? `</div>` : ""}
-        </div>`;
+
+	add_card(card: MenuCard) {
+		this.cards.push(card);
+	}
+
+	new_card(title: string, desc: string, color: string) {
+		this.cards.push(new MenuCard(this.router, title, desc, color));
+	}
+
+	get_html() {
+		if (this.cards.length == 0)
+			return '';
+		let cards_html = "";
+		for (let card of this.cards) {
+			cards_html += card.get_html();
+		}
+		return `
+			<!-- selection grid -->
+				${ this.title ? `
+			<div class="py-16">
+				<h2 class="text-4xl font-bold text-center mb-12 retro-shadow">${ this.title }</h2>` : "" }
+				<div class="grid grid-cols-1 sm:grid-cols-${ this.cards.length >= 2 ? 2 : this.cards.length } md:grid-cols-${ this.cards.length >= 3 ? 3 : this.cards.length } lg:grid-cols-${ this.cards.length >= 3 ? 3 : this.cards.length } gap-8 justify-center">
+					${ cards_html }
+					${ this.title ? `</div>` : "" }
+			</div>`;
+	}
+
+	load(app: HTMLDivElement | HTMLElement) {
+		app.innerHTML = this.get_html();
+	}
 }

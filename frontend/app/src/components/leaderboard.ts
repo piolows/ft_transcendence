@@ -1,5 +1,13 @@
-export default function leaderboard() {
-	return `<div class="py-16 text-center">
+import Component, { Router } from "../scripts/router";
+
+export default class Leaderboard extends Component {
+	constructor(router: Router) {
+		super(router);
+	}
+
+	get_html() {
+		return `
+		<div class="py-16 text-center">
             <h2 class="text-4xl font-bold mb-12 retro-shadow">TOP PLAYERS</h2>
             <div class="inline-block pixel-box bg-opacity-80 bg-blue-900 p-8">
                 <div class="space-y-4 font-vt323 text-xl">
@@ -18,4 +26,9 @@ export default function leaderboard() {
                 </div>
             </div>
         </div>`;
+	}
+
+	load(app: HTMLDivElement | HTMLElement) {
+		app.innerHTML = this.get_html();
+	}
 }
