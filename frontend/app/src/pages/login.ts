@@ -2,8 +2,6 @@ import Component, { Router, backend_url } from "../scripts/router";
 
 export default class Login extends Component {
 	load(app: HTMLDivElement | HTMLElement) {
-		if (history.length == 0)
-			this.router.route("/", true);
 		app.innerHTML += 
 		`<!-- login screen -->
         <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center">
@@ -37,12 +35,12 @@ export default class Login extends Component {
         </div>`;
 	}
 
-	// 	if (!this.router.is_logged_in()) {
-	// 		google.accounts.id.renderButton(
-	// 			document.getElementById("google-login-button")!,
-	// 			{ theme: "outline", size: "large" }
-	// 		);
-	// 	}
+	// if (!this.router.is_logged_in()) {
+	// 	google.accounts.id.renderButton(
+	// 		document.getElementById("google-login-button")!,
+	// 		{ theme: "outline", size: "large" }
+	// 	);
+	// }
 	init() {
 		const form = document.getElementById("loginForm") as HTMLFormElement;
 	
@@ -77,11 +75,7 @@ export default class Login extends Component {
 		const close = document.getElementById("close-button")! as HTMLButtonElement;
 		close.style.cursor = "pointer";
 		close.onclick = () => {
-			if (history.length > 0) {
-				history.back();
-			} else {
-				this.router.route('/', true);
-			}
+			history.back();
 		};
 	}
 }

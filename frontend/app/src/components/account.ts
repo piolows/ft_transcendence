@@ -31,12 +31,12 @@ export default class AuthSection extends Component {
 			return `
 				<div class="flex items-center space-x-6">
 					<div class="flex space-x-4">
-						<a href="/login" class="flex">
+						<a href="/login" router-link>
 							<button id="login-button" class="pixel-box bg-blue-600 px-6 py-2 hover:bg-blue-700 clicky">
 								LOGIN
 							</button>
 						</a>
-						<a href="/register" class="flex">
+						<a href="/register" router-link>
 							<button id="signup-button" class="pixel-box bg-green-500 px-6 py-2 hover:bg-green-600 clicky">
 								SIGN UP
 							</button>
@@ -51,25 +51,27 @@ export default class AuthSection extends Component {
 	}
 
 	init() {
-		const logoutbtn = document.getElementById('logout-button')! as HTMLButtonElement;
-		logoutbtn.onclick = async () => {
-			try {
-				const res = await fetch(backend_url + "/auth/me", {
-					credentials: "include"
-				});
-				const data = await res.json();
-
-				if (data.loggedIn) {
-					await fetch(backend_url + "/auth/logout", {
-						method: "POST",
-						body: JSON.stringify({}),
+		if (this.router.loggedin) {
+			const logoutbtn = document.getElementById('logout-button')! as HTMLButtonElement;
+			logoutbtn.onclick = async () => {
+				try {
+					const res = await fetch(backend_url + "/auth/me", {
 						credentials: "include"
-					})
+					});
+					const data = await res.json();
+
+					if (data.loggedIn) {
+						await fetch(backend_url + "/auth/logout", {
+							method: "POST",
+							body: JSON.stringify({}),
+							credentials: "include"
+						})
+					}
+					this.router.login_info = null;
+					this.router.route("/", true);
+				} catch (err) {
+					console.error("Failed to log out:", err);
 				}
-				this.router.login_info = null;
-				this.router.route("/", true);
-			} catch (err) {
-				console.error("Failed to log out:", err);
 			}
 		}
 	}

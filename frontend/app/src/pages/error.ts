@@ -17,8 +17,7 @@ export default class ErrorHandler extends Component {
 				<h1>${ HTTP_CODES[this.error_code] }</h1>
 				<h4>Error code ${ this.error_code }</h4>
 			</div>`;
-		this.navbar.load(app);
-		app.innerHTML += err_msg + this.footer.get_html();
+		app.innerHTML = this.navbar.get_html() + err_msg + this.footer.get_html();
 	}
 
 	init() {

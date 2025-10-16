@@ -14,17 +14,9 @@ export default abstract class Component {
 		this.router = router;
 	}
 
-	load(app: HTMLDivElement | HTMLElement) {
-		return ;
-	}
-
-	init() {
-
-	}
-
-	unload() {
-
-	}
+	load(app: HTMLDivElement | HTMLElement) {}
+	init() {}
+	unload() {}
 }
 
 export var backend_url = "https://localhost:4161";
@@ -47,7 +39,7 @@ export class Router {
 	private routes = new Map<string, Component>();
 	private currpage: Component | null = null;
 	private errpage: Component;
-	private app: HTMLDivElement | HTMLElement;
+	app: HTMLDivElement | HTMLElement;
 	login_info: any = null;
 	loggedin = false;
 
@@ -58,16 +50,16 @@ export class Router {
 		// Handle back/forward buttons
 		window.onpopstate = (event) => {
 			const path = event.state?.route || "/";
-			this.route(path, false);
+			this.route(path);
 		};
 
-		// Intercept clicks on <a data-link>
+		// Intercept clicks on <a router-link>
 		document.addEventListener("click", (e) => {
-			const target = (e.target as HTMLElement).closest("a[data-link]") as HTMLAnchorElement | null;
-			if (target) {
-				e.preventDefault();
-				this.route(target.getAttribute("href")!);
-			}
+			e.preventDefault();
+			const target = (e.target as HTMLElement).closest("a[router-link]") as HTMLAnchorElement | null;
+			if (!target || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+				return;
+			this.route(target.getAttribute("href")!, true);
 		});
 	}
 
@@ -143,6 +135,12 @@ export class Router {
 
 	route(path: string, push: boolean = false) {
 		this.check_session().then(() => {
+			if (path == "/login" || path == "/register") {
+				if (this.loggedin || document.referrer == "") {
+					this.route("/", true);
+					return ;
+				}
+			}
 			this.currpage?.unload();
 			if (!this.routes.has(path)) {
 				this.errpage.load(this.app);

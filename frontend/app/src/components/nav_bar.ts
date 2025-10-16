@@ -11,14 +11,14 @@ export default class NavBar extends Component {
 		this.log_sect = new AuthSection(this.router);
 	}
 
-	load(app: HTMLDivElement | HTMLElement) {
-		app.innerHTML = `
+	get_html() {
+		return `
 		<!-- nav bar -->
 		<nav class="relative z-10 p-4">
 			<div class="container mx-auto flex justify-between items-center">
 				<!-- logo -->
 				<div class="flex items-center space-x-2">
-					<a href="/">
+					<a href="/" router-link>
 						<h1 class="text-4xl font-bold pixel-box bg-opacity-50 p-4">${ this.site_title }</h1>
 					</a>
 				</div>
@@ -26,6 +26,10 @@ export default class NavBar extends Component {
 				${ this.log_sect.get_html() }
 			</div>
 		</nav>`;
+	}
+
+	load(app: HTMLDivElement | HTMLElement) {
+		app.innerHTML = this.get_html();
 	}
 
 	init() {

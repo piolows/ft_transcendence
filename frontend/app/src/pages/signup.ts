@@ -1,9 +1,11 @@
-import Component, { Router, backend_url } from "../scripts/router";
+import Component, { backend_url } from "../scripts/router";
 
 export default class SignUp extends Component {
 	load(app: HTMLDivElement | HTMLElement) {
-		if (history.length == 0)
+		if (history.length <= 1) {
 			this.router.route("/", true);
+			app = this.router.app;
+		}
 		app.innerHTML += 
 			`<div id="signup-screen" class="fixed inset-0 z-50 flex items-center justify-center">
             <div class="absolute inset-0 bg-black opacity-80"></div>
@@ -79,11 +81,7 @@ export default class SignUp extends Component {
 		const close = document.getElementById("close-button")! as HTMLButtonElement;
 		close.style.cursor = "pointer";
 		close.onclick = () => {
-			if (history.length > 0) {
-				history.back();
-			} else {
-				this.router.route('/', true);
-			}
+			history.back();
 		};
 	}
 }
