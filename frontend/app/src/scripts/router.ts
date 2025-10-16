@@ -136,7 +136,7 @@ export class Router {
 	route(path: string, push: boolean = false) {
 		this.check_session().then(() => {
 			if (path == "/login" || path == "/register") {
-				if (this.loggedin || document.referrer == "") {
+				if (this.loggedin || !this.currpage) {
 					this.route("/", true);
 					return ;
 				}

@@ -35,12 +35,6 @@ export default class Login extends Component {
         </div>`;
 	}
 
-	// if (!this.router.is_logged_in()) {
-	// 	google.accounts.id.renderButton(
-	// 		document.getElementById("google-login-button")!,
-	// 		{ theme: "outline", size: "large" }
-	// 	);
-	// }
 	init() {
 		const form = document.getElementById("loginForm") as HTMLFormElement;
 	
@@ -77,5 +71,10 @@ export default class Login extends Component {
 		close.onclick = () => {
 			history.back();
 		};
+
+		google.accounts.id.renderButton(
+			document.getElementById("google-login-button")!,
+			{ theme: "outline", size: "large" }
+		);
 	}
 }

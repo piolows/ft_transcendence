@@ -83,5 +83,10 @@ export default class SignUp extends Component {
 		close.onclick = () => {
 			history.back();
 		};
+
+		google.accounts.id.renderButton(
+			document.getElementById("google-login-button")!,
+			{ theme: "outline", size: "large" }
+		);
 	}
 }
