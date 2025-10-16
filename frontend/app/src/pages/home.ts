@@ -12,8 +12,10 @@ export default class Homepage extends Component {
 	private leaderboard = new Leaderboard(this.router);
 	private footer = new Footer(this.router);
 	private menu = new Menu(this.router, "CHOOSE YOUR BATTLE");
-
-	load(app: HTMLDivElement | HTMLElement) {
+	
+	constructor(router: Router) {
+		super(router);
+		
 		let card = new MenuCard(this.router, "ROSHAMBO", "CHALLENGE OTHERS TO A GAME OF ROCK-PAPER-SCISSORS", "yellow");
 		card.add_button("PLAY", "/roshambo");
 		this.menu.add_card(card);
@@ -27,7 +29,9 @@ export default class Homepage extends Component {
 		card = new MenuCard(this.router, "PONG GAME", "PLAY THE RECREATION OF THE 1972 CLASSIC PONG GAME", "green");
 		card.add_button("PLAY", "/pong");
 		this.menu.add_card(card);
+	}
 
+	load(app: HTMLDivElement | HTMLElement) {
 		this.navbar.load(app);
 		app.innerHTML += "<div class=\"container mx-auto px-4\">" + this.title.get_html() + this.menu.get_html()
 			+ this.leaderboard.get_html() + "</div>" + this.footer.get_html();

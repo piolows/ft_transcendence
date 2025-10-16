@@ -2,12 +2,9 @@ import Component, { backend_url } from "../scripts/router";
 
 export default class SignUp extends Component {
 	load(app: HTMLDivElement | HTMLElement) {
-		if (history.length <= 1) {
-			this.router.route("/", true);
-			app = this.router.app;
-		}
 		app.innerHTML += 
-			`<div id="signup-screen" class="fixed inset-0 z-50 flex items-center justify-center">
+		`<!-- register screen -->
+		<div id="signup-screen" class="fixed inset-0 z-50 flex items-center justify-center">
             <div class="absolute inset-0 bg-black opacity-80"></div>
             <div class="relative pixel-box bg-green-900 p-8 w-96 text-white">
                 <h2 class="text-2xl font-pixelify mb-6 rainbow text-center">SIGN UP</h2>

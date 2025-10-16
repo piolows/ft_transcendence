@@ -5,45 +5,49 @@ export default class AuthSection extends Component {
 		super(router);
 	}
 
-	get_html() {
-		if (this.router.loggedin)
-		{
-            return `
-				<div class="flex items-center space-x-6">
-					<div id="profile-info">
-						<div class="flex items-center space-x-4">
-							<img id="pfp" src="${this.router.login_info.avatarURL}" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
-							<div>
-								<h4 id="username" class="crt-text">${this.router.login_info.username}</h4>
-								<p id="email" class="text-xs font-silkscreen">${this.router.login_info.email}</p>
-							</div>
+	logged_in_block() {
+		return `
+			<div class="flex items-center space-x-6">
+				<div id="profile-info">
+					<div class="flex items-center space-x-4">
+						<img id="pfp" src="${this.router.login_info.avatarURL}" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
+						<div>
+							<h4 id="username" class="crt-text">${this.router.login_info.username}</h4>
+							<p id="email" class="text-xs font-silkscreen">${this.router.login_info.email}</p>
 						</div>
 					</div>
-					<div class="flex space-x-4">
-						<button id="logout-button" class="hidden hover:text-blue-200 clicky wiggler">
-							LOGOUT
+				</div>
+				<div class="flex space-x-4">
+					<button id="logout-button" class="hidden hover:text-blue-200 clicky wiggler">
+						LOGOUT
+					</button>
+				</div>
+			</div>`;
+	}
+
+	logged_out_block() {
+		return `
+			<div class="flex items-center space-x-6">
+				<div class="flex space-x-4">
+					<a href="/login" router-link>
+						<button id="login-button" class="pixel-box bg-blue-600 px-6 py-2 hover:bg-blue-700 clicky">
+							LOGIN
 						</button>
-					</div>
-				</div>`;
-		}
+					</a>
+					<a href="/register" router-link>
+						<button id="signup-button" class="pixel-box bg-green-500 px-6 py-2 hover:bg-green-600 clicky">
+							SIGN UP
+						</button>
+					</a>
+				</div>
+			</div>`;
+	}
+
+	get_html() {
+		if (this.router.loggedin)
+			return this.logged_in_block();
 		else
-		{
-			return `
-				<div class="flex items-center space-x-6">
-					<div class="flex space-x-4">
-						<a href="/login" router-link>
-							<button id="login-button" class="pixel-box bg-blue-600 px-6 py-2 hover:bg-blue-700 clicky">
-								LOGIN
-							</button>
-						</a>
-						<a href="/register" router-link>
-							<button id="signup-button" class="pixel-box bg-green-500 px-6 py-2 hover:bg-green-600 clicky">
-								SIGN UP
-							</button>
-						</a>
-					</div>
-				</div>`;
-		}
+			return this.logged_out_block();
 	}
 
 	load(app: HTMLDivElement | HTMLElement) {
@@ -68,7 +72,7 @@ export default class AuthSection extends Component {
 						})
 					}
 					this.router.login_info = null;
-					this.router.route("/", true);
+					logoutbtn.parentElement?.parentElement && (logoutbtn.parentElement.parentElement.innerHTML = this.logged_out_block());
 				} catch (err) {
 					console.error("Failed to log out:", err);
 				}

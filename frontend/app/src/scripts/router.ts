@@ -141,6 +141,7 @@ export class Router {
 					return ;
 				}
 			}
+			window.scrollTo(0, 0);
 			this.currpage?.unload();
 			if (!this.routes.has(path)) {
 				this.errpage.load(this.app);
