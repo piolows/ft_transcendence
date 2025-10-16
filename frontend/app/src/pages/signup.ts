@@ -69,7 +69,7 @@ export default class SignUp extends Component {
 
 				if (response.ok) {
 					this.router.login_info = data.user;
-					this.router.route("/", true);
+					history.back();
 				} else {
 					alert(`Error: ${data.message}`);
 				}
