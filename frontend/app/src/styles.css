@@ -185,3 +185,14 @@
     display: inline-block;
     animation: marquee 15s linear infinite;
 }
+
+.overlay-container {
+  position: relative; /* Essential for positioning child elements */
+  margin: 0 auto; /* Centers the container horizontally */
+}
+
+.overlay-item {
+  position: absolute; /* Allows precise positioning */
+  /* Add z-index if specific stacking order is needed for overlapping elements */
+  /* z-index: 1; */
+}

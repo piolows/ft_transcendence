@@ -42,6 +42,7 @@ export class Router {
 	app: HTMLDivElement | HTMLElement;
 	login_info: any = null;
 	loggedin = false;
+	google_client: any;
 
 	constructor(app: HTMLDivElement | null) {
 		this.errpage = new DefaultErrorPage(this);
@@ -81,29 +82,10 @@ export class Router {
 	private async setup_google() {
 		await this.wait_for_google();
 
-		if (!window.handleCredentialResponse) {
-			// Register callback
-			window.handleCredentialResponse = (response) => {
-				fetch(backend_url + "/auth/google-login", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ token: response.credential }),
-					credentials: "include"
-				})
-				.then(res => res.json())
-				.then(data => {
-					this.login_info = data.user;
-					this.route("/", true);
-				})
-				.catch(err => console.error("Error sending token to backend:", err));
-			};
-		}
-
-		// Initialize the Google API manually
 		google.accounts.id.initialize({
 			client_id: "336093315647-mlq5ufc06999l3vhrvbimtn36jqvmgtk.apps.googleusercontent.com",
-			callback: window.handleCredentialResponse,
-			auto_select: false,
+			callback: (resp: any) => this.handle_google_login(resp),
+			auto_select: false
 		});
 	}
 
@@ -123,6 +105,21 @@ export class Router {
 		} catch (err) {
 			console.error("Failed to check session:", err);
 		}
+	}
+
+	private handle_google_login(idToken: any) {
+		fetch(backend_url + "/auth/google-login", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ token: idToken.credential }),
+			credentials: "include",
+		})
+		.then(res => res.json())
+		.then(data => {
+			this.login_info = data.user;
+			this.route("/", true);
+		})
+		.catch(err => console.error("Error sending token to backend:", err));
 	}
 
 	set_error_handler(handler: Component) {
@@ -158,7 +155,6 @@ export class Router {
 
 	async start() {
 		await this.setup_google();
-		await this.check_session();
 		this.route(location.pathname);
 	}
 }

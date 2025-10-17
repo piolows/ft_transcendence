@@ -59,18 +59,11 @@ export default class AuthSection extends Component {
 			const logoutbtn = document.getElementById('logout-button')! as HTMLButtonElement;
 			logoutbtn.onclick = async () => {
 				try {
-					const res = await fetch(backend_url + "/auth/me", {
+					await fetch(backend_url + "/auth/logout", {
+						method: "POST",
+						body: JSON.stringify({}),
 						credentials: "include"
 					});
-					const data = await res.json();
-
-					if (data.loggedIn) {
-						await fetch(backend_url + "/auth/logout", {
-							method: "POST",
-							body: JSON.stringify({}),
-							credentials: "include"
-						})
-					}
 					this.router.login_info = null;
 					logoutbtn.parentElement?.parentElement && (logoutbtn.parentElement.parentElement.innerHTML = this.logged_out_block());
 				} catch (err) {

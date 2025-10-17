@@ -36,8 +36,11 @@ export default class SignUp extends Component {
                         class="w-full bg-green-500 text-white py-3 pixel-box font-pixelify hover:bg-green-600 clicky">
                         CREATE ACCOUNT
                     </button>
+					<button class="w-full flex justify-center mx-auto">
+						<div id="googleButton"
+							class="bg-green-500 text-white py-1.5 px-10 pixel-box font-pixelify hover:bg-green-600 clicky"></div>
+					</button>
                 </form>
-				<div id="google-login-button" class="g_id_signin pr-6" data-type="standard" data-client_id="336093315647-mlq5ufc06999l3vhrvbimtn36jqvmgtk.apps.googleusercontent.com"></div>
                 <button id="close-button" 
                     class="absolute top-2 right-2 text-white hover:text-red-500 font-bold text-xl">
                     ×
@@ -82,8 +85,14 @@ export default class SignUp extends Component {
 		};
 
 		google.accounts.id.renderButton(
-			document.getElementById("google-login-button")!,
-			{ theme: "outline", size: "large" }
+			document.getElementById("googleButton")!,
+			{ 
+				shape: "circle", 
+				size: "large",
+				text: "continue_with",
+				logo_alignment: "center",
+				width: "100%"
+			}
 		);
 	}
 }

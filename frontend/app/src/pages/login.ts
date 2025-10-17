@@ -1,3 +1,4 @@
+import { getModeForUsageLocation } from "typescript";
 import Component, { Router, backend_url } from "../scripts/router";
 
 export default class Login extends Component {
@@ -21,12 +22,15 @@ export default class Login extends Component {
                             class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323"
                             required>
                     </div>
-                    <button type="submit" 
+                    <button type="submit"
                         class="w-full bg-blue-500 text-white py-3 pixel-box font-pixelify hover:bg-blue-600 clicky">
                         LOGIN
                     </button>
+					<button class="w-full flex justify-center mx-auto">
+						<div id="googleButton"
+							class="bg-blue-500 text-white py-1.5 px-10 pixel-box font-pixelify hover:bg-blue-600 clicky"></div>
+					</button>
                 </form>
-				<div id="google-login-button" class="g_id_signin pr-6" data-type="standard" data-client_id="336093315647-mlq5ufc06999l3vhrvbimtn36jqvmgtk.apps.googleusercontent.com"></div>
                 <button id="close-button" 
                     class="absolute top-2 right-2 text-white hover:text-red-500 font-bold text-xl">
                     ×
@@ -73,8 +77,14 @@ export default class Login extends Component {
 		};
 
 		google.accounts.id.renderButton(
-			document.getElementById("google-login-button")!,
-			{ theme: "outline", size: "large" }
+			document.getElementById("googleButton")!,
+			{ 
+				shape: "circle",
+				size: "large",
+				text: "continue_with",
+				logo_alignment: "center",
+				width: "100%"
+			}
 		);
 	}
 }
