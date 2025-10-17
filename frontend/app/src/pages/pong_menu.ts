@@ -4,24 +4,21 @@ import Footer from "../components/footer";
 import Menu from "../components/menu";
 import MenuCard from "../components/menu_card";
 
-export default class DifficultyMenu extends Component {
+export default class PongMenu extends Component {
 	private navbar = new NavBar(this.router);
 	private footer = new Footer(this.router);
-	private menu = new Menu(this.router, "CHOOSE A DIFFICULTY");
+	private menu = new Menu(this.router, "PONG GAMEMODES");
 	
 	constructor(router: Router) {
 		super(router);
 
-		let card = new MenuCard(this.router, "EASY", "Challenge the AI bot on Easy difficulty", "green");
-		card.add_button("EASY PEASY", "/pong/game");
+		let card = new MenuCard(this.router, "PLAY ONLINE", "Battle players worldwide in ranked matches!", "green");
+		card.add_button("QUEUE NOW", "/pong/game");
 		this.menu.add_card(card);
 
-		card = new MenuCard(this.router, "HARD", "Challenge the AI bot on Hard difficulty", "yellow");
-		card.add_button("EASY PEASY...?", "/pong/game");
-		this.menu.add_card(card);
-
-		card = new MenuCard(this.router, "EXTREME", "Challenge the AI bot on Extreme difficulty", "red");
-		card.add_button("NOT EASY PEASY", "/pong/game");
+		card = new MenuCard(this.router, "PLAY LOCALLY", "Play against a bot or against a player on the same keyboard!", "yellow");
+		card.add_button("VS BOT", "/pong/difficulty");
+		card.add_button("VS PLAYER", "/pong/game");
 		this.menu.add_card(card);
 	}
 

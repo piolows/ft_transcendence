@@ -12,11 +12,17 @@ export default class Homepage extends Component {
 	private leaderboard = new Leaderboard(this.router);
 	private footer = new Footer(this.router);
 	private menu = new Menu(this.router, "CHOOSE YOUR BATTLE");
-	
+
 	constructor(router: Router) {
 		super(router);
 		
-		let card = new MenuCard(this.router, "ROSHAMBO", "CHALLENGE OTHERS TO A GAME OF ROCK-PAPER-SCISSORS", "yellow");
+		let card;
+
+		card = new MenuCard(this.router, "PONG GAME", "PLAY THE RECREATION OF THE 1972 CLASSIC PONG GAME", "green");
+		card.add_button("PLAY", "/pong/");
+		this.menu.add_card(card);
+
+		card = new MenuCard(this.router, "ROSHAMBO", "CHALLENGE OTHERS TO A GAME OF ROCK-PAPER-SCISSORS", "yellow");
 		card.add_button("PLAY", "/roshambo");
 		this.menu.add_card(card);
 
@@ -24,10 +30,6 @@ export default class Homepage extends Component {
 		card.add_button("LIST", "/tournaments");
 		card.add_button("CREATE", "/tournaments/create");
 		card.add_button("JOIN", "/tournaments/join");
-		this.menu.add_card(card);
-
-		card = new MenuCard(this.router, "PONG GAME", "PLAY THE RECREATION OF THE 1972 CLASSIC PONG GAME", "green");
-		card.add_button("PLAY", "/pong");
 		this.menu.add_card(card);
 	}
 
