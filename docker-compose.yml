@@ -92,6 +92,7 @@ services:
       - NODE_ENV=development
       - SESSIONS_DB=/app/src/database/sessions.db
       - SESSION_SECRET=${SESSION_SECRET}
+      - FRONTEND_URL=https://localhost
       - PORT=4116
     ports:
       - "4116:4116"
