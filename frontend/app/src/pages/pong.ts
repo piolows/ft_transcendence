@@ -1,14 +1,16 @@
 import Component, { Router } from "../scripts/router";
 import { Player, Ball, Bot, Paddle, start_game } from "../scripts/game";
+import NavBar from "../components/nav_bar";
+import Footer from "../components/footer";
 
 export default class Pong extends Component {
 	private end_game: () => void = () => {};
+	private navbar = new NavBar(this.router);
+	private footer = new Footer(this.router);
 
 	load(app: HTMLDivElement | HTMLElement) {
-		app.innerHTML = `
-			<button id="back-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded absolute top-4 left-4">
-				Back
-			</button>
+		this.navbar.load(app);
+		app.innerHTML += `
 			<div class="w-screen flex pb-5 pt-3 items-center justify-center">
 				<div class="flex w-200">
 					<div id="timer" class="my-auto text-blue-800">
@@ -22,17 +24,11 @@ export default class Pong extends Component {
 			<div id="parent-container" class="flex justify-center">
 				<canvas id="gameCanvas" width="800" height="600"></canvas>
 			</div>`;
+		
+		app.innerHTML += this.footer.get_html();
 	}
 
 	init() {
-		const backbtn = document.getElementById('back-button')!;
-		backbtn.onclick = () => {
-			if (history.length > 1) {
-				history.back();
-			} else {
-				this.router.route('/', true);
-			}
-		};
 
 		const ball_speed = 8;
 		const ball_radius = 16;
