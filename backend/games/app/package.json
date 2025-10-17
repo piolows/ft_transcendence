@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^11.1.0",
     "@fastify/session": "^11.1.0",
     "@fastify/websocket": "^11.2.0",
     "better-sqlite3": "^12.4.1",

@@ -18,8 +18,10 @@ async function startSever() {
 
 	// Enable CORS
 	await fastify.register(fastifyCors, {
-		origin: [process.env.FRONTEND_URL], // allow your frontend
-		credentials: true,                 // allow cookies / session
+		origin: [process.env.FRONTEND_URL],
+		credentials: true,
+		methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+		allowedHeaders: ['Content-Type', 'Authorization'],
 	});
 
 	await fastify.register(endpointHandler);
