@@ -10,10 +10,10 @@ export default class AuthSection extends Component {
 			<div class="flex items-center space-x-6">
 				<div id="profile-info">
 					<div class="flex items-center space-x-4">
-						<img id="pfp" src="${this.router.login_info.avatarURL}" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
+						<img id="pfp" src="${ backend_url + this.router.login_info.avatarURL }" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
 						<div>
-							<h4 id="username" class="crt-text">${this.router.login_info.username}</h4>
-							<p id="email" class="text-xs font-silkscreen">${this.router.login_info.email}</p>
+							<h4 id="username" class="crt-text">${ this.router.login_info.username }</h4>
+							<p id="email" class="text-xs font-silkscreen">${ this.router.login_info.email }</p>
 						</div>
 					</div>
 				</div>

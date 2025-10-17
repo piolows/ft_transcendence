@@ -4,7 +4,7 @@ services:
     image: alpine:latest
     command: |
       sh -c "
-        chmod -R 777 /front_end /db_storage /uploads /backend_controller /backend_auth /backend_users /backend_games
+        chmod -R 777 /front_end /db_storage /uploads /backend_controller /backend_auth /backend_users /backend_games /backend_cdn
       "
     volumes:
       - front_end:/front_end
@@ -14,6 +14,7 @@ services:
       - backend_auth:/backend_auth
       - backend_users:/backend_users
       - backend_games:/backend_games
+      - backend_cdn:/backend_cdn
 
   frontend:
     container_name: frontend
@@ -40,6 +41,7 @@ services:
       - FRONTEND_URL=https://localhost
       - AUTH_URL=http://backend_auth:41610
       - USER_URL=http://backend_users:41611
+      - CDN_URL=http://backend_cdn:41612
     ports:
       - "4161:4161"
     networks:
@@ -51,16 +53,16 @@ services:
     volumes:
       - backend_auth:/app
       - db_storage:/app/src/database
-      - uploads:/app/uploads
     build: ./backend/auth
     restart: on-failure
     environment:
       - NODE_ENV=development
-      - DEFAULT_PIC=/avatars/kermit.webp
+      - DEFAULT_PIC=/cdn/avatars/kermit.webp
       - DB_FILE=/app/src/database/auth.db
       - USERS_TABLE=users
       - SESSIONS_DB=/app/src/database/sessions.db
       - SESSION_SECRET=${SESSION_SECRET}
+      - CDN_URL=http://backend_cdn:41612
       - PORT=41610
     networks:
       - micro-services
@@ -93,6 +95,20 @@ services:
       - PORT=4116
     ports:
       - "4116:4116"
+    networks:
+      - micro-services
+
+  backend_cdn:
+    container_name: backend_cdn
+    build: ./backend/cdn
+    volumes:
+      - backend_cdn:/app
+      - uploads:/app/public/uploads
+    restart: on-failure
+    environment:
+    - NODE_ENV=development
+    - PORT=41612
+    - FRONTEND_URL=https://localhost
     networks:
       - micro-services
 
@@ -145,6 +161,13 @@ volumes:
     driver_opts:
       type: none
       device: ${PWD}/backend/games/app
+      o: bind
+  backend_cdn:
+    name: backend_cdn
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/backend/cdn/app
       o: bind
 
 networks:

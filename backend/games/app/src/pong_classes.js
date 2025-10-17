@@ -1,3 +1,9 @@
+import { randomUUID } from "crypto";
+
+function shortUUID() {
+  return randomUUID().replace(/-/g, "").slice(0, 16);
+}
+
 export class Member {
 	uuid;
 	user_info;
@@ -8,7 +14,7 @@ export class Member {
 	constructor(socket, user_info) {
 		this.socket = socket;
 		this.user_info = user_info;
-		this.uuid = crypto.randomUUID();
+		this.uuid = shortUUID();
 	}
 
 	join(game) {
@@ -83,7 +89,7 @@ export class Game {
 	all = {};			// username -> Member
 
 	constructor(admin_info) {
-		this.uuid = crypto.randomUUID();
+		this.uuid = shortUUID();
 		this.admin_info = admin_info;
 		this.setup = new Setup();
 	}
@@ -236,7 +242,7 @@ export class Bot extends Player {
 		if (name)
 			this.name = name;
 		else
-			this.name = `AI Bot ${crypto.randomUUID().substring(0, 4)}`;
+			this.name = `AI Bot ${shortUUID().substring(0, 4)}`;
 		this.dest_y = arena_height / 2;
 		this.difficulty = difficulty;
 	}
