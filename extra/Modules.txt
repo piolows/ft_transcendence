@@ -14,7 +14,7 @@ Protection against SQL/XSS attacks.
 Tournaments that allow multiple winners.
 Registration system for the Tournaments.
 Matchmaking system for Tournaments that organizes participants.
-Fully compatible with Mozilla Firefox.
+Fully compatible with Mozilla Firefox.								(DONE)
 
 ----------------
 

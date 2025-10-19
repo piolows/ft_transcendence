@@ -1,7 +1,7 @@
 import Fastify from "fastify";
 import websocketPlugin from "@fastify/websocket";
-import pongHandler from  "./pong.controller.js";
-// import roshamboHandler from "./roshambo.controller.js";
+import pongHandler from  "./handlers/pong.controller.js";
+// import roshamboHandler from "./handlers/roshambo.controller.js";
 import fastifyCookie from "@fastify/cookie";
 import fastifySession from "@fastify/session";
 import createSqliteStore from "better-sqlite3-session-store";

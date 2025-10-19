@@ -77,7 +77,7 @@ export class Bot extends Player {
 		this.difficulty = difficulty;
 	}
 
-	update(ball_x: number, ball_y: number, ball_xvel: number, ball_yvel: number, moving: boolean) {
+	update(ball_x: number, ball_y: number, ball_xVel: number, ball_yVel: number, moving: boolean) {
 		if (!moving) {
 			this.dest_y = this.cv.height / 2;
 			return;
@@ -86,9 +86,9 @@ export class Bot extends Player {
 		const variation = modifier * (Math.random() + Math.random()) * (0.05 * this.cv.height)
 			* (Math.random() > 0.5 ? -1 : 1) * (Math.random() < (0.4 * modifier) ? 1 : 0);
 		console.log(variation);
-		const intersect = ball_xvel > 0 ? this.cv.width : -this.cv.width;
-		const steps = Math.abs(intersect - ball_x) / ball_xvel;
-		const dest = Math.abs(ball_y + ball_yvel * steps);
+		const intersect = ball_xVel > 0 ? this.cv.width : -this.cv.width;
+		const steps = Math.abs(intersect - ball_x) / ball_xVel;
+		const dest = Math.abs(ball_y + ball_yVel * steps);
 		const reflects = Math.floor(dest / this.cv.height);
 		if (reflects % 2 == 0)
 			this.dest_y = (dest % this.cv.height) + variation;

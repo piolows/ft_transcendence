@@ -1,4 +1,9 @@
 import { randomUUID } from "crypto";
+import update_game from "./pong_game.js";
+
+const ONE_SECOND = 1000;
+const GAME_FPS = 2;
+const FRAME_TIME = ONE_SECOND / GAME_FPS;
 
 function shortUUID() {
   return randomUUID().replace(/-/g, "").slice(0, 16);
@@ -10,6 +15,7 @@ export class Member {
 	socket;
 	game = null;
 	is_player = false;
+	is_left = true;
 
 	constructor(socket, user_info) {
 		this.socket = socket;
@@ -20,13 +26,13 @@ export class Member {
 	join(game) {
 		if (this.game)
 			this.leave();
-		game.join(this);
+		return game.join(this);
 	}
 
 	play(game) {
 		if (this.game)
 			this.leave();
-		game.player_join(this);
+		return game.player_join(this);
 	}
 
 	spec(game) {
@@ -56,7 +62,10 @@ class Setup {
 	ball;
 	p1_score = 0;
 	p2_score = 0;
+	last_second = 0;
+	last_bot_second = 0;
 	time = 0;
+	timeout = 0;
 	game_over = false;
 
 	constructor(width = 800, height = 600, max_score = 10, max_time = 600, ball = null, lplayer = null, rplayer = null) {
@@ -77,13 +86,38 @@ class Setup {
 		else
 			this.ball = new Ball(width / 2, height / 2, 10, 16);
 	}
+
+	start_game() {
+		this.game_over = false;
+		this.winner = 0;
+		this.p1_score = 0;
+		this.p2_score = 0;
+		this.time = 0;
+		this.timeout = 0;
+		this.last_bot_second = 0;
+		this.last_second = 0;
+		this.left_player.paddle.y = this.arena_height / 2;
+		this.right_player.paddle.y = this.arena_height / 2;
+	}
+
+	end_game() {
+		this.game_over = true;
+		this.left_player.paddle.y = this.arena_height / 2;
+		this.right_player.paddle.y = this.arena_height / 2;
+		this.last_bot_second = 0;
+		this.last_second = 0;
+		this.timeout = 99999;
+	}
 }
 
 export class Game {
 	uuid;
 	admin_info;
-	started = false;
 	setup;
+	winner = 0;
+	started = false;
+	lp_member = null;
+	rp_member = null;
 	players = {};		// username -> Member
 	specs = {};			// username -> Member
 	all = {};			// username -> Member
@@ -98,8 +132,20 @@ export class Game {
 		if (this.player_count() < 2)
 			this.setup.right_player = new Bot("right", this.setup.arena_width, this.setup.arena_height);
 		if (this.player_count() < 1)
-			this.setup.right_player = new Bot("left", this.setup.arena_width, this.setup.arena_height);
-		this.started = true;
+			this.setup.left_player = new Bot("left", this.setup.arena_width, this.setup.arena_height);
+		this.setup.start_game();
+	}
+
+	stop_game() {
+		if (!this.stop_game)
+			throw new Error("Game not running");
+		this.setup.end_game();
+		this.lp_member = null;
+		this.rp_member = null;
+		for (let player of Object.values(this.players)) {
+			this.specs[player.user_info.username] = player;
+			delete this.players[player.user_info.username];
+		}
 	}
 
 	player_count() {
@@ -116,7 +162,7 @@ export class Game {
 		if (this.player_count() == 2)
 			this.spec_join(member);
 		else
-			this.player_join(member);
+			return this.player_join(member);
 	}
 
 	player_join(player) {
@@ -131,6 +177,16 @@ export class Game {
 		delete this.specs[player.user_info.username];
 		this.players[player.user_info.username] = player;
 		this.all[player.user_info.username] = player;
+		if (!this.lp_member) {
+			this.lp_member = player;
+			return true;
+		}
+		else if (!this.rp_member) {
+			this.rp_member = player;
+			return false;
+		}
+		else
+			throw new Error("Max players in current game");
 	}
 
 	spec_join(spec) {
@@ -167,9 +223,7 @@ export class Ball
 	speed;
 	init_speed;
 	r;
-	starting;
 	moving;
-	first_collision;
 
 	constructor(x, y, speed, radius, c)
 	{
@@ -181,9 +235,7 @@ export class Ball
 		this.color = c;
 		this.xVel = speed;
 		this.yVel = speed;
-		this.starting = true;
 		this.moving = false;
-		this.first_collision = false;
 	}
 }
 
@@ -247,7 +299,12 @@ export class Bot extends Player {
 		this.difficulty = difficulty;
 	}
 
-	update(ball_x, ball_y, ball_xvel, ball_yvel, moving) {
+	update(gameState) {
+		const ball_x = gameState.ball.x;
+		const ball_y = gameState.ball.y;
+		const ball_xVel = gameState.ball.xVel;
+		const ball_yVel = gameState.ball.yVel;
+		const moving = gameState.moving;
 		if (!moving) {
 			this.dest_y = this.arena_height / 2;
 			return;
@@ -255,10 +312,9 @@ export class Bot extends Player {
 		const modifier = 2 - this.difficulty;
 		const variation = modifier * (Math.random() + Math.random()) * (0.05 * this.arena_height)
 			* (Math.random() > 0.5 ? -1 : 1) * (Math.random() < (0.4 * modifier) ? 1 : 0);
-		console.log(variation);
-		const intersect = ball_xvel > 0 ? this.arena_width : -this.arena_width;
-		const steps = Math.abs(intersect - ball_x) / ball_xvel;
-		const dest = Math.abs(ball_y + ball_yvel * steps);
+		const intersect = ball_xVel > 0 ? this.arena_width : -this.arena_width;
+		const steps = Math.abs(intersect - ball_x) / ball_xVel;
+		const dest = Math.abs(ball_y + ball_yVel * steps);
 		const reflects = Math.floor(dest / this.arena_height);
 		if (reflects % 2 == 0)
 			this.dest_y = (dest % this.arena_height) + variation;
@@ -277,6 +333,64 @@ export class Bot extends Player {
 			this.paddle.up = true;
 		else
 			this.paddle.up = false;
-		
 	}
+}
+
+function game_state(game) {
+	return {
+		over: false,
+		p1_score: game.p1_score,
+		p2_score: game.p2_score,
+		left_paddle: {
+			y: game.left_player.paddle.y
+		},
+		right_paddle: {
+			y: game.right_player.paddle.y
+		},
+		ball: {
+			x: game.ball.x,
+			y: game.ball.y,
+			xVel: game.ball.xVel,
+			yVel: game.ball.yVel,
+			speed: game.ball.speed,
+			moving: game.ball.moving,
+		}
+	};
+}
+
+function game_frame(game, frame_start) {
+	const gameState = game_state(game);
+	if (game.last_second != 0 && frame_start - game.last_second >= ONE_SECOND) {
+		game.last_second = frame_start;
+		game.time += 1;
+		game.timeout = Math.max(0, game.timeout - 1);
+	}
+	if (game.last_bot_second != 0 && frame_start - game.last_bot_second >= ONE_SECOND) {
+		game.last_bot_second = frame_start;
+		if (game.left_player.type == "bot")
+			game.left_player.update(gameState);
+		if (game.right_player.type == "bot")
+			game.right_player.update(gameState);
+	}
+	update_game(game);
+}
+
+function broadcast_game(game) {
+	const gameState = game_state(game.setup);
+	for (const member of Object.values(game.all)) {
+		member.socket.send(JSON.stringify(gameState));
+	}
+}
+
+export function repeated_updates(games) {
+	const frame_start = performance.now();
+	for (const game of Object.values(games)) {
+		if (!game.setup.started || game.setup.game_over)
+			continue ;
+		game_frame(game.setup, frame_start);
+		broadcast_game(game);
+	}
+	const exec_time = performance.now() - frame_start;
+	const delay = Math.max(0, FRAME_TIME - exec_time);
+	setTimeout(() => { repeated_updates(games); }, delay);
 }
