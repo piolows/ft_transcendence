@@ -1,4 +1,4 @@
-import { Member, Game, repeated_updates } from "../modules/pong_classes.js";
+import { Member, Game, destroy_game, repeated_updates } from "../modules/pong_classes.js";
 
 const pongHandler = (fastify, options, done) => {
 	let games = {};		//game.uuid -> game
@@ -23,9 +23,10 @@ const pongHandler = (fastify, options, done) => {
 			return resp.code(501).send({ status: "failed", error: "Maximum game limit reached" });
 		if (!req.session || !req.session.user)
 			return resp.code(403).send({ error: "Must be signed in to create a game" });
-		if (admins[req.session.user.username])
+		if (admins[req.session.user.username]) {
 			console.log(`Destroyed room ${admins[req.session.user.username].uuid}`);
-		delete admins[req.session.user.username];
+			destroy_game(admins, games, admins[req.session.user.username].uuid);
+		}
 		return resp.code(200).send({ status: "success" });
 	});
 
@@ -118,9 +119,11 @@ const pongHandler = (fastify, options, done) => {
 									socket.send(`Joined game #${game_id} as a spectator!`);
 								}
 							}
-							if (!games[game_id].started && games[game_id].player_count() == 2)
-								games[game_id].start_game();
 							console.log(`User ${member.user_info.username} - ${member.user_info.email} joined game #${game_id}`);
+							if (!games[game_id].started && games[game_id].player_count() == 2) {
+								games[game_id].start_game();
+								console.log(`Game #${game_id} started!`);
+							}
 							return;
 						case "LEAVE":
 							const gid = member.game.uuid;
@@ -131,8 +134,7 @@ const pongHandler = (fastify, options, done) => {
 							member.leave();
 							console.log(`User ${member.user_info.username} - ${member.user_info.email} left game #${gid}`);
 							if (games[gid].player_count() == 0) {
-								delete admins[games[gid].admin_info.username];
-								delete games[gid];
+								destroy_game(admins, games, gid);
 								console.log(`Destroyed room ${gid}`);
 							}
 							socket.send("Left game #" + gid);
@@ -172,8 +174,7 @@ const pongHandler = (fastify, options, done) => {
 					member.leave();
 					console.log(`User ${member.user_info.username} - ${member.user_info.email} left game #${id}`);
 					if (games[id].player_count() == 0) {
-						delete admins[games[id].admin_info.username];
-						delete games[id];
+						destroy_game(admins, games, id);
 						console.log(`Destroyed room ${id}`);
 					}
 				}

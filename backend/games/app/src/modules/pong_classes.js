@@ -93,7 +93,7 @@ class Setup {
 		this.p1_score = 0;
 		this.p2_score = 0;
 		this.time = 0;
-		this.timeout = 0;
+		this.timeout = 3;
 		this.last_bot_second = 0;
 		this.last_second = 0;
 		this.left_player.paddle.y = this.arena_height / 2;
@@ -133,6 +133,7 @@ export class Game {
 			this.setup.right_player = new Bot("right", this.setup.arena_width, this.setup.arena_height);
 		if (this.player_count() < 1)
 			this.setup.left_player = new Bot("left", this.setup.arena_width, this.setup.arena_height);
+		this.started = true;
 		this.setup.start_game();
 	}
 
@@ -338,7 +339,9 @@ export class Bot extends Player {
 
 function game_state(game) {
 	return {
-		over: false,
+		time: game.time,
+		game_over: false,
+		timeout: game.timeout,
 		p1_score: game.p1_score,
 		p2_score: game.p2_score,
 		left_paddle: {
@@ -385,7 +388,7 @@ function broadcast_game(game) {
 export function repeated_updates(games) {
 	const frame_start = performance.now();
 	for (const game of Object.values(games)) {
-		if (!game.setup.started || game.setup.game_over)
+		if (!game.started || game.setup.game_over)
 			continue ;
 		game_frame(game.setup, frame_start);
 		broadcast_game(game);
@@ -393,4 +396,14 @@ export function repeated_updates(games) {
 	const exec_time = performance.now() - frame_start;
 	const delay = Math.max(0, FRAME_TIME - exec_time);
 	setTimeout(() => { repeated_updates(games); }, delay);
+}
+
+export function destroy_game(admins, games, id) {
+	for (const member of Object.values(games[id].all)) {
+		member.socket.send(JSON.stringify({ game_over: true, exit: true }));
+		member.game = null;
+		member.socket.close();
+	}
+	delete admins[games[id].admin_info.username];
+	delete games[id];
 }
