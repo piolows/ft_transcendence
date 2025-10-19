@@ -98,8 +98,10 @@ export default function update_game(game) {
 	const p1_score = game.p1_score;
 	const p2_score = game.p2_score;
 
-	if (!game.started || game.game_over)
-		return ;
+	if (game.last_second == 0)
+		game.last_second = performance.now();
+	if (game.last_bot_second == 0)
+		game.last_bot_second = performance.now();
 
 	// Game over condition
 	if (game.time >= game.max_time || p1_score >= game.max_score || p2_score >= game.max_score) {
@@ -121,10 +123,6 @@ export default function update_game(game) {
 		ball.yVel = ball.speed * Math.sin(angle);
 		ball.moving = true;
 	}
-	if (game.last_second == 0)
-		game.last_second = performance.now();
-	if (game.last_bot_second == 0)
-		game.last_bot_second = performance.now();
 	
 	// Move paddles and ball
 	if (left_paddle.up)

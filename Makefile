@@ -1,19 +1,19 @@
 all: build
 
 build:
-	docker compose --env-file .env up --build -d
+	@docker compose --env-file .env up --build -d
 
 restart:
-	docker compose restart
+	@docker compose restart
 
 clean:
-	docker compose down --volumes --remove-orphans
+	@docker compose down --volumes --remove-orphans
 
 fclean: clean
-	docker compose down --rmi all --remove-orphans
-	docker volume rm $$(docker volume ls -q) || true
-	docker system prune --all --force
-	docker volume prune -f
+	@docker compose down --rmi all --remove-orphans
+	@docker volume rm $$(docker volume ls -q) 2&>/dev/null || true
+	@docker system prune --all --force
+	@docker volume prune -f
 #	 rm -rf ./backend/controller/app/src/node_modules
 #	 rm -rf ./backend/games/app/src/node_modules
 #	 rm -rf ./backend/users/app/src/node_modules
