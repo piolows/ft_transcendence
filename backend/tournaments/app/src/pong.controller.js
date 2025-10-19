@@ -1,7 +1,7 @@
 import { Member, Game } from "./pong_classes.js";
 
 const pongHandler = (fastify, options, done) => {
-	let games = {};		//game.uuid -> game                  
+	let games = {};		//game.uuid -> game
 	let admins = {};	//username -> game
 
 	fastify.post("/new", (req, resp) => {
