@@ -6,61 +6,60 @@ const pongHandler = (fastify, options, done) => {
 
 	fastify.post("/room/*", (req, resp) => {
 		if (!req.session || !req.session.user)
-			return resp.code(403).send({ error: "Must be signed" });
+			return resp.send({ success: false, code: 403, error: "Must be signed" });
 		const room_code = (req.params["*"] ?? "").toUpperCase();
 		const room_code_regex = /^[A-Z0-9]{16}$/;
 		if (!room_code_regex.test(room_code)) {
-			return resp.code(403).send({ error: "Invalid room code" });
+			return resp.send({ success: false, code: 400, error: "Invalid room code" });
 		}
+		if (!games[room_code])
+			return resp.send({ success: false, code: 404, error: "Room not found"});
 		let players = [];
 		for (let player of Object.values(games[room_code].players)) {
-			players.push(player);
+			players.push(player.user_info);
 		}
-		if (games[room_code]) {
-			return resp.send({ 
-				success: true,
-				game_over: games[room_code].setup.game_over,
-				started: games[room_code].started,
-				full: (games[room_code].player_count() == 2),
-				admin: games[room_code].admin_info,
-				players: players,
-				spec_count: games[room_code].spec_count(),
-			});
-		}
-		return resp.code(200).send({ status: "success", game_id: game.uuid});
+		return resp.send({ 
+			success: true,
+			game_over: games[room_code].setup.game_over,
+			started: games[room_code].started,
+			full: (games[room_code].player_count() == 2),
+			admin: games[room_code].admin_info,
+			players: players,
+			spec_count: games[room_code].spec_count(),
+		});
 	});
 
 	fastify.post("/new", (req, resp) => {
 		if (Object.keys(games).length > 1024)
-			return resp.code(501).send({ status: "failed", error: "Maximum game limit reached" });
+			return resp.send({ success: false, code: 501, error: "Maximum game limit reached" });
 		if (!req.session || !req.session.user)
-			return resp.code(403).send({ error: "Must be signed in to create a game" });
+			return resp.send({ success: false, code: 403, error: "Must be signed in to create a game" });
 		if (admins[req.session.user.username])
-			return resp.code(403).send({ error: "User already has an open room" });
+			return resp.send({ success: false, code: 403, error: "User already has an open room" });
 		const game = new Game(req.session.user);
 		games[game.uuid] = game;
 		admins[req.session.user.username] = game;
 		console.log(`${req.session.user.username} created room ${game.uuid}`);
-		return resp.code(200).send({ status: "success", game_id: game.uuid});
+		return resp.send({ success: true, game_id: game.uuid});
 	});
 
 	fastify.post("/destroy", (req, resp) => {
 		if (Object.keys(games).length > 1024)
-			return resp.code(501).send({ status: "failed", error: "Maximum game limit reached" });
+			return resp.send({ success: false, code: 501, error: "Maximum game limit reached" });
 		if (!req.session || !req.session.user)
-			return resp.code(403).send({ error: "Must be signed in to create a game" });
+			return resp.send({ success: false, code: 403, error: "Must be signed in to create a game" });
 		if (admins[req.session.user.username]) {
 			console.log(`Destroyed room ${admins[req.session.user.username].uuid}`);
 			destroy_game(admins, games, admins[req.session.user.username].uuid);
 		}
-		return resp.code(200).send({ status: "success" });
+		return resp.send({ success: true });
 	});
 
 	fastify.get("/", {
 		websocket: true,
 		preValidation: (req, reply, done) => {
 				if (!req.session || !req.session.user) {
-					reply.code(403).send({ error: "Must be signed in to join a game" });
+					reply.send({ success: false, code: 403, error: "Must be signed in to join a game" });
 					return;
 				}
 				done();
@@ -75,7 +74,7 @@ const pongHandler = (fastify, options, done) => {
 				try {
 					data = JSON.parse(msg);
 				} catch (err) {
-					socket.send(JSON.stringify({ error: "Invalid JSON" }));
+					socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid JSON" }));
 					return;
 				}
 
@@ -102,19 +101,19 @@ const pongHandler = (fastify, options, done) => {
 				//============ TEMPORARY FOR TESTING =============//
 
 				if (!game_id || !action) {
-					socket.send(JSON.stringify({ error: "Invalid message: Must contain game_id & action [& param]" }));
+					socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid message: Must contain game_id & action [& param]" }));
 					return;
 				}
 				if (!games[game_id]) {
-					socket.send(JSON.stringify({ error: "Game not found" }));
+					socket.send(JSON.stringify({ success: false, code: 404, error: "Game not found" }));
 					return;
 				}
 				try {
 					switch (action) {
 						case "JOIN":
 							if (param && param != "PLAY" && param != "SPEC" && param != "EITHER") {
-								socket.send(JSON.stringify({ success: 1, error: "Invalid message param: JOIN only takes PLAY/SPEC as optional params." }));
-								console.log(JSON.stringify({ success: 2, error: "Invalid message param: JOIN only takes PLAY/SPEC as optional params." }));
+								socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid message param: JOIN only takes PLAY/SPEC as optional params." }));
+								console.log(JSON.stringify({ success: false, code: 400, error: "Invalid message param: JOIN only takes PLAY/SPEC as optional params." }));
 								return;
 							}
 							if (param && param == "PLAY") {
@@ -156,7 +155,7 @@ const pongHandler = (fastify, options, done) => {
 						case "LEAVE":
 							const gid = member.game.uuid;
 							if (gid != game_id) {
-								socket.send(JSON.stringify({ success: 3, error: `Wrong game ID. User is in game #${gid}` }));
+								socket.send(JSON.stringify({ success: false, code: 403, error: `Wrong game ID. User is in game #${gid}` }));
 								return;
 							}
 							member.leave();
@@ -179,18 +178,18 @@ const pongHandler = (fastify, options, done) => {
 							return;
 						case "MESSAGE":
 							if (!param) {
-								socket.send(JSON.stringify({ success: 4, error: "Invalid message action: no param variable with message" }));
+								socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid message action: no param variable with message" }));
 								return;
 							}
 							socket.send("You said: " + param);
 							return;
 						default:
-							socket.send(JSON.stringify({ success: 5, error: "Invalid action. Available actions: JOIN/LEAVE/MOVE_UP/MOVE_DOWN/STOP/MESSAGE" }));
+							socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid action. Available actions: JOIN/LEAVE/MOVE_UP/MOVE_DOWN/STOP/MESSAGE" }));
 							return;
 					}
 				} catch (err) {
 					console.log(err);
-					socket.send(JSON.stringify({ success: 6, error: err }));
+					socket.send(JSON.stringify({ success: false, code: 500, error: err }));
 					return ;
 				}
 			});

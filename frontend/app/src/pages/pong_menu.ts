@@ -1,4 +1,4 @@
-import Component, { backend_websocket, Router } from "../scripts/router";
+import Component, { Router, sockets_url } from "../scripts/router";
 import NavBar from "../components/nav_bar";
 import Footer from "../components/footer";
 import Menu from "../components/menu";
@@ -32,11 +32,25 @@ export default class PongMenu extends Component {
 		this.navbar.init();
 		const create_btn = document.getElementById("pong_create")! as HTMLButtonElement;
 		create_btn.onclick = () => {
-			fetch(`${backend_websocket}/pong/new`, {
+			if (!this.router.loggedin) {
+				alert("Must be signed in!");
+				return ;
+			}
+			fetch(`${sockets_url}/pong/destroy`, {
 				method: "POST",
 				credentials: "include"
-			}).then(response => response.json()
-			).then(data => {
+			}).catch(error => {
+				alert(`Error: ${error}`);
+			});
+			fetch(`${sockets_url}/pong/new`, {
+				method: "POST",
+				credentials: "include"
+			}).then(async response => {
+				if (!response.ok) {
+					throw new Error(`HTTP ${response.status}`);
+				}
+				return response.json();
+			}).then(data => {
 				if (data.success) {
 					this.router.route(`/pong/room/${ data.game_id }`, true);
 				}

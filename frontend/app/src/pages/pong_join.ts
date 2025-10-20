@@ -1,4 +1,4 @@
-import Component, { backend_url } from "../scripts/router";
+import Component, { sockets_url } from "../scripts/router";
 
 export default class PongJoin extends Component {
 	load(app: HTMLDivElement | HTMLElement) {
@@ -52,20 +52,16 @@ export default class PongJoin extends Component {
 				alert(`Error: Invalid room code`);
 				return ;
 			}
-
 			try {
-				const response = await fetch(`${backend_url}/pong/join`, {
+				const response = await fetch(`${sockets_url}/pong/room/${game_id}`, {
 					method: "POST",
 					credentials: "include",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(body)
 				});
 
 				const data = await response.json();
 
 				if (response.ok) {
-					this.router.login_info = data.user;
-					history.back();
+					this.router.route(`/pong/room/${game_id}`, true);
 				} else {
 					alert(`Error: ${data.message}`);
 				}

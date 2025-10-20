@@ -1,16 +1,11 @@
 import Component from "../scripts/router";
 import { Player, Ball, Bot, Paddle, start_game } from "../scripts/game";
-import NavBar from "../components/nav_bar";
-import Footer from "../components/footer";
 
 export default class Pong extends Component {
 	private end_game: () => void = () => {};
-	private navbar = new NavBar(this.router);
-	private footer = new Footer(this.router);
 
 	load(app: HTMLDivElement | HTMLElement) {
-		this.navbar.load(app);
-		app.innerHTML += `
+		app.innerHTML = `
 			<div class="w-screen flex pb-5 pt-3 items-center justify-center">
 				<div class="flex w-200">
 					<div id="timer" class="my-auto text-white">
@@ -24,12 +19,9 @@ export default class Pong extends Component {
 			<div id="parent-container" class="flex justify-center">
 				<canvas id="gameCanvas" width="800" height="600"></canvas>
 			</div>`;
-		
-		app.innerHTML += this.footer.get_html();
 	}
 
 	init() {
-
 		const ball_speed = 8;
 		const ball_radius = 16;
 		const paddle_speed = 8;

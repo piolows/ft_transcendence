@@ -1,4 +1,3 @@
-import { textChangeRangeIsUnchanged } from "typescript";
 import PongRoom from "../pages/pong_room";
 
 export const HTTP_CODES: any = {
@@ -9,6 +8,10 @@ export const HTTP_CODES: any = {
 	500: "Internal Server Error",
 	503: "Service Unavailable",
 }
+
+export var backend_url = "https://localhost:4161";
+export var sockets_url = "https://localhost:4116";
+export var backend_websocket = "wss://localhost:4116";
 
 export default abstract class Component {
 	router: Router;
@@ -22,19 +25,15 @@ export default abstract class Component {
 	unload() {}
 }
 
-export var backend_url = "https://localhost:4161";
-export var backend_websocket = "wss://localhost:4161";
-
-class DefaultErrorPage extends Component {
-	constructor(router: Router) {
-		super(router);
-	}
+export class DefaultErrorPage extends Component {
+	error_code = 404;
+	custom_msg: any;
 	
-	load(app: HTMLDivElement | HTMLElement, err_code: string = "404") {
+	load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML = `
 			<div class="center text-center mt-50">
-				<h1>${ HTTP_CODES[err_code] }</h1>
-				<h4>Error code ${ err_code }</h4>
+				<h1>${ this.custom_msg ? this.custom_msg : HTTP_CODES[this.error_code] }</h1>
+				<h4>Error code ${ this.error_code }</h4>
 			</div>`;
 	}
 }
@@ -42,7 +41,7 @@ class DefaultErrorPage extends Component {
 export class Router {
 	private routes = new Map<string, Component>();
 	private currpage: Component | null = null;
-	private errpage: Component;
+	private errpage: DefaultErrorPage;
 	app: HTMLDivElement | HTMLElement;
 	login_info: any = null;
 	loggedin = false;
@@ -122,17 +121,33 @@ export class Router {
 		.then(res => res.json())
 		.then(data => {
 			this.login_info = data.user;
-			this.route("/", true);
+			if (history.length > 1)
+				history.back();
+			else
+				this.route("/", true);
 		})
 		.catch(err => console.error("Error sending token to backend:", err));
 	}
 
-	set_error_handler(handler: Component) {
+	set_error_handler(handler: DefaultErrorPage) {
 		this.errpage = handler;
 	}
 
 	add_route(route: string, page: Component) {
 		this.routes.set(route, page);
+	}
+
+	route_error(path: string, code: number, err_msg?: string) {
+		this.currpage?.unload();
+		window.scrollTo(0, 0);
+		this.errpage.error_code = code;
+		this.errpage.custom_msg = err_msg;
+		this.errpage.load(this.app);
+		this.errpage.init();
+		this.currpage = this.errpage;
+		this.errpage.error_code = 404;
+		this.errpage.custom_msg = undefined;
+		history.pushState({ route: path }, '', path);
 	}
 
 	route(path: string, push: boolean = false) {
@@ -148,16 +163,21 @@ export class Router {
 				}
 			}
 			if (path == "/pong/join") {
+				if (!this.loggedin) {
+					alert("Must be signed in!");
+					return ;
+				}
 				if (!this.currpage) {
 					this.route("/pong/menu", true);
 					this.route("/pong/join", true);
 					return;
 				}
 			}
-			window.scrollTo(0, 0);
 			this.currpage?.unload();
+			window.scrollTo(0, 0);
 			if (!this.routes.has(path)) {
 				this.errpage.load(this.app);
+				this.errpage.init();
 				this.currpage = this.errpage;
 			} else {
 				this.currpage = this.routes.get(path) ?? null;

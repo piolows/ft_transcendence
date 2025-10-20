@@ -342,7 +342,7 @@ function game_state(game) {
 		started: game.started,
 		full: (game.player_count() == 2),
 		time: game.time,
-		players: players,
+		players: game.players,
 		game_over: game.game_over,
 		timeout: game.timeout,
 		p1_score: game.p1_score,
@@ -350,10 +350,12 @@ function game_state(game) {
 		admin: game.admin_info,
 		spec_count: game.spec_count(),
 		left_paddle: {
-			y: game.left_player.paddle.y
+			y: game.left_player.paddle.y,
+			speed: game.left_player.paddle.speed
 		},
 		right_paddle: {
-			y: game.right_player.paddle.y
+			y: game.right_player.paddle.y,
+			speed: game.right_player.paddle.speed
 		},
 		ball: {
 			x: game.ball.x,

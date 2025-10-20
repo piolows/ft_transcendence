@@ -1,4 +1,4 @@
-import Component, { Router, backend_url } from "../scripts/router";
+import Component, { Router, backend_url, sockets_url } from "../scripts/router";
 
 export default class AuthSection extends Component {
 	constructor(router: Router) {
@@ -58,6 +58,15 @@ export default class AuthSection extends Component {
 		if (this.router.loggedin) {
 			const logoutbtn = document.getElementById('logout-button')! as HTMLButtonElement;
 			logoutbtn.onclick = async () => {
+				try {
+					await fetch(sockets_url + "/pong/destroy", {
+						method: "POST",
+						body: JSON.stringify({}),
+						credentials: "include"
+					});
+				} catch (err) {
+					console.error("Failed to destroy room:", err);
+				}
 				try {
 					await fetch(backend_url + "/auth/logout", {
 						method: "POST",
