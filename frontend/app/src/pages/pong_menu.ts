@@ -1,4 +1,4 @@
-import Component, { Router, backend_url } from "../scripts/router";
+import Component, { backend_websocket, Router } from "../scripts/router";
 import NavBar from "../components/nav_bar";
 import Footer from "../components/footer";
 import Menu from "../components/menu";
@@ -13,12 +13,13 @@ export default class PongMenu extends Component {
 		super(router);
 
 		let card = new MenuCard(this.router, "PLAY ONLINE", "Battle players worldwide in ranked matches!", "green");
-		card.add_button("QUEUE NOW", "/pong/game");
+		card.add_button("CREATE ROOM", "", "pong_create");
+		card.add_button("JOIN ROOM", "/pong/join");
 		this.menu.add_card(card);
 
 		card = new MenuCard(this.router, "PLAY LOCALLY", "Play against a bot or against a player on the same keyboard!", "yellow");
 		card.add_button("VS BOT", "/pong/difficulty");
-		card.add_button("VS PLAYER", "/pong/game");
+		card.add_button("VS PLAYER", "/pong/game?op=player");
 		this.menu.add_card(card);
 	}
 
@@ -29,5 +30,22 @@ export default class PongMenu extends Component {
 
 	init() {
 		this.navbar.init();
+		const create_btn = document.getElementById("pong_create")! as HTMLButtonElement;
+		create_btn.onclick = () => {
+			fetch(`${backend_websocket}/pong/new`, {
+				method: "POST",
+				credentials: "include"
+			}).then(response => response.json()
+			).then(data => {
+				if (data.success) {
+					this.router.route(`/pong/room/${ data.game_id }`, true);
+				}
+				else {
+					alert(`Game not found!`);
+				}
+			}).catch(error => {
+				alert(`Error: ${error}`);
+			});
+		};
 	}
 }

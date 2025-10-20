@@ -27,8 +27,8 @@ export default class MenuCard extends Component {
 		this.color = color;
 	}
 
-	add_button(text: string, url: string) {
-		this.buttons.push([text, url]);
+	add_button(text: string, url: string, id?: string) {
+		this.buttons.push([text, url, id ?? ""]);
 	}
 
 	get_html() {
@@ -37,11 +37,15 @@ export default class MenuCard extends Component {
 			<h3 class="text-xl font-pressstart ${ colors[this.color][1] } mb-4">${ this.title }</h3>
 			<p class="font-silkscreen mb-6">${ this.desc }</p>`;
 		for (let i = 0; i < this.buttons.length; i++) {
-			html += `<a href="${ this.buttons[i][1] }" router-link>
+			html += !this.buttons[i][2] || this.buttons[i][2] == "" ? `<a href="${ this.buttons[i][1] }" router-link>
 						<button class="${ colors[this.color][2] } text-white px-6 py-3 rounded clicky font-pixelify group-hover:animate-pulse">
 							${ this.buttons[i][0] }
 						</button>
-					</a>`;
+					</a>` :
+					`
+					<button id=${ this.buttons[i][2] } class="${ colors[this.color][2] } text-white px-6 py-3 rounded clicky font-pixelify group-hover:animate-pulse">
+						${ this.buttons[i][0] }
+					</button>`;
 		}
 		html += `</div>`;
 		return html;

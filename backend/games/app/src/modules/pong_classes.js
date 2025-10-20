@@ -6,7 +6,7 @@ const GAME_FPS = 2;
 const FRAME_TIME = ONE_SECOND / GAME_FPS;
 
 function shortUUID() {
-  return randomUUID().replace(/-/g, "").slice(0, 16);
+  return randomUUID().replace(/-/g, "").slice(0, 16).toUpperCase();
 }
 
 export class Member {
@@ -339,11 +339,16 @@ export class Bot extends Player {
 
 function game_state(game) {
 	return {
+		started: game.started,
+		full: (game.player_count() == 2),
 		time: game.time,
-		game_over: false,
+		players: players,
+		game_over: game.game_over,
 		timeout: game.timeout,
 		p1_score: game.p1_score,
 		p2_score: game.p2_score,
+		admin: game.admin_info,
+		spec_count: game.spec_count(),
 		left_paddle: {
 			y: game.left_player.paddle.y
 		},

@@ -3,10 +3,11 @@ import { Player, Ball, Bot, Paddle, start_game } from "../scripts/game";
 import NavBar from "../components/nav_bar";
 import Footer from "../components/footer";
 
-export default class Pong extends Component {
+export default class PongRoom extends Component {
 	private end_game: () => void = () => {};
 	private navbar = new NavBar(this.router);
 	private footer = new Footer(this.router);
+	real_path: string = "";
 
 	load(app: HTMLDivElement | HTMLElement) {
 		this.navbar.load(app);
@@ -16,7 +17,7 @@ export default class Pong extends Component {
 					<div id="timer" class="my-auto text-white">
 						<label>Timer: </label><label id="minutes">00</label>:<label id="seconds">00</label>
 					</div>
-					<h1 class="text-4xl font-bold text-blue-500 underline italic text-center my-auto ml-20">Pongoid</h1>
+					<h1 class="text-4xl font-bold text-blue-500 underline italic text-center my-auto ml-20">${this.real_path}</h1>
 				</div>
 			</div>
 			<div id="p1_score" class="hidden">0</div>

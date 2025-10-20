@@ -4,6 +4,32 @@ const pongHandler = (fastify, options, done) => {
 	let games = {};		//game.uuid -> game
 	let admins = {};	//username -> game
 
+	fastify.post("/room/*", (req, resp) => {
+		if (!req.session || !req.session.user)
+			return resp.code(403).send({ error: "Must be signed" });
+		const room_code = (req.params["*"] ?? "").toUpperCase();
+		const room_code_regex = /^[A-Z0-9]{16}$/;
+		if (!room_code_regex.test(room_code)) {
+			return resp.code(403).send({ error: "Invalid room code" });
+		}
+		let players = [];
+		for (let player of Object.values(games[room_code].players)) {
+			players.push(player);
+		}
+		if (games[room_code]) {
+			return resp.send({ 
+				success: true,
+				game_over: games[room_code].setup.game_over,
+				started: games[room_code].started,
+				full: (games[room_code].player_count() == 2),
+				admin: games[room_code].admin_info,
+				players: players,
+				spec_count: games[room_code].spec_count(),
+			});
+		}
+		return resp.code(200).send({ status: "success", game_id: game.uuid});
+	});
+
 	fastify.post("/new", (req, resp) => {
 		if (Object.keys(games).length > 1024)
 			return resp.code(501).send({ status: "failed", error: "Maximum game limit reached" });
@@ -54,6 +80,8 @@ const pongHandler = (fastify, options, done) => {
 				}
 
 				const { game_id, action, param } = data;
+				if (game_id)
+					game_id = game_id.toUpperCase();
 
 				//============ TEMPORARY FOR TESTING =============//
 				const getinfo = (guy) => {if (!guy) return ''; return `${guy.email} - ${guy.username}\n`;}
@@ -84,7 +112,7 @@ const pongHandler = (fastify, options, done) => {
 				try {
 					switch (action) {
 						case "JOIN":
-							if (param && param != "PLAY" && param != "SPEC") {
+							if (param && param != "PLAY" && param != "SPEC" && param != "EITHER") {
 								socket.send(JSON.stringify({ success: 1, error: "Invalid message param: JOIN only takes PLAY/SPEC as optional params." }));
 								console.log(JSON.stringify({ success: 2, error: "Invalid message param: JOIN only takes PLAY/SPEC as optional params." }));
 								return;

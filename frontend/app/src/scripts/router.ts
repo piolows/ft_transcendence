@@ -1,3 +1,6 @@
+import { textChangeRangeIsUnchanged } from "typescript";
+import PongRoom from "../pages/pong_room";
+
 export const HTTP_CODES: any = {
 	400: "Bad Request",
 	401: "Unauthorized",
@@ -20,6 +23,7 @@ export default abstract class Component {
 }
 
 export var backend_url = "https://localhost:4161";
+export var backend_websocket = "wss://localhost:4161";
 
 class DefaultErrorPage extends Component {
 	constructor(router: Router) {
@@ -50,7 +54,8 @@ export class Router {
 
 		// Handle back/forward buttons
 		window.onpopstate = (event) => {
-			const path = event.state?.route || "/";
+			event.preventDefault();
+			const path = event.state?.route || location.pathname;
 			this.route(path);
 		};
 
@@ -131,11 +136,22 @@ export class Router {
 	}
 
 	route(path: string, push: boolean = false) {
+		let real_path = path;
+		if (path.includes("/pong/room"))
+			path = "/pong/room";
 		this.check_session().then(() => {
 			if (path == "/login" || path == "/register") {
 				if (this.loggedin || !this.currpage) {
 					this.route("/", true);
+					this.route(path, true);
 					return ;
+				}
+			}
+			if (path == "/pong/join") {
+				if (!this.currpage) {
+					this.route("/pong/menu", true);
+					this.route("/pong/join", true);
+					return;
 				}
 			}
 			window.scrollTo(0, 0);
@@ -145,9 +161,12 @@ export class Router {
 				this.currpage = this.errpage;
 			} else {
 				this.currpage = this.routes.get(path) ?? null;
+				if (real_path != path && this.currpage)
+					(this.currpage as PongRoom).real_path = real_path;
 				this.currpage?.load(this.app);
 				this.currpage?.init();
 			}
+			path = real_path;
 			if (push)
 				history.pushState({ route: path }, '', path);
 		});

@@ -19,7 +19,7 @@ export default class Homepage extends Component {
 		let card;
 
 		card = new MenuCard(this.router, "PONG GAME", "PLAY THE RECREATION OF THE 1972 CLASSIC PONG GAME", "green");
-		card.add_button("PLAY", "/pong/");
+		card.add_button("PLAY", "/pong/menu");
 		this.menu.add_card(card);
 
 		card = new MenuCard(this.router, "ROSHAMBO", "CHALLENGE OTHERS TO A GAME OF ROCK-PAPER-SCISSORS", "yellow");
