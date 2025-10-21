@@ -3,7 +3,7 @@
 // /tournament/join: join a tournament. body: { tournamentId, playerId } returns { success: true/false, message }
 // tournament/:id: get a tournament by its id returns { tournamentId, name, maxPlayers, players: [playerId], status }
 
-class tournament {
+class Tournament {
     uuid;
     tournamentId;
     adminId;
@@ -20,23 +20,25 @@ class tournament {
 }
 
 // tournament routes
-export async function tournamentHandler(fastify, options, done)
-{
-    fastify.get('/:id', (req, reply) => {
-        return reply.send('testing tournaments backend');
+export const tournamentHandler = (fastify, options, done) => {
+    let tournaments = {}; // tournamentId : tournament object
+
+    fastify.get("/:id", async (req, reply) => {
+        return reply.send("testing tournaments backend");
     });
 
-    fastify.post('/create', (req, reply) => {
-        return reply.send('testing tournaments backend');
+    fastify.post("/create", async (req, reply) => {
+        const tournament = new Tournament()
+        return reply.send("testing tournaments backend");
     });
 
 
-    fastify.post('/join', (req, reply) => {
-        return reply.send('testing tournaments backend');
+    fastify.post("/join", async (req, reply) => {
+        return reply.send("testing tournaments backend");
     });
 
-    fastify.get('/list', (req, reply) => {
-        return reply.send('testing tournaments backend');
+    fastify.get("/list", async (req, reply) => {
+        return reply.send("testing tournaments backend");
     });
 
     done();

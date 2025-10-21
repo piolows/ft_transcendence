@@ -115,7 +115,7 @@ services:
       - micro-services
 
   backend_tournaments:
-    container_name: backennd_tournaments
+    container_name: backend_tournaments
     build: ./backend/tournaments
     volumes:
       - backend_tournaments:/app

@@ -62,13 +62,22 @@
 // startSever();
 
 // register endpint handler
-import { endpointHandler as tournamentHandler } from "./tournaments.js";
+import { tournamentHandler } from "./tournaments.js";
 import Fastify from "fastify";
+import 'dotenv/config';
 
 async function startServer() {
-    Fastify.register(tournamentHandler, { 
-        prefix: "/tournament" 
+    const fastify = Fastify({
+        logger: true,
+        bodyLimit: 10 * 1024 * 1024
     });
+    await fastify.register(tournamentHandler);
+
+    fastify.listen({ port: process.env.PORT, host: '0.0.0.0' })
+		.catch(error => {
+			fastify.log.error(error);
+			process.exit(1);
+		});
 }
 
 startServer();
