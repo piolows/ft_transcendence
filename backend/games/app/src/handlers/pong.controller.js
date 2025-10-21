@@ -170,6 +170,10 @@ const pongHandler = (fastify, options, done) => {
 							}
 							break;
 						case "LEAVE":
+							if (!member.game) {
+								socket.send(JSON.stringify({ success: false, code: 403, error: `User is not in a game` }));
+								break;
+							}
 							const gid = member.game.uuid;
 							if (gid != game_id) {
 								socket.send(JSON.stringify({ success: false, code: 403, error: `Wrong game ID. User is in game #${gid}` }));
@@ -177,7 +181,7 @@ const pongHandler = (fastify, options, done) => {
 							}
 							member.leave();
 							console.log(`User ${member.user_info.username} - ${member.user_info.email} left game #${gid}`);
-							if (games[gid].player_count() == 0) {
+							if (games[gid].player_count() == 0 && (Object.keys(games[gid].all).length == 0 || games[gid].setup.game_over)) {
 								destroy_game(admins, games, gid);
 								console.log(`Destroyed room ${gid}`);
 							}
@@ -220,9 +224,12 @@ const pongHandler = (fastify, options, done) => {
 						const id = member.game.uuid;
 						member.leave();
 						console.log(`User ${member.user_info.username} - ${member.user_info.email} left game #${id}`);
-						if (games[id].player_count() == 0) {
+						if (games[id].player_count() == 0 && (Object.keys(games[id].all).length == 0 || games[id].setup.game_over)) {
 							destroy_game(admins, games, id);
 							console.log(`Destroyed room ${id}`);
+						}
+						else {
+							broadcast_game(games[id], false, null);
 						}
 					}
 				} catch (err) {

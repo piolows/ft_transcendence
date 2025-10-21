@@ -118,7 +118,7 @@ function timeFormat(time: number) {
 }
 
 export function draw_frame(elements: any, message: any) {
-	if (message && message.success) {
+	if (message) {
 		elements.p1_score.innerText = message.p1_score;
 		elements.p2_score.innerText = message.p2_score;
 		elements.left_paddle.y = message.left_paddle.y;
@@ -126,8 +126,10 @@ export function draw_frame(elements: any, message: any) {
 		elements.ball.x = message.ball.x;
 		elements.ball.y = message.ball.y;
 		elements.ball.moving = message.ball.moving;
-		elements.mins.innerText = timeFormat(Math.floor(message.timer / 60));
-		elements.secs.innerText = timeFormat(message.timer % 60);
+		elements.mins.innerText = timeFormat(Math.floor(message.time / 60));
+		elements.secs.innerText = timeFormat(message.time % 60);
+		elements.spectators.innerText = message.spec_count;
+		elements.result.innerText = message.game_over ? (message.winner == 0 ? 'Draw' : (message.winner == -1 ? 'Player 1 Won' : 'Player 2 Won')) : '';
 	}
 	draw_bg(elements.canvas, elements.p1_score, elements.p2_score, "Player 1", "Player 2");
 	drawPaddle(elements.canvas, elements.left_paddle);
