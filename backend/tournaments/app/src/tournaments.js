@@ -3,6 +3,10 @@
 // /tournament/join: join a tournament. body: { tournamentId, playerId } returns { success: true/false, message }
 // tournament/:id: get a tournament by its id returns { tournamentId, name, maxPlayers, players: [playerId], status }
 
+function shortUUID() {
+  return randomUUID().replace(/-/g, "").slice(0, 16);
+}
+
 class Tournament {
     uuid;
     tournamentId;
@@ -10,9 +14,10 @@ class Tournament {
     tournamentSocket = null;
     maxPlayers = 8;
     players = {};   // contains player username : user_info object
-    matches = {};   // match uuid : match object 
+    matches = {};   // match uuid : game object
     winner = {}; // stores winner info which is: user_info object containing id/username/email/pfp
     constructor(tournamentId, adminId, tournamentSocket) {
+        this.uuid = shortUUID();
         this.tournamentId = tournamentId
         this.adminId = adminId
         this.tournamenSocket = tournamentSocket
@@ -28,7 +33,8 @@ export const tournamentHandler = (fastify, options, done) => {
     });
 
     fastify.post("/create", async (req, reply) => {
-        const tournament = new Tournament()
+        const tournament = new Tournament();
+        tournaments[tournament.uuid] = tournament;
         return reply.send("testing tournaments backend");
     });
 
