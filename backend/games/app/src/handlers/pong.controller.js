@@ -193,7 +193,7 @@ const pongHandler = (fastify, options, done) => {
 								games[game_id].setup.left_player.paddle.up = true;
 								games[game_id].setup.left_player.paddle.down = false;
 							}
-							if (member.is_left) {
+							else {
 								games[game_id].setup.right_player.paddle.up = true;
 								games[game_id].setup.right_player.paddle.down = false;
 							}
@@ -205,7 +205,7 @@ const pongHandler = (fastify, options, done) => {
 								games[game_id].setup.left_player.paddle.up = false;
 								games[game_id].setup.left_player.paddle.down = true;
 							}
-							if (member.is_left) {
+							else {
 								games[game_id].setup.right_player.paddle.up = false;
 								games[game_id].setup.right_player.paddle.down = true;
 							}
@@ -217,7 +217,7 @@ const pongHandler = (fastify, options, done) => {
 								games[game_id].setup.left_player.paddle.up = false;
 								games[game_id].setup.left_player.paddle.down = false;
 							}
-							if (member.is_left) {
+							else {
 								games[game_id].setup.right_player.paddle.up = false;
 								games[game_id].setup.right_player.paddle.down = false;
 							}
