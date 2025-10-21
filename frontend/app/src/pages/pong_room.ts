@@ -66,28 +66,6 @@ export default class PongRoom extends Component {
 					<div id="parent-container" class="flex">
 					</div>
 					<div id="playersInfo" class="flex flex-col justify-center pl-8 space-y-10 w-120">
-						<div><p class="pb-4">Player 1:</p>
-						${ this.left_player ?
-						`<div id="player1-info">
-							<div class="flex items-center space-x-4">
-								<img id="pfp" src="${ backend_url + this.left_player.avatarURL }" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
-								<div>
-									<h4 id="username" class="crt-text">${ this.left_player.username }</h4>
-									<p id="email" class="text-xs font-silkscreen">${ this.left_player.email }</p>
-								</div>
-							</div>
-						</div></div>` : `<div><p>Seat empty!</p></div><div><button id="take_seat_1" class="bg-blue-500 text-white py-3 mt-5 pixel-box font-pixelify hover:bg-blue-600 clicky" style="width: 180px;">TAKE SEAT</button></div></div>`}
-						<div><p class="pb-4">Player 2:</p>
-						${ this.right_player ?
-						`<div id="player2-info">
-							<div class="flex items-center space-x-4">
-								<img id="pfp" src="${ backend_url + this.right_player.avatarURL }" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
-								<div>
-									<h4 id="username" class="crt-text">${ this.right_player.username }</h4>
-									<p id="email" class="text-xs font-silkscreen">${ this.right_player.email }</p>
-								</div>
-							</div>
-						</div></div>` : `<div><p>Seat empty!</p></div><div><button id="take_seat_1" class="bg-blue-500 text-white py-3 mt-5 pixel-box font-pixelify hover:bg-blue-600 clicky" style="width: 180px;">TAKE SEAT</button></div></div>`}
 					</div>
 				</div>`;
 			this.navbar.init();
@@ -108,11 +86,12 @@ export default class PongRoom extends Component {
 		this.elements.secs = document.getElementById('seconds')!;
 		this.elements.spectators = document.getElementById('spectators')!;
 		this.elements.result = document.getElementById('result')!;
+		this.elements.playersInfo = document.getElementById('playersInfo')!;
 		if (this.elements.canvas) {
 			this.elements.ball = new Ball(this.ball.x, this.ball.y, this.ball.r, 'white');
 			this.elements.left_paddle = new Paddle(this.paddle.height, this.paddle.width, this.paddle.x, this.paddle.y, 'orange');
 			this.elements.right_paddle = new Paddle(this.paddle.height, this.paddle.width, this.canvas.width - this.paddle.x - this.paddle.width, this.paddle.y, 'red');
-			draw_frame(this.elements, null);
+			draw_frame(this.elements, null, this);
 		}
 	}
 
@@ -120,9 +99,7 @@ export default class PongRoom extends Component {
 		this.socket = new WebSocket(backend_websocket + "/pong");
 		this.socket.onopen = () => {
 			this.setupElements();
-			if (this.socket) {
-				this.socket.send(JSON.stringify({game_id: this.game_id, action: "JOIN", param: "SPEC"}));
-			}
+			this.socket?.send(JSON.stringify({game_id: this.game_id, action: "JOIN", param: "SPEC"}));
 		};
 		this.socket.onmessage = (message) => {
 			try {
@@ -138,7 +115,7 @@ export default class PongRoom extends Component {
 						this.right_player = this.router.login_info;
 				}
 				else {
-					draw_frame(this.elements, msg);
+					draw_frame(this.elements, msg, this);
 				}
 			} catch (error) {
 				console.error("Unexpected communication from server.");

@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import update_game from "./pong_game.js";
 
 const ONE_SECOND = 1000;
-const GAME_FPS = 2;
+const GAME_FPS = 60;
 const FRAME_TIME = ONE_SECOND / GAME_FPS;
 
 function shortUUID() {
