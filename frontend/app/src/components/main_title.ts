@@ -20,10 +20,10 @@ export default class MainTitle extends Component {
                 </h1>
                 <p class="text-xl font-silkscreen mb-12 rainbow">PONG ON STEROIDS!</p>
                 <div class="space-y-4">
-                <a href="/pong/difficulty" router-link>
+                <a href="/pong/menu" router-link>
                     <button class="pixel-box bg-green-500 px-8 py-4 text-xl hover:bg-green-600 clicky wiggler">
-                        CLICK HERE TO PLAY INSTANTLY <!-- will go to online queue -->
-                    </button> <!-- will eventually make some sound or serve some purpose idk -->
+                        CLICK HERE TO PLAY INSTANTLY
+                    </button>
                 </a>
                 </div>
             </div>

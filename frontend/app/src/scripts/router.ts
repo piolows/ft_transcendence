@@ -15,6 +15,7 @@ export var backend_websocket = "wss://localhost:4116";
 
 export default abstract class Component {
 	router: Router;
+	real_path: string = "";
 
 	constructor(router: Router) {
 		this.router = router;
@@ -152,8 +153,14 @@ export class Router {
 
 	route(path: string, push: boolean = false) {
 		let real_path = path;
+		if (path == "/pong/room" || path == "/pong/room/") {
+			this.route_error(path, 404);
+			return ;
+		}
 		if (path.includes("/pong/room"))
 			path = "/pong/room";
+		if (path.includes("/pong/game"))
+			path = "/pong/game";
 		this.check_session().then(() => {
 			if (path == "/login" || path == "/register") {
 				if (this.loggedin || !this.currpage) {
@@ -182,7 +189,7 @@ export class Router {
 			} else {
 				this.currpage = this.routes.get(path) ?? null;
 				if (real_path != path && this.currpage)
-					(this.currpage as PongRoom).real_path = real_path;
+					this.currpage.real_path = real_path;
 				this.currpage?.load(this.app);
 				this.currpage?.init();
 			}

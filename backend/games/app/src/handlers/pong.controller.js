@@ -1,4 +1,4 @@
-import { Member, Game, destroy_game, repeated_updates } from "../modules/pong_classes.js";
+import { Member, Game, destroy_game, repeated_updates, broadcast_game } from "../modules/pong_classes.js";
 
 const pongHandler = (fastify, options, done) => {
 	let games = {};		//game.uuid -> game
@@ -25,6 +25,21 @@ const pongHandler = (fastify, options, done) => {
 			full: (games[room_code].player_count() == 2),
 			admin: games[room_code].admin_info,
 			players: players,
+			canvas_info: {
+				width: games[room_code].setup.arena_width,
+				height: games[room_code].setup.arena_height,
+			},
+			paddle_info: {
+				width: games[room_code].setup.left_player.paddle.width,
+				height: games[room_code].setup.left_player.paddle.height,
+				x: games[room_code].setup.left_player.paddle.x,
+				y: games[room_code].setup.left_player.paddle.y,
+			},
+			ball_info: {
+				x: games[room_code].setup.ball.x,
+				y: games[room_code].setup.ball.y,
+				r: games[room_code].setup.ball.r,
+			},
 			spec_count: games[room_code].spec_count(),
 		});
 	});
@@ -78,7 +93,7 @@ const pongHandler = (fastify, options, done) => {
 					return;
 				}
 
-				const { game_id, action, param } = data;
+				let { game_id, action, param } = data;
 				if (game_id)
 					game_id = game_id.toUpperCase();
 
@@ -114,7 +129,7 @@ const pongHandler = (fastify, options, done) => {
 							if (param && param != "PLAY" && param != "SPEC" && param != "EITHER") {
 								socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid message param: JOIN only takes PLAY/SPEC as optional params." }));
 								console.log(JSON.stringify({ success: false, code: 400, error: "Invalid message param: JOIN only takes PLAY/SPEC as optional params." }));
-								return;
+								break;
 							}
 							if (param && param == "PLAY") {
 								const ret = member.play(games[game_id]);
@@ -136,27 +151,29 @@ const pongHandler = (fastify, options, done) => {
 								if (ret == true) {
 									socket.send(JSON.stringify({ success: true, role: "left_player" }));
 									socket.send(`Joined game #${game_id} as the left player!`);
+									console.log(`User ${member.user_info.username} - ${member.user_info.email} joined game #${game_id} as the left player`);
 								}
 								else if (ret == false) {
 									socket.send(JSON.stringify({ success: true, role: "right_player" }));
 									socket.send(`Joined game #${game_id} as the right player!`);
+									console.log(`User ${member.user_info.username} - ${member.user_info.email} joined game #${game_id} as the right player`);
 								}
 								else {
 									socket.send(JSON.stringify({ success: true, role: "spectator" }));
 									socket.send(`Joined game #${game_id} as a spectator!`);
+									console.log(`User ${member.user_info.username} - ${member.user_info.email} joined game #${game_id} as a player`);
 								}
 							}
-							console.log(`User ${member.user_info.username} - ${member.user_info.email} joined game #${game_id}`);
 							if (!games[game_id].started && games[game_id].player_count() == 2) {
 								games[game_id].start_game();
 								console.log(`Game #${game_id} started!`);
 							}
-							return;
+							break;
 						case "LEAVE":
 							const gid = member.game.uuid;
 							if (gid != game_id) {
 								socket.send(JSON.stringify({ success: false, code: 403, error: `Wrong game ID. User is in game #${gid}` }));
-								return;
+								break;
 							}
 							member.leave();
 							console.log(`User ${member.user_info.username} - ${member.user_info.email} left game #${gid}`);
@@ -166,46 +183,51 @@ const pongHandler = (fastify, options, done) => {
 							}
 							socket.send("Left game #" + gid);
 							socket.send(JSON.stringify({ success: true }));
-							return;
+							break;
 						case "MOVE_UP":
 							socket.send("Moved up!");
-							return;
+							break;
 						case "MOVE_DOWN":
 							socket.send("Moved down!");
-							return;
+							break;
 						case "STOP":
 							socket.send("Stopped!");
-							return;
+							break;
 						case "MESSAGE":
-							if (!param) {
+							if (!param || param.trim() == "") {
 								socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid message action: no param variable with message" }));
-								return;
+								break;
 							}
 							socket.send("You said: " + param);
-							return;
+							break;
 						default:
 							socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid action. Available actions: JOIN/LEAVE/MOVE_UP/MOVE_DOWN/STOP/MESSAGE" }));
-							return;
+							break;
+					}
+					if (!games[game_id].started || action == "MESSAGE") {
+						broadcast_game(games[game_id], action == "MESSAGE", member.user_info);
 					}
 				} catch (err) {
-					console.log(err);
-					socket.send(JSON.stringify({ success: false, code: 500, error: err }));
-					return ;
+					console.log("Error on command: ", err.message);
+					socket.send(JSON.stringify({ success: false, code: 500, error: err.message }));
 				}
 			});
 
 			socket.on('close', () => {
 				console.log(`User ${member.uuid} - ${member.user_info.username} - ${member.user_info.email} has disconnected from the socket.`);
-				if (member.game) {
-					const id = member.game.uuid;
-					member.leave();
-					console.log(`User ${member.user_info.username} - ${member.user_info.email} left game #${id}`);
-					if (games[id].player_count() == 0) {
-						destroy_game(admins, games, id);
-						console.log(`Destroyed room ${id}`);
+				try {
+					if (member.game) {
+						const id = member.game.uuid;
+						member.leave();
+						console.log(`User ${member.user_info.username} - ${member.user_info.email} left game #${id}`);
+						if (games[id].player_count() == 0) {
+							destroy_game(admins, games, id);
+							console.log(`Destroyed room ${id}`);
+						}
 					}
+				} catch (err) {
+					console.log("Error on close: ", err.message);
 				}
-				return;
 			});
 	});
 

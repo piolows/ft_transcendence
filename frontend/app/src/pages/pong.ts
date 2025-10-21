@@ -6,6 +6,7 @@ export default class Pong extends Component {
 
 	load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML = `
+			<button class="bg-blue-500 text-white py-3 mt-5 pixel-box font-pixelify hover:bg-blue-600 clicky" id="back_btn" style="position: absolute; left: 20px; width: 100px;">BACK</button>
 			<div class="w-screen flex pb-5 pt-3 items-center justify-center">
 				<div class="flex w-200">
 					<div id="timer" class="my-auto text-white">
@@ -22,10 +23,19 @@ export default class Pong extends Component {
 	}
 
 	init() {
+		const backbtn = document.getElementById('back_btn')!;
+		backbtn.onclick = () => {
+			if (history.length > 1) {
+				history.back();
+			}
+			else {
+				this.router.route("/", true);
+			}
+		};
 		const ball_speed = 8;
 		const ball_radius = 16;
 		const paddle_speed = 8;
-		const params = new URLSearchParams(location.search);
+		const params = new URLSearchParams(new URL("https://localhost" + this.real_path).search);
 		const op = params.get("op");
 		const difficulty = parseInt(params.get("difficulty") ?? "1");
 		const cv = document.getElementById("gameCanvas") as HTMLCanvasElement;

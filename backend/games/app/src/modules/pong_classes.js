@@ -84,7 +84,7 @@ class Setup {
 		if (ball)
 			this.ball = ball;
 		else
-			this.ball = new Ball(width / 2, height / 2, 10, 16);
+			this.ball = new Ball(width / 2 - 8, height / 2 - 8, 10, 16);
 	}
 
 	start_game() {
@@ -337,39 +337,40 @@ export class Bot extends Player {
 	}
 }
 
-function game_state(game) {
+function game_state(gameObj) {
+	const game = gameObj.setup;
+	let players = [];
+	for (let player of Object.values(gameObj.players)) {
+		players.push(player.user_info);
+	}
 	return {
-		started: game.started,
-		full: (game.player_count() == 2),
+		started: gameObj.started,
+		full: (gameObj.player_count() == 2),
 		time: game.time,
-		players: game.players,
+		players: players,
 		game_over: game.game_over,
 		timeout: game.timeout,
 		p1_score: game.p1_score,
 		p2_score: game.p2_score,
-		admin: game.admin_info,
-		spec_count: game.spec_count(),
+		admin: gameObj.admin_info,
+		spec_count: gameObj.spec_count(),
 		left_paddle: {
 			y: game.left_player.paddle.y,
-			speed: game.left_player.paddle.speed
 		},
 		right_paddle: {
 			y: game.right_player.paddle.y,
-			speed: game.right_player.paddle.speed
 		},
 		ball: {
 			x: game.ball.x,
 			y: game.ball.y,
-			xVel: game.ball.xVel,
-			yVel: game.ball.yVel,
-			speed: game.ball.speed,
 			moving: game.ball.moving,
 		}
 	};
 }
 
-function game_frame(game, frame_start) {
-	const gameState = game_state(game);
+function game_frame(gameObj, frame_start) {
+	const game = gameObj.setup;
+	const gameState = game_state(gameObj);
 	if (game.last_second != 0 && frame_start - game.last_second >= ONE_SECOND) {
 		game.last_second = frame_start;
 		game.time += 1;
@@ -385,10 +386,13 @@ function game_frame(game, frame_start) {
 	update_game(game);
 }
 
-function broadcast_game(game) {
-	const gameState = game_state(game.setup);
+export function broadcast_game(game, is_msg, user_info, msg) {
+	const gameState = game_state(game);
 	for (const member of Object.values(game.all)) {
-		member.socket.send(JSON.stringify(gameState));
+		if (!is_msg)
+			member.socket.send(JSON.stringify(gameState));
+		else
+			member.socket.send(JSON.stringify({user: user_info, message: msg}));
 	}
 }
 
@@ -397,7 +401,7 @@ export function repeated_updates(games) {
 	for (const game of Object.values(games)) {
 		if (!game.started || game.setup.game_over)
 			continue ;
-		game_frame(game.setup, frame_start);
+		game_frame(game, frame_start);
 		broadcast_game(game);
 	}
 	const exec_time = performance.now() - frame_start;
