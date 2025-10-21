@@ -26,13 +26,19 @@ export class Member {
 	join(game) {
 		if (this.game)
 			this.leave();
-		return game.join(this);
+		const ret = game.join(this);
+		if (ret == false)
+			this.is_left = false;
+		return ret;
 	}
 
 	play(game) {
 		if (this.game)
 			this.leave();
-		return game.player_join(this);
+		const ret = game.player_join(this);
+		if (ret == false)
+			this.is_left = false;
+		return ret;
 	}
 
 	spec(game) {
@@ -116,8 +122,6 @@ export class Game {
 	setup;
 	winner = 0;
 	started = false;
-	lp_member = null;
-	rp_member = null;
 	players = {};		// username -> Member
 	specs = {};			// username -> Member
 	all = {};			// username -> Member
@@ -141,8 +145,6 @@ export class Game {
 		if (!this.stop_game)
 			throw new Error("Game not running");
 		this.setup.end_game();
-		this.lp_member = null;
-		this.rp_member = null;
 		for (let player of Object.values(this.players)) {
 			this.specs[player.user_info.username] = player;
 			delete this.players[player.user_info.username];

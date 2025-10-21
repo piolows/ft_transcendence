@@ -8,6 +8,7 @@ export default class PongRoom extends Component {
 	private game_over: boolean = false;
 	private socket: WebSocket | null = null;
 	private admin: any = null;
+	private direction: number = 0;
 	private left_player: any = null;
 	private right_player: any = null;
 	private paddle: any;
@@ -139,18 +140,26 @@ export default class PongRoom extends Component {
 
 	keyDownHandler(event: any)
 	{
-		if (event.key == 'w' || event.key == 'W')
+		if (this.direction != 1 && (event.key == 'w' || event.key == 'W')) {
+			this.direction = 1;
 			this.socket?.send(JSON.stringify({game_id: this.game_id, action: "MOVE_UP"}));
-		else if (event.key == 's' || event.key == 'S')
+		}
+		if (this.direction != -1 && (event.key == 's' || event.key == 'S')) {
+			this.direction = -1;
 			this.socket?.send(JSON.stringify({game_id: this.game_id, action: "MOVE_DOWN"}));
+		}
 	}
 
 	keyUpHandler(event: any)
 	{
-		if (event.key == 'w' || event.key == 'W')
+		if (this.direction != 0 && (event.key == 'w' || event.key == 'W')) {
+			this.direction = 0;
 			this.socket?.send(JSON.stringify({game_id: this.game_id, action: "STOP"}));
-		if (event.key == 's' || event.key == 'S')
+		}
+		if (this.direction != 0 && (event.key == 's' || event.key == 'S')) {
+			this.direction = 0;
 			this.socket?.send(JSON.stringify({game_id: this.game_id, action: "STOP"}));
+		}
 	}
 
 	init() {

@@ -189,13 +189,40 @@ const pongHandler = (fastify, options, done) => {
 							socket.send(JSON.stringify({ success: true }));
 							break;
 						case "MOVE_UP":
+							if (member.is_left) {
+								games[game_id].setup.left_player.paddle.up = true;
+								games[game_id].setup.left_player.paddle.down = false;
+							}
+							if (member.is_left) {
+								games[game_id].setup.right_player.paddle.up = true;
+								games[game_id].setup.right_player.paddle.down = false;
+							}
 							socket.send("Moved up!");
+							console.log(`${member.is_left ? "Left" : "Right"} Player Moved up!`);
 							break;
 						case "MOVE_DOWN":
+							if (member.is_left) {
+								games[game_id].setup.left_player.paddle.up = false;
+								games[game_id].setup.left_player.paddle.down = true;
+							}
+							if (member.is_left) {
+								games[game_id].setup.right_player.paddle.up = false;
+								games[game_id].setup.right_player.paddle.down = true;
+							}
 							socket.send("Moved down!");
+							console.log(`${member.is_left ? "Left" : "Right"} Player Moved down!`);
 							break;
 						case "STOP":
+							if (member.is_left) {
+								games[game_id].setup.left_player.paddle.up = false;
+								games[game_id].setup.left_player.paddle.down = false;
+							}
+							if (member.is_left) {
+								games[game_id].setup.right_player.paddle.up = false;
+								games[game_id].setup.right_player.paddle.down = false;
+							}
 							socket.send("Stopped!");
+							console.log(`${member.is_left ? "Left" : "Right"} Player Stopped!`);
 							break;
 						case "MESSAGE":
 							if (!param || param.trim() == "") {

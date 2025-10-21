@@ -56,12 +56,12 @@ function resetBall(game, ball)
 function hit_paddle(paddle, ball, is_left = false)
 {
 	const future_pos = ball.x + ball.xVel + (is_left ? -ball.r : ball.r);
-	if (ball.y >= paddle.yPos && ball.y <= paddle.yPos + paddle.height)
+	if (ball.y >= paddle.y && ball.y <= paddle.y + paddle.height)
 	{
-		if ((is_left && future_pos < paddle.xPos + paddle.width) 
-		|| (!is_left && future_pos > paddle.xPos))
+		if ((is_left && future_pos < paddle.x + paddle.width) 
+		|| (!is_left && future_pos > paddle.x))
 		{
-			const center = paddle.yPos + paddle.height / 2;
+			const center = paddle.y + paddle.height / 2;
 			const normal_intersect = (ball.y - center) / (paddle.height / 2);
 			const angle = normal_intersect * (Math.PI / 4);
 			ball.xVel = ball.speed * Math.cos(angle);
@@ -72,12 +72,12 @@ function hit_paddle(paddle, ball, is_left = false)
 		}
 	}
 	// const future_pos = ball.x + ball.speed + (is_left ? -ball.r : ball.r);
-	// if (ball.y >= paddle.yPos && ball.y <= paddle.yPos + paddle.height)
+	// if (ball.y >= paddle.y && ball.y <= paddle.y + paddle.height)
 	// {
-	// 	if ((is_left && future_pos < paddle.xPos + paddle.width) 
-	// 	|| (!is_left && future_pos > paddle.xPos))
+	// 	if ((is_left && future_pos < paddle.x + paddle.width) 
+	// 	|| (!is_left && future_pos > paddle.x))
 	// 	{
-	// 		const center = paddle.yPos + paddle.height / 2;
+	// 		const center = paddle.y + paddle.height / 2;
 	// 		const normal_intersect = (ball.y - center) / (paddle.height / 2);
 	// 		const angle = normal_intersect * (Math.PI / 4);
 	// 		ball.xVel = ball.speed * Math.cos(angle);
@@ -126,13 +126,13 @@ export default function update_game(game) {
 	
 	// Move paddles and ball
 	if (left_paddle.up)
-		left_paddle.yPos = Math.max(left_paddle.yPos - left_paddle.speed, 0);
+		left_paddle.y = Math.max(left_paddle.y - left_paddle.speed, 0);
 	if (left_paddle.down)
-		left_paddle.yPos = Math.min(left_paddle.yPos + left_paddle.speed, arena_height - left_paddle.height);
+		left_paddle.y = Math.min(left_paddle.y + left_paddle.speed, arena_height - left_paddle.height);
 	if (right_paddle.up)
-		right_paddle.yPos = Math.max(right_paddle.yPos - right_paddle.speed, 0);
+		right_paddle.y = Math.max(right_paddle.y - right_paddle.speed, 0);
 	if (right_paddle.down)
-		right_paddle.yPos = Math.min(right_paddle.yPos + right_paddle.speed, arena_height - right_paddle.height);
+		right_paddle.y = Math.min(right_paddle.y + right_paddle.speed, arena_height - right_paddle.height);
 	ball.x += ball.xVel;
 	ball.y += ball.yVel;
 
