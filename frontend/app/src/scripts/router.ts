@@ -21,7 +21,7 @@ export default abstract class Component {
 		this.router = router;
 	}
 
-	load(app: HTMLDivElement | HTMLElement) {}
+	async load(app: HTMLDivElement | HTMLElement) {}
 	init() {}
 	unload() {}
 }
@@ -30,7 +30,7 @@ export class DefaultErrorPage extends Component {
 	error_code = 404;
 	custom_msg: any;
 	
-	load(app: HTMLDivElement | HTMLElement) {
+	async load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML = `
 			<div class="center text-center mt-50">
 				<h1>${ this.custom_msg ? this.custom_msg : HTTP_CODES[this.error_code] }</h1>
@@ -143,8 +143,7 @@ export class Router {
 		window.scrollTo(0, 0);
 		this.errpage.error_code = code;
 		this.errpage.custom_msg = err_msg;
-		this.errpage.load(this.app);
-		this.errpage.init();
+		this.errpage.load(this.app).then(() => this.errpage.init());
 		this.currpage = this.errpage;
 		this.errpage.error_code = 404;
 		this.errpage.custom_msg = undefined;
@@ -183,15 +182,13 @@ export class Router {
 			this.currpage?.unload();
 			window.scrollTo(0, 0);
 			if (!this.routes.has(path)) {
-				this.errpage.load(this.app);
-				this.errpage.init();
+				this.errpage.load(this.app).then(() => this.errpage.init());
 				this.currpage = this.errpage;
 			} else {
 				this.currpage = this.routes.get(path) ?? null;
 				if (real_path != path && this.currpage)
 					this.currpage.real_path = real_path;
-				this.currpage?.load(this.app);
-				this.currpage?.init();
+				this.currpage?.load(this.app).then(() => this.currpage?.init());
 			}
 			path = real_path;
 			if (push)

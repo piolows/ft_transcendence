@@ -43,7 +43,7 @@ function resetBall(game, ball)
 {
 	const LESS_THAN_A_SECOND = 900;
 
-	game.timeout = 3;
+	game.reset = 3;
 	game.last_bot_second = performance.now() - LESS_THAN_A_SECOND;
 	ball.x = game.arena_width / 2 - ball.r / 2;
 	ball.y = game.arena_height / 2 - ball.r / 2;
@@ -115,7 +115,7 @@ export default function update_game(game) {
 		ball.moving = false;
 		return ;
 	}
-	else if (!ball.moving) {
+	else if (!ball.moving && game.reset == 0) {
 		const angle = (Math.random() * Math.PI / 4) - (Math.PI / 8); // -22.5° to +22.5°
 		const direction = Math.random() < 0.5 ? 1 : -1; // left or right
 		
@@ -133,6 +133,8 @@ export default function update_game(game) {
 		right_paddle.y = Math.max(right_paddle.y - right_paddle.speed, 0);
 	if (right_paddle.down)
 		right_paddle.y = Math.min(right_paddle.y + right_paddle.speed, arena_height - right_paddle.height);
+	if (game.reset > 0)
+		return ;
 	ball.x += ball.xVel;
 	ball.y += ball.yVel;
 

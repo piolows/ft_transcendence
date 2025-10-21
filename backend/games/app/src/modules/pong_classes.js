@@ -99,6 +99,7 @@ class Setup {
 		this.p1_score = 0;
 		this.p2_score = 0;
 		this.time = 0;
+		this.reset = 0;
 		this.timeout = 3;
 		this.last_bot_second = 0;
 		this.last_second = 0;
@@ -113,6 +114,7 @@ class Setup {
 		this.last_bot_second = 0;
 		this.last_second = 0;
 		this.timeout = 99999;
+		this.reset = 99999;
 	}
 }
 
@@ -352,6 +354,7 @@ function game_state(gameObj) {
 		players: players,
 		game_over: game.game_over,
 		timeout: game.timeout,
+		reset: game.reset,
 		p1_score: game.p1_score,
 		p2_score: game.p2_score,
 		admin: gameObj.admin_info,
@@ -377,6 +380,8 @@ function game_frame(gameObj, frame_start) {
 		game.last_second = frame_start;
 		game.time += 1;
 		game.timeout = Math.max(0, game.timeout - 1);
+		if (game.timeout == 0)
+			game.reset = Math.max(0, game.reset - 1);
 	}
 	if (game.last_bot_second != 0 && frame_start - game.last_bot_second >= ONE_SECOND) {
 		game.last_bot_second = frame_start;

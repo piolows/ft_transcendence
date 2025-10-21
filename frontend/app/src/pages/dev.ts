@@ -4,8 +4,8 @@ import NavBar from "../components/nav_bar";
 export default class Dev extends Component {
 	private navbar = new NavBar(this.router);
 
-	load(app: HTMLDivElement | HTMLElement) {
-		this.navbar.load(app);
+	async load(app: HTMLDivElement | HTMLElement) {
+		await this.navbar.load(app);
 		app.innerHTML += `
 			<!-- main content -->
 			<main class="container mx-auto mt-8 px-4">

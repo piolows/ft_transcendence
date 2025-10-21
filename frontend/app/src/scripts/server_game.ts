@@ -7,10 +7,10 @@ export class Ball
 	r: number;
 	color: string;
 
-	constructor(xPos: number, yPos: number, radius:number, c: string)
+	constructor(x: number, y: number, radius:number, c: string)
 	{
-		this.x = xPos;
-		this.y = yPos;
+		this.x = x;
+		this.y = y;
 		this.r = radius;
 		this.color = c;
 	}
@@ -20,16 +20,16 @@ export class Paddle
 {
 	height: number;
 	width: number;
-	xPos: number;
-	yPos: number;
+	x: number;
+	y: number;
 	color: string;
 
 	constructor(h: number, w: number, x: number, y: number, c: string)
 	{
 		this.height = h;
 		this.width = w;
-		this.xPos = x;
-		this.yPos = y;
+		this.x = x;
+		this.y = y;
 		this.color = c;
 	}
 };
@@ -38,7 +38,7 @@ function drawPaddle(cv: HTMLCanvasElement, paddle: Paddle)
 {
 	const context = cv.getContext('2d')!;
 	context.beginPath();
-	context.rect(paddle.xPos, paddle.yPos, paddle.width, paddle.height);
+	context.rect(paddle.x, paddle.y, paddle.width, paddle.height);
 	context.fillStyle = paddle.color;
 	context.fill();
 	context.closePath();

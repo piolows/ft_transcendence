@@ -1,7 +1,7 @@
 import Component, { backend_url } from "../scripts/router";
 
 export default class SignUp extends Component {
-	load(app: HTMLDivElement | HTMLElement) {
+	async load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML += 
 		`<!-- register screen -->
 		<div id="signup-screen" class="fixed inset-0 z-50 flex items-center justify-center">

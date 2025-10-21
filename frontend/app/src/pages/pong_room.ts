@@ -26,13 +26,14 @@ export default class PongRoom extends Component {
 			</div>
 		</div>`;
 
-	load(app: HTMLDivElement | HTMLElement) {
+	async load(app: HTMLDivElement | HTMLElement) {
 		this.game_id = this.real_path.substring(this.real_path.lastIndexOf("/") + 1);
-		fetch(`${sockets_url}${this.real_path}`, {
+		const response = await fetch(`${sockets_url}${this.real_path}`, {
 			method: "POST",
 			credentials: "include",
-		}).then(response => response.json())
-		.then(data => {
+		});
+		try {
+			const data = await response.json();
 			if (!data.success) {
 				this.router.route_error(this.real_path, data.code, data.error);
 				return ;
@@ -69,12 +70,10 @@ export default class PongRoom extends Component {
 					<div id="playersInfo" class="flex flex-col justify-center pl-8 space-y-10 w-120">
 					</div>
 				</div>`;
-			this.navbar.init();
-			this.setupSocket();
-		}).catch (error => {
+		} catch (error) {
 			this.router.route_error(this.real_path, 500);
 			return ;
-		});
+		};
 	}
 
 	setupElements() {
@@ -104,7 +103,6 @@ export default class PongRoom extends Component {
 		};
 		this.socket.onmessage = (message) => {
 			try {
-				console.log(message.data);
 				const msg = JSON.parse(message.data);
 				if (msg.exit) {
 					this.game_over = true;
@@ -138,8 +136,7 @@ export default class PongRoom extends Component {
 		};
 	}
 
-	keyDownHandler(event: any)
-	{
+	keyDownHandler = (event: any) => {
 		if (this.direction != 1 && (event.key == 'w' || event.key == 'W')) {
 			this.direction = 1;
 			this.socket?.send(JSON.stringify({game_id: this.game_id, action: "MOVE_UP"}));
@@ -150,8 +147,7 @@ export default class PongRoom extends Component {
 		}
 	}
 
-	keyUpHandler(event: any)
-	{
+	keyUpHandler = (event: any) => {
 		if (this.direction != 0 && (event.key == 'w' || event.key == 'W')) {
 			this.direction = 0;
 			this.socket?.send(JSON.stringify({game_id: this.game_id, action: "STOP"}));
@@ -163,6 +159,8 @@ export default class PongRoom extends Component {
 	}
 
 	init() {
+		this.navbar.init();
+		this.setupSocket();
 		document.addEventListener('keyup', this.keyUpHandler, false);
 		document.addEventListener('keydown', this.keyDownHandler, false);
 	}

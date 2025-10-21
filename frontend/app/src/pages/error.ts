@@ -6,7 +6,7 @@ export default class ErrorHandler extends DefaultErrorPage {
 	private navbar = new NavBar(this.router);
 	private footer = new Footer(this.router);
 
-	load(app: HTMLDivElement | HTMLElement) {
+	async load(app: HTMLDivElement | HTMLElement) {
 		const err_msg = `
 			<div class="center text-center mt-50">
 				<h1>${ this.custom_msg ? this.custom_msg : HTTP_CODES[this.error_code] }</h1>

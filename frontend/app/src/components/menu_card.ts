@@ -51,7 +51,7 @@ export default class MenuCard extends Component {
 		return html;
 	}
 
-	load(app: HTMLDivElement | HTMLElement) {
+	async load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML = this.get_html();
 	}
 }

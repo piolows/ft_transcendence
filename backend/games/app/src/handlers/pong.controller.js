@@ -102,14 +102,14 @@ const pongHandler = (fastify, options, done) => {
 				const getinfos = (guys) => {if (!guys) return ''; let ret = ""; for (const guy of guys) ret += getinfo(guy.user_info) + "  "; return ret;}
 				if (action == "INFO") {
 					for (const game of Object.values(games)) {
-						socket.send(`Game #${game.uuid} has admin ${getinfo(game.admin_info)}.\nSpectators:\n${getinfos(Object.values(game.specs))}\nPlayers:\n${getinfos(Object.values(game.players))}`);
+						// socket.send(`Game #${game.uuid} has admin ${getinfo(game.admin_info)}.\nSpectators:\n${getinfos(Object.values(game.specs))}\nPlayers:\n${getinfos(Object.values(game.players))}`);
 						console.log(`Game #${game.uuid} has admin ${getinfo(game.admin_info)}.\nSpectators:\n${getinfos(Object.values(game.specs))}\nPlayers:\n${getinfos(Object.values(game.players))}`);
 					};
 					return;
 				}
 				if (action == "START") {
 					games[game_id].start_game();
-					socket.send(`Game #${game_id} started.`);
+					// socket.send(`Game #${game_id} started.`);
 					console.log(`Game #${game_id} started.`);
 					return;
 				}
@@ -133,7 +133,7 @@ const pongHandler = (fastify, options, done) => {
 							}
 							if (param && param == "PLAY") {
 								const ret = member.play(games[game_id]);
-								socket.send(`Joined game #${game_id} as ${ret == true ? "the left player!" : "the right player!"}`);
+								// socket.send(`Joined game #${game_id} as ${ret == true ? "the left player!" : "the right player!"}`);
 								console.log(`User ${member.user_info.username} - ${member.user_info.email} Joined game #${game_id}`);
 								if (ret == true)
 									socket.send(JSON.stringify({ success: true, role: "left_player" }));
@@ -142,7 +142,7 @@ const pongHandler = (fastify, options, done) => {
 							}
 							else if (param && param == "SPEC") {
 								member.spec(games[game_id]);
-								socket.send(`Joined game #${game_id} as a spectator!`);
+								// socket.send(`Joined game #${game_id} as a spectator!`);
 								console.log(`User ${member.user_info.username} - ${member.user_info.email} Joined game #${game_id} as a spectator!`);
 								socket.send(JSON.stringify({ success: true, role: "spectator" }));
 							}
@@ -150,17 +150,17 @@ const pongHandler = (fastify, options, done) => {
 								const ret = member.join(games[game_id]);
 								if (ret == true) {
 									socket.send(JSON.stringify({ success: true, role: "left_player" }));
-									socket.send(`Joined game #${game_id} as the left player!`);
+									// socket.send(`Joined game #${game_id} as the left player!`);
 									console.log(`User ${member.user_info.username} - ${member.user_info.email} joined game #${game_id} as the left player`);
 								}
 								else if (ret == false) {
 									socket.send(JSON.stringify({ success: true, role: "right_player" }));
-									socket.send(`Joined game #${game_id} as the right player!`);
+									// socket.send(`Joined game #${game_id} as the right player!`);
 									console.log(`User ${member.user_info.username} - ${member.user_info.email} joined game #${game_id} as the right player`);
 								}
 								else {
 									socket.send(JSON.stringify({ success: true, role: "spectator" }));
-									socket.send(`Joined game #${game_id} as a spectator!`);
+									// socket.send(`Joined game #${game_id} as a spectator!`);
 									console.log(`User ${member.user_info.username} - ${member.user_info.email} joined game #${game_id} as a player`);
 								}
 							}
@@ -185,7 +185,7 @@ const pongHandler = (fastify, options, done) => {
 								destroy_game(admins, games, gid);
 								console.log(`Destroyed room ${gid}`);
 							}
-							socket.send("Left game #" + gid);
+							// socket.send("Left game #" + gid);
 							socket.send(JSON.stringify({ success: true }));
 							break;
 						case "MOVE_UP":
@@ -197,8 +197,6 @@ const pongHandler = (fastify, options, done) => {
 								games[game_id].setup.right_player.paddle.up = true;
 								games[game_id].setup.right_player.paddle.down = false;
 							}
-							socket.send("Moved up!");
-							console.log(`${member.is_left ? "Left" : "Right"} Player Moved up!`);
 							break;
 						case "MOVE_DOWN":
 							if (member.is_left) {
@@ -209,8 +207,6 @@ const pongHandler = (fastify, options, done) => {
 								games[game_id].setup.right_player.paddle.up = false;
 								games[game_id].setup.right_player.paddle.down = true;
 							}
-							socket.send("Moved down!");
-							console.log(`${member.is_left ? "Left" : "Right"} Player Moved down!`);
 							break;
 						case "STOP":
 							if (member.is_left) {
@@ -221,15 +217,13 @@ const pongHandler = (fastify, options, done) => {
 								games[game_id].setup.right_player.paddle.up = false;
 								games[game_id].setup.right_player.paddle.down = false;
 							}
-							socket.send("Stopped!");
-							console.log(`${member.is_left ? "Left" : "Right"} Player Stopped!`);
 							break;
 						case "MESSAGE":
 							if (!param || param.trim() == "") {
 								socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid message action: no param variable with message" }));
 								break;
 							}
-							socket.send("You said: " + param);
+							// socket.send("You said: " + param);
 							break;
 						default:
 							socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid action. Available actions: JOIN/LEAVE/MOVE_UP/MOVE_DOWN/STOP/MESSAGE" }));

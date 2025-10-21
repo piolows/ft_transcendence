@@ -33,8 +33,8 @@ export default class Homepage extends Component {
 		this.menu.add_card(card);
 	}
 
-	load(app: HTMLDivElement | HTMLElement) {
-		this.navbar.load(app);
+	async load(app: HTMLDivElement | HTMLElement) {
+		await this.navbar.load(app);
 		app.innerHTML += "<div class=\"container mx-auto px-4\">" + this.title.get_html() + this.menu.get_html()
 			+ this.leaderboard.get_html() + "</div>" + this.footer.get_html();
 	}

@@ -4,7 +4,7 @@ import { Player, Ball, Bot, Paddle, start_game } from "../scripts/game";
 export default class Pong extends Component {
 	private end_game: () => void = () => {};
 
-	load(app: HTMLDivElement | HTMLElement) {
+	async load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML = `
 			<button class="bg-blue-500 text-white py-3 mt-5 pixel-box font-pixelify hover:bg-blue-600 clicky" id="back_btn" style="position: absolute; left: 20px; width: 100px;">BACK</button>
 			<div class="w-screen flex pb-5 pt-3 items-center justify-center">

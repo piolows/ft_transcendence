@@ -50,7 +50,7 @@ export default class AuthSection extends Component {
 			return this.logged_out_block();
 	}
 
-	load(app: HTMLDivElement | HTMLElement) {
+	async load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML = this.get_html();
 	}
 
