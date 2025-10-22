@@ -30,6 +30,8 @@ const endpointHandler = (fastify, options, done) => {
 	});
 
 	fastify.post("/login", loginSchema, async (req, reply) => {
+		if (req.contentLength === 0 || !req.body)
+			return reply.code(400).send({ error: "Empty body" });
 		try {
 			if (!req.session) {
 				req.session.init();

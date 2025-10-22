@@ -21,7 +21,8 @@ const endpointHandler = (fastify, options, done) => {
 					method: req.method,
 					headers: {
 						...req.headers,
-						"content-length": body ? Buffer.byteLength(body).toString() : undefined
+						// "content-length": body ? Buffer.byteLength(body).toString() : undefined
+						"content-length": body ? Buffer.byteLength(body).toString() : 0
 					},
 					body: body
 				});

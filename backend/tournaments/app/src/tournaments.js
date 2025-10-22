@@ -3,24 +3,26 @@
 // /tournament/join: join a tournament. body: { tournamentId, playerId } returns { success: true/false, message }
 // tournament/:id: get a tournament by its id returns { tournamentId, name, maxPlayers, players: [playerId], status }
 
+// an object that contains tournament information
+// it contains the players of the tournament, the spectators 
 function shortUUID() {
   return randomUUID().replace(/-/g, "").slice(0, 16);
 }
 
 class Tournament {
     uuid;
-    tournamentId;
-    adminId;
+    admin;
     tournamentSocket = null;
     maxPlayers = 8;
-    players = {};   // contains player username : user_info object
+    players = {};
+    spectators = {};
     matches = {};   // match uuid : game object
     winner = {}; // stores winner info which is: user_info object containing id/username/email/pfp
-    constructor(tournamentId, adminId, tournamentSocket) {
+    constructor(admin, maxPlayers) {
         this.uuid = shortUUID();
-        this.tournamentId = tournamentId
-        this.adminId = adminId
-        this.tournamenSocket = tournamentSocket
+        this.admin = admin;
+        if (maxPlayers)
+            this.maxPlayers = maxPlayers;
     }
 }
 
@@ -33,13 +35,20 @@ export const tournamentHandler = (fastify, options, done) => {
     });
 
     fastify.post("/create", async (req, reply) => {
-        const tournament = new Tournament();
+        if (!req.session || !req.session.user)
+            return reply.code(403).send({ error: "Must be signed in to create a tournament" });
+        const tournament = new Tournament(req.session.user, req.body.maxPlayers);
         tournaments[tournament.uuid] = tournament;
-        return reply.send("testing tournaments backend");
+        return reply.send(`added tournament ${tournament.uuid} testing tournaments backend`);
+    });
+
+    fastify.delete("/:id", async (req, reply) => {
+        // return reply.send("testing tournaments backend");
     });
 
 
     fastify.post("/join", async (req, reply) => {
+        // body would contain as player: true, false
         return reply.send("testing tournaments backend");
     });
 
