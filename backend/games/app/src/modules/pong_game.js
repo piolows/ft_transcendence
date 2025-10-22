@@ -56,7 +56,7 @@ function resetBall(game, ball)
 function hit_paddle(paddle, ball, is_left = false)
 {
 	const future_pos = ball.x + ball.xVel + (is_left ? -ball.r : ball.r);
-	if (ball.y >= paddle.y && ball.y <= paddle.y + paddle.height)
+	if (ball.y + ball.yVel >= paddle.y && ball.y + ball.yVel <= paddle.y + paddle.height)
 	{
 		if ((is_left && future_pos < paddle.x + paddle.width) 
 		|| (!is_left && future_pos > paddle.x))
