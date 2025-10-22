@@ -9,13 +9,15 @@ export default class AuthSection extends Component {
 		return `
 			<div class="flex items-center space-x-6">
 				<div id="profile-info">
-					<div class="flex items-center space-x-4">
-						<img id="pfp" src="${ backend_url + this.router.login_info.avatarURL }" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
-						<div>
-							<h4 id="username" class="crt-text">${ this.router.login_info.username }</h4>
-							<p id="email" class="text-xs font-silkscreen">${ this.router.login_info.email }</p>
+					<a href="/profile" router-link class="hover:opacity-80 transition-opacity">
+						<div class="flex items-center space-x-4">
+							<img id="pfp" src="${ backend_url + this.router.login_info.avatarURL }" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
+							<div>
+								<h4 id="username" class="crt-text">${ this.router.login_info.username }</h4>
+								<p id="email" class="text-xs font-silkscreen">${ this.router.login_info.email }</p>
+							</div>
 						</div>
-					</div>
+					</a>
 				</div>
 				<div class="flex space-x-4">
 					<button id="logout-button" class="hidden hover:text-blue-200 clicky wiggler">
