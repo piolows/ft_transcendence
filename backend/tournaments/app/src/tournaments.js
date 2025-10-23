@@ -9,27 +9,25 @@ function shortUUID() {
   return randomUUID().replace(/-/g, "").slice(0, 16);
 }
 
+var tournaments = {}; // uuid : tournament_object
+
 class Tournament {
     uuid;
     admin;
-    tournamentSocket = null;
-    maxPlayers = 8;
+    // tournamentSocket = null;
+    maxPlayers;
     players = {};
-    spectators = {};
-    matches = {};   // match uuid : game object
-    winner = {}; // stores winner info which is: user_info object containing id/username/email/pfp
-    constructor(admin, maxPlayers) {
+    matches = {};   // match uuid : game JSON object
+    winner = null; // stores winner info which is: user_info object containing id/username/email/pfp
+    constructor(admin, maxPlayers = 8) {
         this.uuid = shortUUID();
         this.admin = admin;
-        if (maxPlayers)
-            this.maxPlayers = maxPlayers;
+        this.maxPlayers = maxPlayers;
     }
 }
 
 // tournament routes
 export const tournamentHandler = (fastify, options, done) => {
-    let tournaments = {}; // tournamentId : tournament object
-
     fastify.get("/:id", async (req, reply) => {
         if (!tournaments[req.params.id])
             return reply.code(404).send({ error: "Tournament not found" });
