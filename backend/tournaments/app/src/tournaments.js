@@ -31,7 +31,9 @@ export const tournamentHandler = (fastify, options, done) => {
     let tournaments = {}; // tournamentId : tournament object
 
     fastify.get("/:id", async (req, reply) => {
-        return reply.send("testing tournaments backend");
+        if (!tournaments[req.params.id])
+            return reply.code(404).send({ error: "Tournament not found" });
+        return reply.send(tournaments[req.params.id]);
     });
 
     fastify.post("/create", async (req, reply) => {
