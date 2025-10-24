@@ -14,7 +14,6 @@ var tournaments = {}; // uuid : tournament_object
 class Tournament {
     uuid;
     admin;
-    // tournamentSocket = null;
     maxPlayers;
     players = {};
     matches = {};   // match uuid : game JSON object
@@ -43,6 +42,7 @@ export const tournamentHandler = (fastify, options, done) => {
     });
 
     fastify.delete("/:id", async (req, reply) => {
+
         // return reply.send("testing tournaments backend");
     });
 
@@ -56,5 +56,12 @@ export const tournamentHandler = (fastify, options, done) => {
         return reply.send("testing tournaments backend");
     });
 
+    fastify.post('/start', async (req, reply) => {
+        
+    });
+
     done();
 }
+
+// send a request to the games service to get results of a game
+// send a request to the games service to create a match
