@@ -29,7 +29,6 @@ export default class PongRoom extends Component {
 	async load(app: HTMLDivElement | HTMLElement) {
 		this.game_id = this.real_path.substring(this.real_path.lastIndexOf("/") + 1);
 		const response = await fetch(`${sockets_url}${this.real_path}`, {
-			method: "POST",
 			credentials: "include",
 		});
 		try {

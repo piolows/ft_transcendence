@@ -120,18 +120,20 @@ class Setup {
 
 export class Game {
 	uuid;
-	admin_info;
 	setup;
+	admin_info;
+	tournament_id;
 	winner = 0;
 	started = false;
 	players = {};		// username -> Member
 	specs = {};			// username -> Member
 	all = {};			// username -> Member
 
-	constructor(admin_info) {
+	constructor(admin_info, tournament_id = undefined) {
 		this.uuid = shortUUID();
 		this.admin_info = admin_info;
 		this.setup = new Setup();
+		this.tournament_id = tournament_id;
 	}
 
 	start_game() {
@@ -144,12 +146,30 @@ export class Game {
 	}
 
 	stop_game() {
-		if (!this.stop_game)
+		if (this.setup.game_over)
 			throw new Error("Game not running");
 		this.setup.end_game();
 		for (let player of Object.values(this.players)) {
 			this.specs[player.user_info.username] = player;
 			delete this.players[player.user_info.username];
+		}
+		if (this.tournament_id) {
+			let players = [];
+			for (let player of Object.values(this.players)) {
+				players.push(player.user_info);
+			}
+			fetch(`${process.env.TOURNAMENT_URL}/${req.body.tournament_id}`, {
+				method: "POST",
+				body: {
+					game_over: this.setup.game_over,
+					admin: this.admin_info,
+					winner: this.winner,
+					time: this.setup.time,
+					players: players,
+					p1_score: this.setup.p1_score,
+					p2_score: this.setup.p2_score,
+				}
+			}).catch(error => console.log(error));
 		}
 	}
 
@@ -349,16 +369,18 @@ function game_state(gameObj) {
 	}
 	return {
 		started: gameObj.started,
+		game_over: game.game_over,
 		full: (gameObj.player_count() == 2),
+		winner: gameObj.winner,
 		time: game.time,
 		players: players,
-		game_over: game.game_over,
 		timeout: game.timeout,
 		reset: game.reset,
 		p1_score: game.p1_score,
 		p2_score: game.p2_score,
 		admin: gameObj.admin_info,
 		spec_count: gameObj.spec_count(),
+		tournament_id: gameObj.tournament_id,
 		left_paddle: {
 			y: game.left_player.paddle.y,
 		},
@@ -390,7 +412,11 @@ function game_frame(gameObj, frame_start) {
 		if (game.right_player.type == "bot")
 			game.right_player.update(gameState);
 	}
+	const ended = game.game_over;
 	update_game(game);
+	if (!ended && game.game_over) {
+		gameObj.stop_game();
+	}
 }
 
 export function broadcast_game(game, is_msg, user_info, msg) {

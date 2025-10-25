@@ -1,10 +1,11 @@
 import { Member, Game, destroy_game, repeated_updates, broadcast_game } from "../modules/pong_classes.js";
+import "dotenv/config";
 
 const pongHandler = (fastify, options, done) => {
 	let games = {};		//game.uuid -> game
 	let admins = {};	//username -> game
 
-	fastify.post("/room/*", (req, resp) => {
+	fastify.get("/room/*", (req, resp) => {
 		if (!req.session || !req.session.user)
 			return resp.send({ success: false, code: 403, error: "Must be signed" });
 		const room_code = (req.params["*"] ?? "").toUpperCase();
@@ -20,8 +21,12 @@ const pongHandler = (fastify, options, done) => {
 		}
 		return resp.send({ 
 			success: true,
-			game_over: games[room_code].setup.game_over,
 			started: games[room_code].started,
+			game_over: games[room_code].setup.game_over,
+			winner: games[room_code].winner,
+			p1_score: games[room_code].setup.p1_score,
+			p2_score: games[room_code].setup.p2_score,
+			time: games[room_code].setup.time,
 			full: (games[room_code].player_count() == 2),
 			admin: games[room_code].admin_info,
 			players: players,
@@ -41,17 +46,28 @@ const pongHandler = (fastify, options, done) => {
 				r: games[room_code].setup.ball.r,
 			},
 			spec_count: games[room_code].spec_count(),
+			tournament_id: games[room_code].tournament_id,
 		});
 	});
 
-	fastify.post("/new", (req, resp) => {
+	fastify.post("/new", async (req, resp) => {
 		if (Object.keys(games).length > 1024)
 			return resp.send({ success: false, code: 501, error: "Maximum game limit reached" });
 		if (!req.session || !req.session.user)
 			return resp.send({ success: false, code: 403, error: "Must be signed in to create a game" });
 		if (admins[req.session.user.username])
 			return resp.send({ success: false, code: 403, error: "User already has an open room" });
-		const game = new Game(req.session.user);
+		if (req.body.tournament_id) {
+			try {
+				const resp = await fetch(`${process.env.TOURNAMENT_URL}/${req.body.tournament_id}`);
+				const data = await resp.json();
+				if (!data.success)
+					return resp.send({ success: false, code: data.code, error: data.error });
+			} catch(error) {
+				return resp.send({ success: false, code: 500, error: error.message });
+			}
+		}
+		const game = new Game(req.session.user, req.body.tournament_id);
 		games[game.uuid] = game;
 		admins[req.session.user.username] = game;
 		console.log(`${req.session.user.username} created room ${game.uuid}`);
