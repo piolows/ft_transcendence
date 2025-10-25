@@ -123,6 +123,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=41613
+      - GAMES_URL=http://backend_games:4116
     networks:
       - micro-services
 
