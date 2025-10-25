@@ -8,9 +8,9 @@ const endpointHandler = (fastify, options, done) => {
 
 			let response = undefined;
 			const contentType = req.headers["content-type"] ?? "";
-			if (req.method != "GET" && req.method != "HEAD") {
+			if (req.body) {
 				let body = undefined;
-				if (req.body && Object.keys(req.body).length > 0) {
+				if (Object.keys(req.body).length > 0) {
 					if (contentType.includes("application/json")) {
 						body = JSON.stringify(req.body);
 					} else if (contentType.includes("application/x-www-form-urlencoded")) {

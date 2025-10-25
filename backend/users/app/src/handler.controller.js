@@ -1,75 +1,81 @@
 const endpointHandler = (fastify, options, done) => {
-	const getUserSchema = {
-		schema: {
-			params: {
-				type: 'object',
-				properties: {
-					username: { type: 'string' }
-				},
-				required: [ 'username' ]
-			}
-		}
-	}
+	const UT = process.env.USERS_TABLE;
+	const ST = process.env.STATS_TABLE;
+	const FT = process.env.FRIENDS_TABLE;
+	const HT = process.env.HISTORY_TABLE;
+	const FRIENDS_PER_PAGE = 10;
+	const GAMES_PER_PAGE = 10;
 
-	const postSchema = {
-		body: {
-			properties: {
-				username: { type: 'string' },
-				email: { type: 'email' }
-			},
-			required: [ 'username', 'email' ]
-		}
-	}
-
-	const deleteSchema = {
-		body: {
-			properties: {
-				username: { type: 'string' }
-			},
-			required: [ 'username' ]
-		}
-	}
-
-	fastify.get("/:username", getUserSchema, async (req, reply) => {
+	fastify.post("/", async (req, resp) => {
+		if (!req.body.id || !req.body.username || !req.body.email || !req.body.avatarURL || !req.body.email)
+			return resp.send({ success: false, code: 400, error: "Must include all information" });
 		try {
-			const statement = fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`);
-			const user = await statement.get(req.params.username);
-			if (!user) {
-				return reply.code(404).send({ error: "User not found" });
-			}
-			return reply.send(`Hello ${req.params.username} with email ${ user['email'] }!`);
+			await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET id=?,username=?,email=?,avatarURL=? WHERE email=?`)
+				.run(req.body.id, req.body.username, req.body.email, req.body.avatarURL, req.body.email);
+			return resp.reply({ success: true });
 		} catch (error) {
-			return reply.send(error);
+			return resp.send({ success: false, code: 500, error: error.message });
 		}
 	});
 
-	fastify.post("/", postSchema, async (req, reply) => {
+	fastify.get("/all", (req, resp) => {
+		if (!req.body.user_id)
+			return resp.send({ success: false, code: 400, error: "Must provide user_id" });
 		try {
-			const userfind = fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=? OR email=?`);
-			const user = await userfind.get(req.body.username, req.body.email);
-			if (user) {
-				return reply.code(403).send({ error: 'User already exists!' });
-			}
-			const statement = fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username,email) VALUES (?,?)`);
-			await statement.run(req.body.username, req.body.email);
-			return reply.send(`Registered ${req.body.username} with email ${ req.body.email }!`);
+			const count = fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${FT} WHERE user_id=?`).get(req.body.user_id);
+			const stats = fastify.sqlite.prepare(`SELECT wins, losses, win_rate FROM ${ST} WHERE user_id=?`).get(req.body.user_id);
+			const games = fastify.sqlite.prepare(`SELECT
+				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.game, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
+				FROM ${HT} JOIN ${UT} ON ${HT}.winner_id = ${UT}.id WHERE ${HT}.user_id=? ORDER BY ${HT}.created_at DESC LIMIT 3 OFFSET 0`).all(req.body.user_id);
+			return resp.send({ success: true, friend_cnt: count, stats: stats, games: games });
 		} catch (error) {
-			return reply.send(error);
+			return resp.send({ success: false, code: 500, error: error.message });
 		}
 	});
 
-	fastify.delete("/", deleteSchema, async (req, reply) => {
+	fastify.get("/history", (req, resp) => {
+		if (!req.body.user_id)
+			return resp.send({ success: false, code: 400, error: "Must provide user_id" });
+		if (!req.body.page) {
+			const count = fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${HT} WHERE user_id=?`).get(req.body.user_id);
+			return resp.send({ success: true, count: count });
+		}
+		const OFFSET = (req.body.page - 1) * GAMES_PER_PAGE;
 		try {
-			const userfind = fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`);
-			const user = await userfind.get(req.body.username);
-			if (!user) {
-				return reply.code(404).send({ error: 'User does not exists!' });
-			}
-			const statement = fastify.sqlite.prepare(`DELETE FROM ${process.env.USERS_TABLE} WHERE username=?`);
-			await statement.run(req.body.username);
-			return reply.send(`Deleted ${req.body.username}!`);
+			const games = fastify.sqlite.prepare(`SELECT
+				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.game, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
+				FROM ${HT} JOIN ${UT} ON ${HT}.winner_id = ${UT}.id WHERE ${HT}.user_id=? ORDER BY ${HT}.created_at DESC LIMIT ? OFFSET ?`).all(req.body.user_id, GAMES_PER_PAGE, OFFSET);
+			return resp.send({ success: true, games: games });
 		} catch (error) {
-			return reply.send(error);
+			return resp.send({ success: false, code: 500, error: error.message });
+		}
+	});
+
+	fastify.get("/stats", (req, resp) => {
+		if (!req.body.user_id)
+			return resp.send({ success: false, code: 400, error: "Must provide user_id" });
+		try {
+			const stats = fastify.sqlite.prepare(`SELECT wins, losses, win_rate FROM ${ST} WHERE user_id=?`).get(req.body.user_id);
+			return resp.send({ success: true, stats: stats });
+		} catch (error) {
+			return resp.send({ success: false, code: 500, error: error.message });
+		}
+	});
+
+	fastify.get("/friends", (req, resp) => {
+		if (!req.body.user_id)
+			return resp.send({ success: false, code: 400, error: "Must provide user_id" });
+		if (!req.body.page) {
+			const count = fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${FT} WHERE user_id=?`).get(req.body.user_id);
+			return resp.send({ success: true, count: count });
+		}
+		const OFFSET = (req.body.page - 1) * FRIENDS_PER_PAGE;
+		try {
+			const friends = fastify.sqlite.prepare(`SELECT ${UT}.username, ${UT}.email, ${UT}.avatarURL FROM ${FT}
+				JOIN ${UT} ON ${FT}.friend_id = ${UT}.id WHERE ${FT}.user_id=? ORDER BY ${UT}.username ASC LIMIT ? OFFSET ?`).all(req.body.user_id, FRIENDS_PER_PAGE, OFFSET);
+			return resp.send({ success: true, friends: friends });
+		} catch (error) {
+			return resp.send({ success: false, code: 500, error: error.message });
 		}
 	});
 

@@ -1,7 +1,6 @@
 import Fastify from "fastify";
 import endpointHandler from "./handler.controller.js";
 import sqlite from './plugins/fastify-sqlite.js';
-import formBody from '@fastify/formbody';
 import 'dotenv/config';
 
 async function startSever() {
@@ -10,12 +9,10 @@ async function startSever() {
 	});
 
 	await fastify.register(sqlite, {
-		dbFile: process.env.DB_FILE
+		dbFile: process.env.USERS_DB,
 	});
 
-	await fastify.register(formBody);
-
-	await fastify.register(endpointHandler);
+	await fastify.register(endpointHandler, { prefix: "/users" });
 
 	fastify.listen({ port: process.env.PORT, host: '0.0.0.0' })
 		.catch(error => {
