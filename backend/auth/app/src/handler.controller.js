@@ -1,6 +1,6 @@
 import { OAuth2Client } from 'google-auth-library';
 import * as argon2 from 'argon2';
-import { getUserSchema, deleteSchema, loginSchema, registerSchema, googleLoginSchema } from './schemas.js';
+import { getUserSchema, deleteSchema, loginSchema, registerSchema, updateSchema, googleLoginSchema } from './schemas.js';
 import { hash, validate_registration, save_pfp } from './utils.js';
 
 const endpointHandler = (fastify, options, done) => {

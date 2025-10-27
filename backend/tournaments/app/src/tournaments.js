@@ -71,18 +71,18 @@ export const tournamentHandler = (fastify, options, done) => {
         if (!tournaments[tournamentId])
             return reply.code(404).send({ error: "Tournament not found" });
         const players = Object.values(tournaments[tournamentId].players);
-        // for (let i = 0; i < players.length; i += 2) {
-        //     const player_1 = players[i];
-        //     const player_2 = players[i + 1];
+        for (let i = 0; i < players.length; i += 2) {
+            const player_1 = players[i];
+            const player_2 = players[i + 1];
 
-        //     const res = await fetch(process.env('GAMES_URL') + '/games/new', {
-        //         method: 'POST',
-        //         headers: { 'Content-Type': 'application/json'}
-        //         body: JSON.stringify({
-                    
-        //         })
-        //     }); 
-        // }
+            const res = await fetch(process.env('GAMES_URL') + '/games/new', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    tournament_id: tournamentId           
+                }),\
+            }); 
+        }
     });
 
     fastify.delete("/:id", async (req, reply) => {
