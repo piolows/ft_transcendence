@@ -119,9 +119,12 @@ services:
     build: ./backend/tournaments
     volumes:
       - backend_tournaments:/app
+      - db_storage:/app/src/database
     restart: on-failure
     environment:
       - NODE_ENV=development
+      - SESSIONS_DB=/app/src/database/sessions.db
+      - SESSION_SECRET=${SESSION_SECRET}
       - PORT=41613
       - GAMES_URL=http://backend_games:4116
     networks:

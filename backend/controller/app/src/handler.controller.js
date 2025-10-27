@@ -93,13 +93,10 @@ const endpointHandler = (fastify, options, done) => {
 
 	fastify.all('/tournaments/*', async (req, reply) => {
 		try {
-			// const URL = `${process.env.TOURNAMENTS_URL}${req.url.substring(process.env.TOURNAMENTS_URL.endsWith('/') ? 1 : 0)}`;
 			const subPath = req.params["*"] ?? "";
 			const queryString = req.raw.url.includes("?") ? "?" + req.raw.url.split("?")[1] : "";
 			const serviceURI = process.env.TOURNAMENTS_URL + (process.env.TOURNAMENTS_URL.endsWith("/") ? "" : "/");
 			const URL = `${serviceURI}${subPath}${queryString}`;
-			fastify.log.info(`testing ${subPath}`);
-			fastify.log.info(`in tournaments route url: ${URL}`);
 			let body = undefined;
 			let response = undefined;
 			if (req.method != 'GET' && req.method != 'HEAD') {
