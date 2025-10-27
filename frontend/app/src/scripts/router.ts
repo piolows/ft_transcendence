@@ -1,3 +1,5 @@
+import PongRoom from "../pages/pong_room";
+
 export const HTTP_CODES: any = {
 	400: "Bad Request",
 	401: "Unauthorized",
@@ -7,30 +9,32 @@ export const HTTP_CODES: any = {
 	503: "Service Unavailable",
 }
 
+export var backend_url = "https://localhost:4161";
+export var sockets_url = "https://localhost:4116";
+export var backend_websocket = "wss://localhost:4116";
+
 export default abstract class Component {
 	router: Router;
+	real_path: string = "";
 
 	constructor(router: Router) {
 		this.router = router;
 	}
 
-	load(app: HTMLDivElement | HTMLElement) {}
+	async load(app: HTMLDivElement | HTMLElement) {}
 	init() {}
 	unload() {}
 }
 
-export var backend_url = "https://localhost:4161";
-
-class DefaultErrorPage extends Component {
-	constructor(router: Router) {
-		super(router);
-	}
+export class DefaultErrorPage extends Component {
+	error_code = 404;
+	custom_msg: any;
 	
-	load(app: HTMLDivElement | HTMLElement, err_code: string = "404") {
+	async load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML = `
 			<div class="center text-center mt-50">
-				<h1>${ HTTP_CODES[err_code] }</h1>
-				<h4>Error code ${ err_code }</h4>
+				<h1>${ this.custom_msg ? this.custom_msg : HTTP_CODES[this.error_code] }</h1>
+				<h4>Error code ${ this.error_code }</h4>
 			</div>`;
 	}
 }
@@ -38,7 +42,7 @@ class DefaultErrorPage extends Component {
 export class Router {
 	private routes = new Map<string, Component>();
 	private currpage: Component | null = null;
-	private errpage: Component;
+	private errpage: DefaultErrorPage;
 	app: HTMLDivElement | HTMLElement;
 	login_info: any = null;
 	loggedin = false;
@@ -50,7 +54,8 @@ export class Router {
 
 		// Handle back/forward buttons
 		window.onpopstate = (event) => {
-			const path = event.state?.route || "/";
+			event.preventDefault();
+			const path = event.state?.route || location.pathname;
 			this.route(path);
 		};
 
@@ -117,12 +122,15 @@ export class Router {
 		.then(res => res.json())
 		.then(data => {
 			this.login_info = data.user;
-			this.route("/", true);
+			if (history.length > 1)
+				history.back();
+			else
+				this.route("/", true);
 		})
 		.catch(err => console.error("Error sending token to backend:", err));
 	}
 
-	set_error_handler(handler: Component) {
+	set_error_handler(handler: DefaultErrorPage) {
 		this.errpage = handler;
 	}
 
@@ -130,24 +138,59 @@ export class Router {
 		this.routes.set(route, page);
 	}
 
+	route_error(path: string, code: number, err_msg?: string) {
+		this.currpage?.unload();
+		window.scrollTo(0, 0);
+		this.errpage.error_code = code;
+		this.errpage.custom_msg = err_msg;
+		this.errpage.load(this.app).then(() => this.errpage.init());
+		this.currpage = this.errpage;
+		this.errpage.error_code = 404;
+		this.errpage.custom_msg = undefined;
+		history.pushState({ route: path }, '', path);
+	}
+
 	route(path: string, push: boolean = false) {
+		let real_path = path;
+		if (path == "/pong/room" || path == "/pong/room/") {
+			this.route_error(path, 404);
+			return ;
+		}
+		if (path.includes("/pong/room"))
+			path = "/pong/room";
+		if (path.includes("/pong/game"))
+			path = "/pong/game";
 		this.check_session().then(() => {
 			if (path == "/login" || path == "/register") {
 				if (this.loggedin || !this.currpage) {
 					this.route("/", true);
+					this.route(path, true);
 					return ;
 				}
 			}
-			window.scrollTo(0, 0);
+			if (path == "/pong/join") {
+				if (!this.loggedin) {
+					alert("Must be signed in!");
+					return ;
+				}
+				if (!this.currpage) {
+					this.route("/pong/menu", true);
+					this.route("/pong/join", true);
+					return;
+				}
+			}
 			this.currpage?.unload();
+			window.scrollTo(0, 0);
 			if (!this.routes.has(path)) {
-				this.errpage.load(this.app);
+				this.errpage.load(this.app).then(() => this.errpage.init());
 				this.currpage = this.errpage;
 			} else {
 				this.currpage = this.routes.get(path) ?? null;
-				this.currpage?.load(this.app);
-				this.currpage?.init();
+				if (real_path != path && this.currpage)
+					this.currpage.real_path = real_path;
+				this.currpage?.load(this.app).then(() => this.currpage?.init());
 			}
+			path = real_path;
 			if (push)
 				history.pushState({ route: path }, '', path);
 		});

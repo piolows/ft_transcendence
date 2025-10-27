@@ -2,7 +2,7 @@ import { getModeForUsageLocation } from "typescript";
 import Component, { Router, backend_url } from "../scripts/router";
 
 export default class Login extends Component {
-	load(app: HTMLDivElement | HTMLElement) {
+	async load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML += 
 		`<!-- login screen -->
         <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center">

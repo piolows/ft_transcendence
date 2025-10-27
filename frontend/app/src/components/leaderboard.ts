@@ -28,7 +28,7 @@ export default class Leaderboard extends Component {
         </div>`;
 	}
 
-	load(app: HTMLDivElement | HTMLElement) {
+	async load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML = this.get_html();
 	}
 }

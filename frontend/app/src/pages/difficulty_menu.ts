@@ -13,20 +13,20 @@ export default class DifficultyMenu extends Component {
 		super(router);
 
 		let card = new MenuCard(this.router, "EASY", "Challenge the AI bot on Easy difficulty", "green");
-		card.add_button("EASY PEASY", "/pong/game");
+		card.add_button("EASY PEASY", "/pong/game?op=bot&difficulty=0");
 		this.menu.add_card(card);
 
 		card = new MenuCard(this.router, "HARD", "Challenge the AI bot on Hard difficulty", "yellow");
-		card.add_button("EASY PEASY...?", "/pong/game");
+		card.add_button("EASY PEASY...?", "/pong/game?op=bot&difficulty=1");
 		this.menu.add_card(card);
 
 		card = new MenuCard(this.router, "EXTREME", "Challenge the AI bot on Extreme difficulty", "red");
-		card.add_button("NOT EASY PEASY", "/pong/game");
+		card.add_button("NOT EASY PEASY", "/pong/game?op=bot&difficulty=2");
 		this.menu.add_card(card);
 	}
 
-	load(app: HTMLDivElement | HTMLElement) {
-		this.navbar.load(app);
+	async load(app: HTMLDivElement | HTMLElement) {
+		await this.navbar.load(app);
 		app.innerHTML += "<div class=\"container mx-auto px-4\">" + this.menu.get_html() + "</div>" + this.footer.get_html();
 	}
 

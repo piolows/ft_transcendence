@@ -1,34 +1,49 @@
-import Component, { Router } from "../scripts/router";
+import Component from "../scripts/router";
 import { Player, Ball, Bot, Paddle, start_game } from "../scripts/game";
 import NavBar from "../components/nav_bar";
-import Footer from "../components/footer";
 
 export default class Pong extends Component {
 	private end_game: () => void = () => {};
 	private navbar = new NavBar(this.router);
-	private footer = new Footer(this.router);
 
-	load(app: HTMLDivElement | HTMLElement) {
-		this.navbar.load(app);
+	async load(app: HTMLDivElement | HTMLElement) {
+		await this.navbar.load(app);
 		app.innerHTML += `
-			<div class="w-screen flex pb-5 pt-3 items-center justify-center">
-				<div class="flex w-200">
-					<div id="timer" class="my-auto text-blue-800">
-						<label>Timer: </label><label id="minutes">00</label>:<label id="seconds">00</label>
-					</div>
-					<h1 class="text-4xl font-bold text-blue-500 underline italic text-center my-auto ml-20">Pongoid</h1>
-				</div>
-			</div>
 			<div id="p1_score" class="hidden">0</div>
 			<div id="p2_score" class="hidden">0</div>
-			<div id="parent-container" class="flex justify-center">
-				<canvas id="gameCanvas" width="800" height="600"></canvas>
+			<div class="flex justify-center w-full" style="height: 500px;">
+				<div id="gameInfo" class="flex flex-col pl-8 justify-center space-y-8 w-120">
+					<div class="flex justify-left space-x-7">
+						<button class="bg-blue-500 text-white py-3 pixel-box font-pixelify hover:bg-blue-600 clicky" id="back_btn" style="width: 100px;">BACK</button>
+					</div>
+					<div class="flex justify-left space-x-7">
+						<div id="timer" class="my-auto text-white">
+							<label>Timer: </label><label id="minutes">00</label>:<label id="seconds">00</label>
+						</div>
+					</div>
+					<div class="flex justify-left space-x-7">
+						<label>Game Mode: </label>
+						<label id="gamemode"></label>
+					</div>
+				</div>
+				<div id="parent-container" class="flex justify-center">
+					<canvas id="gameCanvas" width="800" height="600" style="background-color: black;"></canvas>
+				</div>
+				<div class="w-120"><!-- Spacer to balance layout --></div>
 			</div>`;
-		
-		app.innerHTML += this.footer.get_html();
 	}
 
 	init() {
+		this.navbar.init();
+		const backbtn = document.getElementById('back_btn')!;
+		backbtn.onclick = () => {
+			if (history.length > 1) {
+				history.back();
+			}
+			else {
+				this.router.route("/", true);
+			}
+		};
 
 		const ball_speed = 8;
 		const ball_radius = 16;
@@ -36,6 +51,15 @@ export default class Pong extends Component {
 		const params = new URLSearchParams(location.search);
 		const op = params.get("op");
 		const difficulty = parseInt(params.get("difficulty") ?? "1");
+		
+		const gamemodeLabel = document.getElementById('gamemode')!;
+		if (op === "bot") {
+			const difficultyNames = ["EASY", "HARD", "EXTREME"];
+			gamemodeLabel.textContent = `VS BOT (${difficultyNames[difficulty]})`;
+		} else {
+			gamemodeLabel.textContent = "VS PLAYER";
+		}
+
 		const cv = document.getElementById("gameCanvas") as HTMLCanvasElement;
 		const context = cv.getContext('2d')!;
 		context.fillStyle = 'black';

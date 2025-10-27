@@ -65,23 +65,28 @@ services:
       - SESSIONS_DB=/app/src/database/sessions.db
       - SESSION_SECRET=${SESSION_SECRET}
       - CDN_URL=http://backend_cdn:41612
+      - USERS_URL=http://backend_users:41611
       - PORT=41610
     networks:
       - micro-services
 
-  # backend_users:
-  #   container_name: backend_users
-  #   volumes:
-  #     - backend_users:/app
-  #   build: ./backend/users
-  #   restart: on-failure
-  #   environment:
-  #     - NODE_ENV=development
-  #     - PORT=41611
-  #     - DB_FILE=/app/src/database/users.db
-  #     - USERS_TABLE=users
-  #   networks:
-  #     - micro-services
+  backend_users:
+    container_name: backend_users
+    volumes:
+      - backend_users:/app
+      - db_storage:/app/src/database
+    build: ./backend/users
+    restart: on-failure
+    environment:
+      - NODE_ENV=development
+      - PORT=41611
+      - USERS_DB=/app/src/database/users.db
+      - USERS_TABLE=users
+      - STATS_TABLE=stats
+      - HISTORY_TABLE=history
+      - FRIENDS_TABLE=friends
+    networks:
+      - micro-services
 
   backend_games:
     container_name: backend_games
@@ -94,6 +99,7 @@ services:
       - NODE_ENV=development
       - SESSIONS_DB=/app/src/database/sessions.db
       - SESSION_SECRET=${SESSION_SECRET}
+      - FRONTEND_URL=https://localhost
       - PORT=4116
     ports:
       - "4116:4116"

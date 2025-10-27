@@ -8,8 +8,8 @@ async function fastifyBetterSqlite3(fastify, options) {
   fastify.decorate('sqlite', db);
 
   fastify.addHook('onClose', (instance, done) => {
-    instance.betterSqlite3.close();
-    done();
+	instance.betterSqlite3.close();
+	done();
   });
 }
 

@@ -1,11 +1,12 @@
 import Fastify from "fastify";
 import websocketPlugin from "@fastify/websocket";
-import pongHandler from  "./pong.controller.js";
-// import roshamboHandler from "./roshambo.controller.js";
+import pongHandler from  "./handlers/pong.controller.js";
+// import roshamboHandler from "./handlers/roshambo.controller.js";
 import fastifyCookie from "@fastify/cookie";
 import fastifySession from "@fastify/session";
 import createSqliteStore from "better-sqlite3-session-store";
 import Database from 'better-sqlite3';
+import fastifyCors from "@fastify/cors";
 import fs from "fs";
 import 'dotenv/config';
 
@@ -20,6 +21,14 @@ async function startSever() {
 
 	const ONEDAY = 1000 * 60 * 60 * 24;
 	const SqliteStore = createSqliteStore(fastifySession);
+
+	// Enable CORS
+	await fastify.register(fastifyCors, {
+		origin: [process.env.FRONTEND_URL],
+		credentials: true,
+		methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+		allowedHeaders: ['Content-Type', 'Authorization'],
+	});
 
 	await fastify.register(fastifyCookie);
 

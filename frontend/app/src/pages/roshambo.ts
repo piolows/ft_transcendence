@@ -1,7 +1,7 @@
 import Component from "../scripts/router";
 
 export default class Roshambo extends Component {
-	load(app: HTMLDivElement | HTMLElement) {
+	async load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML = 
 			`<a href = "/">
 				<button id="back-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded absolute top-4 left-4">

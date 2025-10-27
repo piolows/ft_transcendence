@@ -196,3 +196,16 @@
   /* Add z-index if specific stacking order is needed for overlapping elements */
   /* z-index: 1; */
 }
+
+.cool-select {
+	font-size: 14px;
+	color: white;
+	background-color: black;
+	width: 100%;
+	height: 43px;
+	padding-left: 8px;
+}
+
+input {
+	font-size: 24px;
+}
