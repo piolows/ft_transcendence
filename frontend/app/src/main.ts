@@ -20,14 +20,14 @@ router.set_error_handler(new ErrorHandler(router));
 
 router.add_route("/", new Homepage(router));
 router.add_route("/dev", new Dev(router));
-router.add_route("/pong/game", new Pong(router));
+router.add_route("/pong/game", new Pong(router), { auth: true, type: "wild" });
 router.add_route("/pong/menu", new PongMenu(router));
-router.add_route("/pong/room", new PongRoom(router));
-router.add_route("/pong/join", new PongJoin(router));
+router.add_route("/pong/room", new PongRoom(router), { auth: true, type: "strict_wild" });
+router.add_route("/pong/join", new PongJoin(router), { auth: true, back_url: "/pong/menu", type: "overlay" });
 router.add_route("/pong/difficulty", new DifficultyMenu(router));
-router.add_route("/register", new SignUp(router));
-router.add_route("/login", new Login(router));
-router.add_route("/profile", new Profile(router));
+router.add_route("/register", new SignUp(router), { back_url: "/", type: "overlay" });
+router.add_route("/login", new Login(router), { back_url: "/", type: "overlay" });
+router.add_route("/profile", new Profile(router), { auth: true });
 // router.add_route("/roshambo", new Roshambo());
 
 router.start();

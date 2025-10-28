@@ -40,7 +40,7 @@ export class DefaultErrorPage extends Component {
 }
 
 export class Router {
-	private routes = new Map<string, Component>();
+	private routes = new Map<string, any>();
 	private currpage: Component | null = null;
 	private errpage: DefaultErrorPage;
 	app: HTMLDivElement | HTMLElement;
@@ -130,12 +130,26 @@ export class Router {
 		.catch(err => console.error("Error sending token to backend:", err));
 	}
 
+	private root_without_wild(path: string) {
+		for (const route of Object.keys(this.routes)) {
+			if (path.includes(route)) {
+				return route;
+			}
+		}
+		return path;
+	}
+
 	set_error_handler(handler: DefaultErrorPage) {
 		this.errpage = handler;
 	}
 
-	add_route(route: string, page: Component) {
-		this.routes.set(route, page);
+	add_route(route: string, page: Component, opts?: any) {
+		this.routes.set(route, {
+			page: page,
+			auth: opts?.auth,
+			type: opts?.type,
+			backed_url: opts.back_url,
+		});
 	}
 
 	route_error(path: string, code: number, err_msg?: string) {
@@ -152,32 +166,18 @@ export class Router {
 
 	route(path: string, push: boolean = false) {
 		let real_path = path;
-		if (path == "/pong/room" || path == "/pong/room/") {
-			this.route_error(path, 404);
+		path = this.root_without_wild(path);
+		if (real_path == path && this.routes.get(path).type == "strict_wild") {
+			this.route_error(real_path, 404);
 			return ;
 		}
-		if (path.includes("/pong/room"))
-			path = "/pong/room";
-		if (path.includes("/pong/game"))
-			path = "/pong/game";
 		this.check_session().then(() => {
-			if (path == "/login" || path == "/register") {
-				if (this.loggedin || !this.currpage) {
-					this.route("/", true);
-					this.route(path, true);
-					return ;
-				}
-			}
-			if (path == "/pong/join") {
-				if (!this.loggedin) {
-					alert("Must be signed in!");
-					return ;
-				}
-				if (!this.currpage) {
-					this.route("/pong/menu", true);
-					this.route("/pong/join", true);
-					return;
-				}
+			if (!this.loggedin && this.routes.get(path).auth)
+				this.route("/login", true);
+			if (!this.currpage && this.routes.get(path).type == "overlay") {
+				this.route(this.routes.get(path).back_url, true);
+				this.route(real_path, true);
+				return ;
 			}
 			this.currpage?.unload();
 			window.scrollTo(0, 0);
@@ -185,9 +185,8 @@ export class Router {
 				this.errpage.load(this.app).then(() => this.errpage.init());
 				this.currpage = this.errpage;
 			} else {
-				this.currpage = this.routes.get(path) ?? null;
-				if (real_path != path && this.currpage)
-					this.currpage.real_path = real_path;
+				this.currpage = this.routes.get(path).page;
+				this.currpage && (this.currpage.real_path = real_path);
 				this.currpage?.load(this.app).then(() => this.currpage?.init());
 			}
 			path = real_path;
