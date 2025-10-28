@@ -36,31 +36,37 @@ export const tournamentHandler = (fastify, options, done) => {
         if (!tournaments[req.params.id])
             return reply.code(404).send({ error: "Tournament not found" });
         // send the tournament object as a JSON object
+        fastify.log.info(`returning tournament ${req.params.id}`);
         return reply.send(tournaments[req.params.id]);
     });
+
+    // temporary endpoint to list all tournaments
+    fastify.get('/list', async (req, reply) => {
+        return reply.send(tournaments);
+    })
 
     // this creates a tournament
     fastify.post("/create", async (req, reply) => {
         if (tournament_admins[req.session.user.username])
-            return Response.code(403).awns({ error: "User already has an open tournament" });
+            return reply.code(403).send({ error: "User already has an open tournament" });
         if (!req.session || !req.session.user)
             return reply.code(403).send({ error: "Must be signed in to create a tournament" });
         const tournament = new Tournament(req.session.user, req.body.maxPlayers);
         tournaments[tournament.uuid] = tournament;
         tournament_admins[req.session.user.username] = tournament.uuid;
         const rooms = Math.ceil(req.body.maxPlayers / 2);
-        for (let i = 0; i < rooms; i++)
-        {
-            // call new game from games service
-            const res = await fetch(GAME_URL + '/pong/new', {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                // send the tournament uuid in the body
-                body: JSON.stringify({
-                    tournament_id: tournament.uuid
-                })
-            });
-        }
+        // for (let i = 0; i < rooms; i++)
+        // {
+        //     // call new game from games service
+        //     const res = await fetch(GAMES_URL + '/pong/new', {
+        //         method: "POST",
+        //         headers: { 'Content-Type': 'application/json' },
+        //         // send the tournament uuid in the body
+        //         body: JSON.stringify({
+        //             tournament_id: tournament.uuid
+        //         })
+        //     });
+        // }
         return reply.code(200).send({ status: 'success', tournamentId: tournament.uuid });
     });
 
@@ -80,7 +86,7 @@ export const tournamentHandler = (fastify, options, done) => {
                 headers: { 'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     tournament_id: tournamentId           
-                }),\
+                })
             }); 
         }
     });
@@ -96,9 +102,6 @@ export const tournamentHandler = (fastify, options, done) => {
         return reply.send("testing tournaments backend");
     });
 
-    fastify.get("/list", async (req, reply) => {
-        return reply.send("testing tournaments backend");
-    });
 
     done();
 }
