@@ -50,3 +50,14 @@ export const googleLoginSchema = {
 		required: [ 'token' ]
 	}
 }
+
+export const updateSchema = {
+	body: {
+		properties: {
+			username: { type: 'string' },
+			email: { type: 'string' },
+			password: { type: 'string' },
+			avatarURL: { type: 'string' }
+		}
+	}
+}

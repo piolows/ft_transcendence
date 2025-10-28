@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PONGOID</title>
+    <link rel="stylesheet" href="styles.css">
+	<script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- <script type="module" src="main.ts" defer></script> -->
+</head>
+<body class="font-pressstart min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black text-white overflow-x-hidden">
+
+    <nav class="relative z-10 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <!-- logo -->
+            <div class="flex items-center space-x-2">
+                <h1 class="text-4xl font-bold pixel-box bg-opacity-50 p-4">PONGOID</h1>
+            </div>
+
+            <!-- auth -->
+            <div class="flex items-center space-x-6">
+                <div id="google-login-button" class="g_id_signin"></div>
+                <div id="profile-info" class="hidden">
+                    <div class="flex items-center space-x-4">
+                        <img id="pfp" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
+                        <div>
+                            <h4 id="uname" class="crt-text"></h4>
+                            <p id="umail" class="text-xs font-silkscreen"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="logout-button" class="hidden hover:text-blue-200 clicky wiggler">
+                        LOGOUT
+                    </button>
+                    <button id="login-button" class="pixel-box bg-blue-600 px-6 py-2 hover:bg-blue-700 clicky">
+                        LOGIN
+                    </button>
+                    <button id="signup-button" class="pixel-box bg-green-500 px-6 py-2 hover:bg-green-600 clicky">
+                        SIGN UP
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- main container for tournament listing -->
+    <div class="container mx-auto px-4">
+
+        <div class="py-16" id="main-container">
+            <h2 class="text-4xl font-bold text-center mb-12 retro-shadow">Tournaments</h2>
+
+            <div class="bg-red-500" id="tournament-list">
+
+                <div class="tournament-item grid grid-cols-2">
+                    <div>
+                        <p class="inline">Emad's room</p>
+                        <p class="player-count inline">1/16 players</p>
+                    </div>
+                    <div class="join-button inline pixel-box bg-green-500 px-4 py-2 hover:bg-green-600 clicky">
+                        JOIN
+                </div>
+            </div>
+
+                <div class="tournament-item grid grid-cols-2">
+                    <div>
+                        <p class="inline">Piolo's room</p>
+                        <p class="plyaer-count inline">3/16 players</p>
+                    </div>
+                <div class="join-button inline pixel-box bg-green-500 px-4 py-2 hover:bg-green-600 clicky">
+                        JOIN
+                </div>
+                </div>
+        </div>
+
+    </div>
+</body>
+</html>

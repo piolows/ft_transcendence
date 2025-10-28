@@ -57,17 +57,23 @@ const pongHandler = (fastify, options, done) => {
 			return resp.send({ success: false, code: 403, error: "Must be signed in to create a game" });
 		if (admins[req.session.user.username])
 			return resp.send({ success: false, code: 403, error: "User already has an open room" });
-		if (req.body.tournament_id) {
+		const id = -1;
+		if (typeof req.body !== 'undefined' && req.body.tournament_id !== "undefined") {
+			fastify.log.info('sending fetch request to tournaments service to get the tournament info');
 			try {
 				const resp = await fetch(`${process.env.TOURNAMENT_URL}/${req.body.tournament_id}`);
 				const data = await resp.json();
 				if (!data.success)
 					return resp.send({ success: false, code: data.code, error: data.error });
-			} catch(error) {
+				id = data.tournament.id;
+			} catch (error) {
 				return resp.send({ success: false, code: 500, error: error.message });
 			}
 		}
-		const game = new Game(req.session.user, req.body.tournament_id);
+		else
+			fastify.log.info('there is no tournament id so do nothing');
+		// const game = new Game(req.session.user, req.body.tournament_id);
+		const game = new Game(req.session.user, id);
 		games[game.uuid] = game;
 		admins[req.session.user.username] = game;
 		console.log(`${req.session.user.username} created room ${game.uuid}`);
