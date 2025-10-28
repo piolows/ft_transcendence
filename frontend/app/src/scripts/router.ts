@@ -148,7 +148,7 @@ export class Router {
 			page: page,
 			auth: opts?.auth,
 			type: opts?.type,
-			backed_url: opts.back_url,
+			backed_url: opts !== undefined ? opts.back_url : undefined,
 		});
 	}
 
