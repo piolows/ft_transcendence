@@ -1,0 +1,11 @@
+[ ] Allow deleting user data in backend_users
+[ ] Connect profile page to users endpoint
+[ ] Connect /profile/${username} to users
+[ ] Test backend_users extensively
+[ ] Add Online/Offline status (through regular pings to the server)
+[ ] Add a way to add friends (frontend)
+[ ] Add a friends counter on /profile and /profile/{username}
+[ ] Tournaments page (frontend)
+[ ] Tournaments backend and testing
+[ ] Add a page for game history (paged-view)
+[ ] Add a page for friends list (paged-view)
