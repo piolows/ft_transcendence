@@ -1,5 +1,3 @@
-import PongRoom from "../pages/pong_room";
-
 export const HTTP_CODES: any = {
 	400: "Bad Request",
 	401: "Unauthorized",
@@ -131,7 +129,7 @@ export class Router {
 	}
 
 	private root_without_wild(path: string) {
-		for (const route of Object.keys(this.routes)) {
+		for (const route of this.routes.keys()) {
 			if (route != "/" && path.includes(route))
 				return route;
 		}
@@ -203,6 +201,7 @@ export class Router {
 			if (route && route.type != "overlay")
 				window.scrollTo(0, 0);
 			if (!route) {
+				console.log(window.location.pathname, window.location.href, real_path, path);
 				this.errpage.load(this.app).then(() => this.errpage.init());
 				this.currpage = this.errpage;
 			} else {

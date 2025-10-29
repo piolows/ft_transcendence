@@ -70,23 +70,23 @@ services:
     networks:
       - micro-services
 
-  # backend_users:
-  #   container_name: backend_users
-  #   volumes:
-  #     - backend_users:/app
-  #     - db_storage:/app/src/database
-  #   build: ./backend/users
-  #   restart: on-failure
-  #   environment:
-  #     - NODE_ENV=development
-  #     - PORT=41611
-  #     - USERS_DB=/app/src/database/users.db
-  #     - USERS_TABLE=users
-  #     - STATS_TABLE=stats
-  #     - HISTORY_TABLE=history
-  #     - FRIENDS_TABLE=friends
-  #   networks:
-  #     - micro-services
+  backend_users:
+    container_name: backend_users
+    volumes:
+      - backend_users:/app
+      - db_storage:/app/src/database
+    build: ./backend/users
+    restart: on-failure
+    environment:
+      - NODE_ENV=development
+      - PORT=41611
+      - DB_FILE=/app/src/database/users.db
+      - USERS_TABLE=users
+      - STATS_TABLE=stats
+      - HISTORY_TABLE=history
+      - FRIENDS_TABLE=friends
+    networks:
+      - micro-services
 
   backend_games:
     container_name: backend_games
