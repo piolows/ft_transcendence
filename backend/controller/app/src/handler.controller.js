@@ -45,12 +45,12 @@ const endpointHandler = (fastify, options, done) => {
 				reply.header(key, value);
 			}
 			if (!response) {
-				return reply.code(500).send({ error: "Something went wrong during communication with microservices." });
+				return reply.send({ success: false, code: 500, error: "Something went wrong during communication with microservices." });
 			}
 			return reply.send(response.body);
 		} catch (error) {
 			console.log(error);
-			return reply.code(500).send(error);
+			return reply.send({ success: false, code: 500, error: error.message });
 		}
 	});
 
@@ -97,12 +97,12 @@ const endpointHandler = (fastify, options, done) => {
 				reply.header(key, value);
 			}
 			if (!response) {
-				return reply.code(500).send({ error: "Something went wrong during communication with microservices." });
+				return reply.send({ success: false, code: 500, error: "Something went wrong during communication with microservices." });
 			}
 			return reply.send(response.body);
 		} catch (error) {
 			console.log(error);
-			return reply.code(500).send(error);
+			return reply.send({ success: false, code: 500, error: error.message });
 		}
 	});
 
@@ -199,12 +199,12 @@ const endpointHandler = (fastify, options, done) => {
 				reply.header(key, value);
 			}
 			if (!response) {
-				return reply.code(500).send({ error: "Something went wrong during communication with microservices." });
+				return reply.send({ success: false, code: 500, error: "Something went wrong during communication with microservices." });
 			}
 			return reply.send(response.body);
 		} catch (error) {
 			console.log(error);
-			return reply.code(500).send(error);
+			return reply.send({ success: false, code: 500, error: error.message });
 		}
 	});
 

@@ -49,7 +49,7 @@ export default async function endpointHandler(fastify) {
 	fastify.post("/delete", async (req, reply) => {
 		const { file } = req.body;
 		if (!file)
-			return reply.code(400).send({ error: 'Missing file parameter'});
+			return reply.send({ success: false, code: 400, error: 'Missing file parameter'});
 		const new_file = path.join(process.cwd(), 'public', file);
 		if (fs.existsSync(new_file)) {
 			try {
@@ -57,21 +57,21 @@ export default async function endpointHandler(fastify) {
 					if (err) {
 						console.error('Error deleting file:', err);
 						fastify.log.error(err);
-						return reply.code(500).send({ error: 'Failed to delete file' });
+						return reply.send({ success: false, code: 500, error: 'Failed to delete file' });
 					}
 				});
 			} catch (err) {
 				fastify.log.error(err);
-				return reply.code(500).send({ error: 'Failed to delete file' });
+				return reply.send({ success: false, code: 500, error: 'Failed to delete file' });
 			}
 		}
-		return reply.code(202).send({ success: true });
+		return reply.send({ success: true });
 	});
 
 	fastify.post("/avatars", async (req, reply) => {
 		const { url } = req.body;
 		if (!url)
-			return reply.code(400).send({ error: "Missing URL" });
+			return reply.send({ success: false, code: 400, error: "Missing URL" });
 		try {
 			fastify.log.info(`Fetching avatar from ${url}`);
 
@@ -91,10 +91,10 @@ export default async function endpointHandler(fastify) {
 			const public_url = `/cdn/avatars/${filename}`;
 			fastify.log.info(`Saved avatar as ${public_url}`);
 
-			return reply.send({ filename, public_url });
+			return reply.send({ success: true, filename, public_url });
 		} catch (err) {
 			fastify.log.error(err);
-			return reply.code(500).send({ error: "Failed to download avatar" });
+			return reply.send({ success: false, code: 500, error: "Failed to download avatar" });
 		}
 	});
 }

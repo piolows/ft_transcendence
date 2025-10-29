@@ -41,14 +41,14 @@ export default class Pong extends Component {
 				history.back();
 			}
 			else {
-				this.router.route("/", true);
+				this.router.route("/");
 			}
 		};
 
 		const ball_speed = 8;
 		const ball_radius = 16;
 		const paddle_speed = 8;
-		const params = new URLSearchParams(location.search);
+		const params = new URLSearchParams(window.location.search);
 		const op = params.get("op");
 		const difficulty = parseInt(params.get("difficulty") ?? "1");
 		

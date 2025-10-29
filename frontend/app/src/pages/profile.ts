@@ -8,7 +8,7 @@ export default class Profile extends Component {
 
     async load(app: HTMLDivElement | HTMLElement) {
         if (!this.router.loggedin) {
-            this.router.route("/login", true);
+            this.router.route("/login");
             return;
         }
 

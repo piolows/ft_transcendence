@@ -58,10 +58,10 @@ export default class PongJoin extends Component {
 					credentials: "include",
 				});
 
-				const data = await response.json();
+				const data = response.ok ? await response.json() : null;
 
-				if (response.ok) {
-					this.router.route(`/pong/room/${game_id}`, true);
+				if (response.ok && data && data.success) {
+					this.router.route(`/pong/room/${game_id}`);
 				} else {
 					alert(`Error: ${data.message}`);
 				}

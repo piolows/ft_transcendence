@@ -56,9 +56,9 @@ export default class Login extends Component {
 					body: JSON.stringify(body)
 				});
 
-				const data = await response.json();
+				const data = response.ok ? await response.json() : null;
 
-				if (response.ok) {
+				if (response.ok && data && data.success) {
 					this.router.login_info = data.user;
 					history.back();
 				} else {
@@ -83,7 +83,6 @@ export default class Login extends Component {
 				size: "large",
 				text: "continue_with",
 				logo_alignment: "center",
-				width: "100%"
 			}
 		);
 	}

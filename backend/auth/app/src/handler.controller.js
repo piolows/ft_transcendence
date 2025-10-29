@@ -82,14 +82,14 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	});
 
-	fastify.post("/update", updateSchema, async (req, reply) => {
+	fastify.post("/update", async (req, reply) => {
 		try {
-			if (!req.session) {
-				req.session.init();
-			}
-			if (req.session.user) {
-				req.session.user = null;
-			}
+			if (!req.session || !req.session.user)
+				return reply.send({ success: false, code: 403, error: "Must be signed in" });
+			if (!req.body.email)
+				return reply.send({ success: false, code: 400, error: "Must include email in body" });
+			if (req.body.email != req.session.user.email)
+				return reply.send({ success: false, code: 403, error: "Can only update own account" });
 
 			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
 			if (!user) {
@@ -97,12 +97,13 @@ const endpointHandler = (fastify, options, done) => {
 			}
 
 			const valReg = validate_registration(user, req, true);
-			if (valReg) {
+			if (valReg)
 				return reply.send(valReg);
-			}
 
-			const avatarURI = req.body.avatarURL && req.body.avatarURL != "" ? await save_pfp(req.body.avatarURL) : process.env.DEFAULT_PIC;
-			await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(req.body.username, req.body.email, password, avatarURI, req.body.email);
+			const username = req.body.username ?? user['avatarURL'];
+			const password = req.body.password ?? user['avatarURL'];
+			const avatarURI = req.body.avatarURL && req.body.avatarURL != "" ? await save_pfp(req.body.avatarURL) : user['avatarURL'];
+			await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(username, req.body.email, password, avatarURI, req.body.email);
 			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
 			await fetch(`${process.env.USERS_URL}/users`, {
 				method: "POST",

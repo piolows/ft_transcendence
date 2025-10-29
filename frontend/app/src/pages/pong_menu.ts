@@ -31,34 +31,30 @@ export default class PongMenu extends Component {
 	init() {
 		this.navbar.init();
 		const create_btn = document.getElementById("pong_create")! as HTMLButtonElement;
-		create_btn.onclick = () => {
+		create_btn.onclick = async () => {
 			if (!this.router.loggedin) {
-				alert("Must be signed in!");
+				this.router.route("/login");
 				return ;
 			}
-			fetch(`${sockets_url}/pong/destroy`, {
+			await fetch(`${sockets_url}/pong/destroy`, {
 				method: "POST",
 				credentials: "include"
-			}).catch(error => {
-				alert(`Error: ${error}`);
 			});
 			fetch(`${sockets_url}/pong/new`, {
 				method: "POST",
 				credentials: "include"
 			}).then(async response => {
 				if (!response.ok) {
-					throw new Error(`HTTP ${response.status}`);
+					console.error(`HTTP ${response.status}`);
 				}
 				return response.json();
 			}).then(data => {
 				if (data.success) {
-					this.router.route(`/pong/room/${ data.game_id }`, true);
+					this.router.route(`/pong/room/${ data.game_id }`);
 				}
 				else {
-					alert(`Game not found!`);
+					console.error(`Game not found!`);
 				}
-			}).catch(error => {
-				alert(`Error: ${error}`);
 			});
 		};
 	}

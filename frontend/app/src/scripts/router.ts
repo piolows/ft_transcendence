@@ -56,7 +56,7 @@ export class Router {
 		window.onpopstate = (event) => {
 			event.preventDefault();
 			const path = event.state?.route || location.pathname;
-			this.route(path);
+			this.route(path, false);
 		};
 
 		// Intercept clicks on <a router-link>
@@ -65,7 +65,7 @@ export class Router {
 			if (!target || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
 				return;
 			e.preventDefault();
-			this.route(target.getAttribute("href")!, true);
+			this.route(target.getAttribute("href")!);
 		});
 	}
 
@@ -125,19 +125,34 @@ export class Router {
 			if (history.length > 1)
 				history.back();
 			else
-				this.route("/", true);
+				this.route("/");
 		})
 		.catch(err => console.error("Error sending token to backend:", err));
 	}
 
 	private root_without_wild(path: string) {
 		for (const route of Object.keys(this.routes)) {
-			if (path.includes(route)) {
+			if (route != "/" && path.includes(route))
 				return route;
-			}
+		}
+		if (path.indexOf("?") != -1) {
+			return path.substring(0, path.indexOf("?"));
 		}
 		return path;
 	}
+
+	private bad_route(real_path: string, path: string, route: any) {
+		if (!route)
+			return false;
+		if (real_path == path && route.type == "strict_wild")
+			return true;
+		if (real_path != path && route.type != "wild") {
+			if (real_path.indexOf("?") != -1 && this.root_without_wild(real_path) != path)
+				return true;
+		}
+		return false;
+	}
+		
 
 	set_error_handler(handler: DefaultErrorPage) {
 		this.errpage = handler;
@@ -148,7 +163,7 @@ export class Router {
 			page: page,
 			auth: opts?.auth,
 			type: opts?.type,
-			backed_url: opts !== undefined ? opts.back_url : undefined,
+			back_url: opts?.back_url,
 		});
 	}
 
@@ -164,34 +179,39 @@ export class Router {
 		history.pushState({ route: path }, '', path);
 	}
 
-	route(path: string, push: boolean = false) {
+	async route(path: string, push: boolean = true) {
 		let real_path = path;
 		path = this.root_without_wild(path);
-		if (real_path == path && this.routes.get(path).type == "strict_wild") {
+		const route = this.routes.get(path);
+		if (this.bad_route(real_path, path, route)) {
 			this.route_error(real_path, 404);
 			return ;
 		}
-		this.check_session().then(() => {
-			if (!this.loggedin && this.routes.get(path).auth)
-				this.route("/login", true);
-			if (!this.currpage && this.routes.get(path).type == "overlay") {
-				this.route(this.routes.get(path).back_url, true);
-				this.route(real_path, true);
+		this.check_session().then(async () => {
+			if (!this.loggedin && route?.auth) {
+				if (!this.currpage)
+					await this.route(route.type == "overlay" ? route.back_url : "/", push);
+				this.route("/login", push);
+				return ;
+			}
+			if (!this.currpage && route?.type == "overlay") {
+				await this.route(route.back_url, push);
+				this.route(real_path, push);
 				return ;
 			}
 			this.currpage?.unload();
-			window.scrollTo(0, 0);
-			if (!this.routes.has(path)) {
+			if (route && route.type != "overlay")
+				window.scrollTo(0, 0);
+			if (!route) {
 				this.errpage.load(this.app).then(() => this.errpage.init());
 				this.currpage = this.errpage;
 			} else {
-				this.currpage = this.routes.get(path).page;
+				this.currpage = route.page;
 				this.currpage && (this.currpage.real_path = real_path);
 				this.currpage?.load(this.app).then(() => this.currpage?.init());
 			}
-			path = real_path;
 			if (push)
-				history.pushState({ route: path }, '', path);
+				history.pushState({ route: real_path }, '', real_path);
 		});
 	}
 
