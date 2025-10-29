@@ -2,7 +2,7 @@ import fp from 'fastify-plugin';
 import Database from 'better-sqlite3';
 
 async function fastifyBetterSqlite3(fastify, options) {
-	const db = new Database(dbFile ?? ':memory:');
+	const db = new Database(options.dbFile ?? ':memory:');
 	db.pragma('journal_mode = WAL');
 	db.pragma('foreign_keys = ON');
 

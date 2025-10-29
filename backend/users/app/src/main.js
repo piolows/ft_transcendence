@@ -9,7 +9,7 @@ async function startSever() {
 	});
 
 	await fastify.register(sqlite, {
-		dbFile: process.env.USERS_DB,
+		dbFile: process.env.DB_FILE,
 	});
 
 	await fastify.register(endpointHandler, { prefix: "/users" });

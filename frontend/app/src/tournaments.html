@@ -50,26 +50,40 @@
         <div class="py-16" id="main-container">
             <h2 class="text-4xl font-bold text-center mb-12 retro-shadow">Tournaments</h2>
 
-            <div class="bg-red-500" id="tournament-list">
+            <div class="pixel-box bg-opacity-80 bg-blue-900 p-8 grid gap-y-5" id="tournament-list">
 
-                <div class="tournament-item grid grid-cols-2">
+                <div class="tournament-item grid grid-cols-3">
                     <div>
                         <p class="inline">Emad's room</p>
                         <p class="player-count inline">1/16 players</p>
                     </div>
-                    <div class="join-button inline pixel-box bg-green-500 px-4 py-2 hover:bg-green-600 clicky">
+                    <div class="join-button inline pixel-box bg-green-500 px-4 py-2 hover:bg-green-600 col-start-3 clicky">
                         JOIN
                 </div>
             </div>
 
-                <div class="tournament-item grid grid-cols-2">
+                <div class="tournament-item grid grid-cols-3">
                     <div>
                         <p class="inline">Piolo's room</p>
-                        <p class="plyaer-count inline">3/16 players</p>
+                        <p class="player-count inline">3/16 players</p>
                     </div>
-                <div class="join-button inline pixel-box bg-green-500 px-4 py-2 hover:bg-green-600 clicky">
+                    <div class="join-button inline pixel-box bg-green-500 px-4 py-2 hover:bg-green-600 col-start-3 clicky">
                         JOIN
+                    </div>
                 </div>
+
+                <div class="tournament-item grid grid-cols-3">
+                    <div>
+                        <p class="inline">Piolo's room</p>
+                        <p class="player-count inline">3/16 players</p>
+                    </div>
+                    <div class="join-button inline pixel-box bg-green-500 px-4 py-2 hover:bg-green-600 col-start-3 clicky">
+                        JOIN
+                    </div>
+                </div>
+
+                <div class="bg-green-500 px-4 py-2 pixel-box clicky col-start-3" id="create">
+                    <p>Create a tournament</p>
                 </div>
         </div>
 

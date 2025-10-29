@@ -22,17 +22,18 @@ Desired Modules:
 
 Pierce & Piolo:
 Game - Second game (M)
-Frontend - 3D Graphics (M)
 Frontend - Tailwind (m) (Web 2)										(DONE)
 Game - AI Algorithm (M) (AI-Algo 1)									(DONE)
 
 PEAP:
-Game/Backend - User stats (AI-Algo 2) (m)
+Game/Backend - User stats (AI-Algo 2) (m)                           (DONE 50%)
 Game/Backend - Remote Players (M)									(DONE)
 Backend/Game/Frontend - Server-Side Pong (Server-Side Pong 1) (M)	(DONE)
+Frontend - Support on all devices (Accessibility 1) (m)             (DONE 50%)
+Frontend - Expand Browser Compatibilitiy (Accessibility 1) (m)      (DONE)
 
 Alex & ej:
-Backend - User Auth & Info (M) (User management 1)					(Auth DONE, Info not)
+Backend - User Auth & Info (M) (User management 1)					(DONE)
 Backend - Google sign in (M) (User management 2)					(DONE)
 Backend - as microservices (M)										(DONE)
 Backend - SQLite (m) (Web 3)										(DONE)
@@ -47,8 +48,6 @@ Cybersecurity - GDPR (m)
 Game - Customization (m)
 Game - Multiple Players (M)
 Frontend - Multiple Language Support (m)
-Frontend - Support on all devices (Accessibility 1) (m)
-Frontend - Expand Browser Compatibilitiy (Accessibility 1) (m)
 
 -----------------
 

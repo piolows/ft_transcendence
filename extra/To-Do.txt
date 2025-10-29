@@ -6,6 +6,8 @@
 [ ] Add a way to add friends (frontend)
 [ ] Add a friends counter on /profile and /profile/{username}
 [ ] Tournaments page (frontend)
-[ ] Tournaments backend and testing
 [ ] Add a page for game history (paged-view)
 [ ] Add a page for friends list (paged-view)
+[ ] Tournaments backend and testing
+[ ] Fix register for google account not logging in
+[ ] Fix login repeatedly
