@@ -46,27 +46,30 @@ export default class Login extends Component {
 			event.preventDefault();
 
 			const formData = new FormData(form);
-			const body = Object.fromEntries(formData.entries());
+			const body = JSON.stringify(Object.fromEntries(formData.entries()));
 
 			try {
 				const response = await fetch(`${backend_url}/auth/login`, {
 					method: "POST",
 					credentials: "include",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(body)
+					headers: { "Content-Type": "application/json", "Content-Length": body.length.toString() },
+					body: body
 				});
 
 				const data = response.ok ? await response.json() : null;
 
 				if (response.ok && data && data.success) {
+					this.router.loggedin = true;
 					this.router.login_info = data.user;
 					history.back();
 				} else {
-					alert(`Error: ${data.message}`);
+					if (!data)
+						console.error("Fetch error");
+					else
+						console.error(`Error ${data.code}: ${data.error}`);
 				}
-			} catch (error) {
-				document.getElementById("message")!.textContent = "❌ Network error";
-				console.error("Fetch error:", error);
+			} catch (error: any) {
+				console.error("Fetch error:", error.status, error.message);
 			}
 		});
 

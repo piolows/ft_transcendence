@@ -1,6 +1,6 @@
-[ ] Allow deleting user data in backend_users
-[ ] Connect profile page to users endpoint
-[ ] Connect /profile/${username} to users
+[X] Allow deleting user data in backend_users
+[X] Connect profile page to users endpoint
+[X] Connect /profile/${username} to users
 [ ] Test backend_users extensively
 [ ] Add Online/Offline status (through regular pings to the server)
 [ ] Add a way to add friends (frontend)
@@ -9,5 +9,5 @@
 [ ] Add a page for game history (paged-view)
 [ ] Add a page for friends list (paged-view)
 [ ] Tournaments backend and testing
-[ ] Fix register for google account not logging in
-[ ] Fix login repeatedly
+[X] Fix register for google account not logging in
+[X] Fix login repeatedly

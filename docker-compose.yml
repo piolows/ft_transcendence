@@ -41,7 +41,7 @@ services:
       - PORT=4161
       - FRONTEND_URL=https://localhost
       - AUTH_URL=http://backend_auth:41610
-      - USER_URL=http://backend_users:41611
+      - USERs_URL=http://backend_users:41611
       - CDN_URL=http://backend_cdn:41612
       - TOURNAMENTS_URL=http://backend_tournaments:41613
     ports:

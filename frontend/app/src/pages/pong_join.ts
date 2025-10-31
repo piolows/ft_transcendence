@@ -66,7 +66,6 @@ export default class PongJoin extends Component {
 					alert(`Error: ${data.message}`);
 				}
 			} catch (error) {
-				document.getElementById("message")!.textContent = "❌ Network error";
 				console.error("Fetch error:", error);
 			}
 		});

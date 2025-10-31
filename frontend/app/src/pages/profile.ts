@@ -1,31 +1,38 @@
-import Component, { Router, backend_url } from "../scripts/router";
+import Component, { backend_url } from "../scripts/router";
 import NavBar from "../components/nav_bar";
 import Footer from "../components/footer";
 
 export default class Profile extends Component {
     private navbar = new NavBar(this.router);
     private footer = new Footer(this.router);
+	private profile_info: any;
+	private last_matches: any;
+	private friend_count: any;
+	private game_count: any;
+	private user_stats: any;
 
     async load(app: HTMLDivElement | HTMLElement) {
-        if (!this.router.loggedin) {
-            this.router.route("/login");
-            return;
-        }
-
+		await this.get_info();
+		if (!this.profile_info)
+			return ;
         await this.navbar.load(app);
         app.innerHTML += `
             <main class="container mx-auto px-4 py-8">
                 <!-- profile header -->
                 <div class="flex items-center justify-center mb-12">
-                    <div class="pixel-box bg-blue-900 p-8 w-full max-w-4xl">
+                    <div class="pixel-box bg-blue-900 p-8 w-full max-w-4xl space-x-12">
                         <div class="flex items-center space-x-8">
-                            <img src="${backend_url + this.router.login_info.avatarURL}" 
+                            <img src="${backend_url + this.profile_info.avatarURL}" 
                                 class="w-32 h-32 rounded-full pixel-box" alt="Profile Picture">
                             <div>
-                                <h1 class="text-4xl font-bold rainbow mb-2">${this.router.login_info.username}</h1>
-                                <p class="text-gray-400 font-silkscreen">${this.router.login_info.email}</p>
+                                <h1 class="text-4xl font-bold rainbow mb-2">${this.profile_info.username}</h1>
+                                <p class="text-gray-400 font-silkscreen">${this.profile_info.email}</p>
                             </div>
                         </div>
+						<div>
+							<h3>Friends</h3>
+							<p>${ this.friend_count }</p>
+						</div>
                     </div>
                 </div>
 
@@ -69,19 +76,65 @@ export default class Profile extends Component {
         app.innerHTML += this.footer.get_html();
     }
 
-    async init() {
+	async get_info() {
+		const root_len = "/profile".length;
+		const uri_len = this.real_path?.length;
+
+		if (!uri_len || uri_len < root_len) {
+			this.router.route_error(this.real_path, 400, "Invalid URL");
+			return ;
+		}
+
+		let user = this.real_path.substring(root_len);
+		if (user == "" || user == "/")
+			user = this.router.login_info.username;
+		
+		const body = JSON.stringify({
+			username: user,
+		});
+		const headers: HeadersInit = {
+			'Content-Type': 'application/json',
+			'Content-Length': body.length.toString(),
+		};
+
+		fetch(`${backend_url}/users/all`, {
+			headers: headers,
+			body: body
+		}).then((response => {
+			if (!response.ok)
+				return null;
+			return response.json();
+		})).then(data => {
+			if (!data || !data.success) {
+				if (!data)
+					this.router.route_error(this.real_path, 500);
+				else
+					this.router.route_error(this.real_path, data.code, data.error);
+				return ;
+			}
+			this.profile_info = data.user;
+			this.last_matches = data.games;
+			this.friend_count = data.friend_cnt;
+			this.game_count = data.game_cnt;
+			this.user_stats = data.stats;
+		}).catch(error => {
+			this.router.route_error(this.real_path, 500, error.message);
+		});
+	}
+
+    init() {
         this.navbar.init();
 
         // all dummy data
-        const totalGames = document.getElementById('total-games');
-        const wins = document.getElementById('wins');
-        const losses = document.getElementById('losses');
-        const winRate = document.getElementById('win-rate');
+        const totalGames = document.getElementById('total-games')!;
+        const wins = document.getElementById('wins')!;
+        const losses = document.getElementById('losses')!;
+        const winRate = document.getElementById('win-rate')!;
         
-        if (totalGames) totalGames.textContent = '42';
-        if (wins) wins.textContent = '28';
-        if (losses) losses.textContent = '14';
-        if (winRate) winRate.textContent = '66%';
+        totalGames.textContent = this.game_count.toString();
+        winRate.textContent = `${this.user_stats.win_rate * 100}%`;
+        losses.textContent = this.user_stats.losses.toString();
+        wins.textContent = this.user_stats.wins.toString();
 
         const recentGames = document.getElementById('recent-games');
         if (recentGames) {

@@ -153,12 +153,9 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	});
 
-	fastify.all("/users/*", async (req, reply) => {
+	fastify.all('/users/*', async (req, reply) => {
 		try {
-			const subPath = req.params["*"] ?? "";
-			const queryString = req.raw.url.includes("?") ? "?" + req.raw.url.split("?")[1] : "";
-			const serviceURI = process.env.USER_URL + (process.env.USER_URL.endsWith("/") ? "" : "/");
-			const URL = `${serviceURI}${subPath}${queryString}`;
+			const URL = `${process.env.USERS_URL}${req.url.substring(process.env.USERS_URL.endsWith('/') ? 1 : 0)}`;
 
 			let response = undefined;
 			const contentType = req.headers["content-type"] ?? "";

@@ -1,6 +1,6 @@
 import { OAuth2Client } from 'google-auth-library';
 import * as argon2 from 'argon2';
-import { getUserSchema, deleteSchema, loginSchema, registerSchema, updateSchema, googleLoginSchema } from './schemas.js';
+import { deleteSchema, loginSchema, registerSchema, googleLoginSchema } from './schemas.js';
 import { hash, validate_registration, save_pfp } from './utils.js';
 
 const endpointHandler = (fastify, options, done) => {
@@ -13,7 +13,9 @@ const endpointHandler = (fastify, options, done) => {
 
 	fastify.post("/login", loginSchema, async (req, reply) => {
 		if (req.contentLength === 0 || !req.body)
-			return reply.code(400).send({ error: "Empty body" });
+			return reply.send({ success: false, code: 400, error: "Empty body" });
+		if (req.session && req.session.user)
+			return reply.send({ success: false, code: 403, error: "Already logged in. Logout first" });
 		try {
 			if (!req.session) {
 				req.session.init();
@@ -34,7 +36,7 @@ const endpointHandler = (fastify, options, done) => {
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: user['avatarURL'] };
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
-			return reply.send(error);
+			return reply.send({ success: false, code: 500, error: error.message });
 		}
 	});
 
@@ -60,7 +62,6 @@ const endpointHandler = (fastify, options, done) => {
 
 			const password = await hash(req.body.password);
 			const avatarURI = req.body.avatarURL && req.body.avatarURL != "" ? await save_pfp(req.body.avatarURL) : process.env.DEFAULT_PIC;
-			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
 			if (user)
 				await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(req.body.username, req.body.email, password, avatarURI, req.body.email);
 			else
@@ -78,7 +79,7 @@ const endpointHandler = (fastify, options, done) => {
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: avatarURI };
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
-			return reply.send(error);
+			return reply.send({ success: false, code: 500, error: error.message });
 		}
 	});
 
@@ -181,8 +182,8 @@ const endpointHandler = (fastify, options, done) => {
 			if (!user) {
 				return reply.send({ success: false, code: 404, error: 'User does not exists!' });
 			}
-			if (req.body.password != user['password']) {
-				return reply.send({ success: false, code: 403, error: 'Incorrect password!' });
+			if (!await argon2.verify(user['password'], req.body.password)) {
+				return reply.send({ success: false, code: 403, error: "Wrong password" });
 			}
 			await fastify.sqlite.prepare(`DELETE FROM ${process.env.USERS_TABLE} WHERE username=?`).run(req.body.username);
 			return reply.send({ success: true });
