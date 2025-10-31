@@ -10,15 +10,21 @@ const endpointHandler = (fastify, options, done) => {
 		if (!req.body.id || !req.body.username || !req.body.email || !req.body.avatarURL || !req.body.email)
 			return resp.send({ success: false, code: 400, error: "Must include all information" });
 		try {
-			await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET id=?,username=?,email=?,avatarURL=? WHERE email=?`)
+			const user = fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE email=?`).get(req.body.email);
+			if (!user) {
+				await fastify.sqlite.prepare(`INSERT INTO ${UT} (id, username, email, avatarURL) VALUES (?, ?, ?, ?)`)
+					.run(req.body.id, req.body.username, req.body.email, req.body.avatarURI);
+			} else {
+				await fastify.sqlite.prepare(`UPDATE ${UT} SET id=?,username=?,email=?,avatarURL=? WHERE email=?`)
 				.run(req.body.id, req.body.username, req.body.email, req.body.avatarURL, req.body.email);
+			}
 			return resp.reply({ success: true });
 		} catch (error) {
 			return resp.send({ success: false, code: 500, error: error.message });
 		}
 	});
 
-	fastify.get("/all", (req, resp) => {
+	fastify.post("/all", (req, resp) => {
 		if (!req.body.username)
 			return resp.send({ success: false, code: 400, error: "Must provide username" });
 		try {
@@ -26,7 +32,7 @@ const endpointHandler = (fastify, options, done) => {
 			if (!user) {
 				return resp.send({ success: false, code: 404, error: "User not found" });
 			}
-			const friend_cnt = fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${FT} WHERE user_id=?`).get(user['id']);
+			const friend_cnt = fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${FT} WHERE user_id=?`).get(user['id'])['COUNT(user_id)'];
 			let stats = fastify.sqlite.prepare(`SELECT wins, losses, win_rate FROM ${ST} WHERE user_id=?`).get(user['id']);
 			if (!stats) {
 				stats = {
@@ -35,7 +41,7 @@ const endpointHandler = (fastify, options, done) => {
 					win_rate: 0
 				}
 			}
-			const game_cnt = fastify.sqlite.prepare(`SELECT count(user_id) FROM ${HT} WHERE user_id=?`).all(user['id']);
+			const game_cnt = fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${HT} WHERE user_id=?`).get(user['id'])['COUNT(user_id)'];
 			const games = fastify.sqlite.prepare(`SELECT
 				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.game, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
 				FROM ${HT} JOIN ${UT} ON ${HT}.winner_id = ${UT}.id WHERE ${HT}.user_id=? ORDER BY ${HT}.created_at DESC LIMIT 3 OFFSET 0`).all(req['user']);
@@ -45,7 +51,7 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	});
 
-	fastify.get("/history", (req, resp) => {
+	fastify.post("/history", (req, resp) => {
 		if (!req.body.username)
 			return resp.send({ success: false, code: 400, error: "Must provide username" });
 		const user = fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE username=?`).get(req.body.username);
@@ -67,7 +73,7 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	});
 
-	fastify.get("/stats", (req, resp) => {
+	fastify.post("/stats", (req, resp) => {
 		if (!req.body.username)
 			return resp.send({ success: false, code: 400, error: "Must provide username" });
 		try {
@@ -82,7 +88,7 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	});
 
-	fastify.get("/friends", (req, resp) => {
+	fastify.post("/friends", (req, resp) => {
 		if (!req.body.username)
 			return resp.send({ success: false, code: 400, error: "Must provide username" });
 		const user = fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE username=?`).get(req.body.username);

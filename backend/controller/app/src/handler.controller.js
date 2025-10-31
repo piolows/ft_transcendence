@@ -60,38 +60,30 @@ const endpointHandler = (fastify, options, done) => {
 
 			let response = undefined;
 			const contentType = req.headers["content-type"] ?? "";
-			if (req.method != "GET" && req.method != "HEAD") {
-				let body = undefined;
-				if (req.body && Object.keys(req.body).length > 0) {
-					if (contentType.includes("application/json")) {
-						body = JSON.stringify(req.body);
-					} else if (contentType.includes("application/x-www-form-urlencoded")) {
-						body = new URLSearchParams(req.body).toString();
-					} else {
-						body = req.body;
-					}
-				}
-
-				const headers = { ...req.headers };
-
-				if (body) {
-					headers["content-length"] = Buffer.byteLength(body).toString();
+			let body = undefined;
+			if (req.body && Object.keys(req.body).length > 0) {
+				if (contentType.includes("application/json")) {
+					body = JSON.stringify(req.body);
+				} else if (contentType.includes("application/x-www-form-urlencoded")) {
+					body = new URLSearchParams(req.body).toString();
 				} else {
-					delete headers["content-length"];
+					body = req.body;
 				}
+			}
 
-				response = await fetch(URL, {
-					method: req.method,
-					headers,
-					...(body ? { body } : {}),
-				});
+			const headers = { ...req.headers };
+
+			if (body) {
+				headers["content-length"] = Buffer.byteLength(body).toString();
+			} else {
+				delete headers["content-length"];
 			}
-			else {
-				response = await fetch(URL, {
-					method: req.method,
-					headers: req.headers
-				});
-			}
+
+			response = await fetch(URL, {
+				method: req.method,
+				headers,
+				...(body ? { body } : {}),
+			});
 			reply.status(response.status);
 			for (const [key, value] of response.headers.entries()) {
 				reply.header(key, value);
@@ -114,31 +106,23 @@ const endpointHandler = (fastify, options, done) => {
 			const URL = `${serviceURI}${subPath}${queryString}`;
 			let body = undefined;
 			let response = undefined;
-			if (req.method != 'GET' && req.method != 'HEAD') {
-				const contentType = req.headers['content-type'] ?? '';
-				// if (!req.body) {
-				if (contentType.includes('application/json')) {
-					body = JSON.stringify(req.body);
-				} else if (contentType.includes('application/x-www-form-urlencoded')) {
-					body = new URLSearchParams(req.body).toString();
-				} else {
-					body = req.body;
-				}
-				response = await fetch(URL, {
-					method: req.method,
-					headers: {
-						...req.headers,
-						'content-length': body ? Buffer.byteLength(body).toString() : 0
-					},
-					body: body
-				});
+			const contentType = req.headers['content-type'] ?? '';
+			// if (!req.body) {
+			if (contentType.includes('application/json')) {
+				body = JSON.stringify(req.body);
+			} else if (contentType.includes('application/x-www-form-urlencoded')) {
+				body = new URLSearchParams(req.body).toString();
+			} else {
+				body = req.body;
 			}
-			else {
-				response = await fetch(URL, {
-					method: req.method,
-					headers: req.headers
-				});
-			}
+			response = await fetch(URL, {
+				method: req.method,
+				headers: {
+					...req.headers,
+					'content-length': body ? Buffer.byteLength(body).toString() : 0
+				},
+				body: body
+			});
 
 			// Set response status & headers before streaming
 			reply.status(response.status);
@@ -159,38 +143,30 @@ const endpointHandler = (fastify, options, done) => {
 
 			let response = undefined;
 			const contentType = req.headers["content-type"] ?? "";
-			if (req.method != "GET" && req.method != "HEAD") {
-				let body = undefined;
-				if (req.body && Object.keys(req.body).length > 0) {
-					if (contentType.includes("application/json")) {
-						body = JSON.stringify(req.body);
-					} else if (contentType.includes("application/x-www-form-urlencoded")) {
-						body = new URLSearchParams(req.body).toString();
-					} else {
-						body = req.body;
-					}
-				}
-
-				const headers = { ...req.headers };
-
-				if (body) {
-					headers["content-length"] = Buffer.byteLength(body).toString();
+			let body = undefined;
+			if (req.body && Object.keys(req.body).length > 0) {
+				if (contentType.includes("application/json")) {
+					body = JSON.stringify(req.body);
+				} else if (contentType.includes("application/x-www-form-urlencoded")) {
+					body = new URLSearchParams(req.body).toString();
 				} else {
-					delete headers["content-length"];
+					body = req.body;
 				}
+			}
 
-				response = await fetch(URL, {
-					method: req.method,
-					headers,
-					...(body ? { body } : {}),
-				});
+			const headers = { ...req.headers };
+
+			if (body) {
+				headers["content-length"] = Buffer.byteLength(body).toString();
+			} else {
+				delete headers["content-length"];
 			}
-			else {
-				response = await fetch(URL, {
-					method: req.method,
-					headers: req.headers
-				});
-			}
+
+			response = await fetch(URL, {
+				method: req.method,
+				headers,
+				...(body ? { body } : {}),
+			});
 			reply.status(response.status);
 			for (const [key, value] of response.headers.entries()) {
 				reply.header(key, value);

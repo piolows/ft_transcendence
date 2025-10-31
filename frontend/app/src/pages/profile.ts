@@ -20,7 +20,7 @@ export default class Profile extends Component {
             <main class="container mx-auto px-4 py-8">
                 <!-- profile header -->
                 <div class="flex items-center justify-center mb-12">
-                    <div class="pixel-box bg-blue-900 p-8 w-full max-w-4xl space-x-12">
+                    <div class="pixel-box bg-blue-900 p-8 w-full max-w-4xl">
                         <div class="flex items-center space-x-8">
                             <img src="${backend_url + this.profile_info.avatarURL}" 
                                 class="w-32 h-32 rounded-full pixel-box" alt="Profile Picture">
@@ -28,11 +28,11 @@ export default class Profile extends Component {
                                 <h1 class="text-4xl font-bold rainbow mb-2">${this.profile_info.username}</h1>
                                 <p class="text-gray-400 font-silkscreen">${this.profile_info.email}</p>
                             </div>
+							<div class="mx-auto" style="float: right;">
+								<h1 class="pb-5 retro-shadow">Friends</h1>
+								<p>${ this.friend_count }</p>
+							</div>
                         </div>
-						<div>
-							<h3>Friends</h3>
-							<p>${ this.friend_count }</p>
-						</div>
                     </div>
                 </div>
 
@@ -84,32 +84,24 @@ export default class Profile extends Component {
 			this.router.route_error(this.real_path, 400, "Invalid URL");
 			return ;
 		}
-
 		let user = this.real_path.substring(root_len);
-		if (user == "" || user == "/")
+		if (user.length >= 1 && user[0] == "/")
+			user = user.substring(1);
+		if (user == "")
 			user = this.router.login_info.username;
-		
-		const body = JSON.stringify({
-			username: user,
-		});
-		const headers: HeadersInit = {
-			'Content-Type': 'application/json',
-			'Content-Length': body.length.toString(),
-		};
-
-		fetch(`${backend_url}/users/all`, {
-			headers: headers,
-			body: body
-		}).then((response => {
-			if (!response.ok)
-				return null;
-			return response.json();
-		})).then(data => {
-			if (!data || !data.success) {
-				if (!data)
-					this.router.route_error(this.real_path, 500);
-				else
-					this.router.route_error(this.real_path, data.code, data.error);
+		try {
+			const response = await fetch(`${backend_url}/users/all`, {
+				method: "POST",
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ username: user })
+			});
+			if (!response.ok) {
+				this.router.route_error(this.real_path, 500);
+				return ;
+			}
+			const data = await response.json();
+			if (!data.success) {
+				this.router.route_error(this.real_path, data.code, data.error);
 				return ;
 			}
 			this.profile_info = data.user;
@@ -117,12 +109,14 @@ export default class Profile extends Component {
 			this.friend_count = data.friend_cnt;
 			this.game_count = data.game_cnt;
 			this.user_stats = data.stats;
-		}).catch(error => {
+		} catch(error: any) {
 			this.router.route_error(this.real_path, 500, error.message);
-		});
+		};
 	}
 
     init() {
+		if (!this.profile_info)
+			return ;
         this.navbar.init();
 
         // all dummy data
@@ -130,14 +124,14 @@ export default class Profile extends Component {
         const wins = document.getElementById('wins')!;
         const losses = document.getElementById('losses')!;
         const winRate = document.getElementById('win-rate')!;
-        
+
         totalGames.textContent = this.game_count.toString();
         winRate.textContent = `${this.user_stats.win_rate * 100}%`;
         losses.textContent = this.user_stats.losses.toString();
         wins.textContent = this.user_stats.wins.toString();
 
         const recentGames = document.getElementById('recent-games');
-        if (recentGames) {
+        if (recentGames && this.game_count > 0) {
             const dummyGames = [
                 { opponent: 'Player1', result: 'WIN', score: '10-8' },
                 { opponent: 'Player2', result: 'LOSS', score: '7-10' },
