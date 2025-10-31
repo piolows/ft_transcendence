@@ -119,7 +119,6 @@ export default class Profile extends Component {
 			return ;
         this.navbar.init();
 
-        // all dummy data
         const totalGames = document.getElementById('total-games')!;
         const wins = document.getElementById('wins')!;
         const losses = document.getElementById('losses')!;
@@ -130,18 +129,19 @@ export default class Profile extends Component {
         losses.textContent = this.user_stats.losses.toString();
         wins.textContent = this.user_stats.wins.toString();
 
-        const recentGames = document.getElementById('recent-games');
-        if (recentGames && this.game_count > 0) {
-            const dummyGames = [
-                { opponent: 'Player1', result: 'WIN', score: '10-8' },
-                { opponent: 'Player2', result: 'LOSS', score: '7-10' },
-                { opponent: 'Player3', result: 'WIN', score: '10-5' }
-            ];
+        const recentGames = document.getElementById('recent-games')!;
+        if (recentGames && this.last_matches.length > 0) {
+            const games = [];
+			for (let game of this.last_matches) {
+				games.push({ op_uname: game.username, op_pfp: game.avatarURL, op_email: game.email,
+					result: game.username == this.profile_info.username ? 'WIN' : 'LOSS', score: `${game.p1_score} - ${game.p2_score}` });
+			}
 
-            recentGames.innerHTML = dummyGames
+            recentGames.innerHTML = games
                 .map(game => `
                     <div class="flex justify-between items-center font-silkscreen">
-                        <span>${game.opponent}</span>
+                        <img width="16" height="16" src="${game.op_pfp}" />
+                        <span>${game.op_uname}</span>
                         <span class="${game.result === 'WIN' ? 'text-green-400' : 'text-red-400'}">${game.result}</span>
                         <span>${game.score}</span>
                     </div>
