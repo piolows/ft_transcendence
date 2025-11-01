@@ -10,6 +10,7 @@ export default class Profile extends Component {
 	private friend_count: any;
 	private game_count: any;
 	private user_stats: any;
+	private is_friends: any;
 
     async load(app: HTMLDivElement | HTMLElement) {
 		await this.get_info();
@@ -21,14 +22,14 @@ export default class Profile extends Component {
                 <!-- profile header -->
                 <div class="flex items-center justify-center mb-12">
                     <div class="pixel-box bg-blue-900 p-8 w-full max-w-4xl">
-                        <div class="flex items-center space-x-8">
+                        <div id="prof_card" class="flex items-center space-x-8">
                             <img src="${backend_url + this.profile_info.avatarURL}" 
                                 class="w-32 h-32 rounded-full pixel-box" alt="Profile Picture">
                             <div>
                                 <h1 class="text-4xl font-bold rainbow mb-2">${this.profile_info.username}</h1>
                                 <p class="text-gray-400 font-silkscreen">${this.profile_info.email}</p>
                             </div>
-							<div class="mx-auto" style="float: right;">
+							<div class="mx-auto">
 								<h1 class="pb-5 retro-shadow">Friends</h1>
 								<p>${ this.friend_count }</p>
 							</div>
@@ -93,7 +94,10 @@ export default class Profile extends Component {
 			const response = await fetch(`${backend_url}/users/all`, {
 				method: "POST",
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ username: user })
+				body: JSON.stringify({
+					my_id: this.router.login_info.id,
+					username: user
+				})
 			});
 			if (!response.ok) {
 				this.router.route_error(this.real_path, 500);
@@ -109,6 +113,7 @@ export default class Profile extends Component {
 			this.friend_count = data.friend_cnt;
 			this.game_count = data.game_cnt;
 			this.user_stats = data.stats;
+			this.is_friends = data.is_friend;
 		} catch(error: any) {
 			this.router.route_error(this.real_path, 500, error.message);
 		};
@@ -118,6 +123,23 @@ export default class Profile extends Component {
 		if (!this.profile_info)
 			return ;
         this.navbar.init();
+
+		const pfcard = document.getElementById('prof_card')!;
+		if (this.is_friends == true) {
+			pfcard.innerHTML += `
+				<div class="mx-auto" style="float: right;">
+					<button id="followbtn" class="bg-green-600 text-white py-3 pixel-box font-pixelify hover:bg-green-700 clicky w-50">
+						+ Follow
+					</button>
+				</div>`;
+		} else if (this.is_friends == false) {
+			pfcard.innerHTML += `
+				<div class="mx-auto" style="float: right;">
+					<button id="followbtn" class="bg-green-600 text-white py-3 pixel-box font-pixelify hover:bg-green-700 clicky w-50">
+						+ Follow
+					</button>
+				</div>`;
+		}
 
         const totalGames = document.getElementById('total-games')!;
         const wins = document.getElementById('wins')!;

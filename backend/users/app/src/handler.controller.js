@@ -33,6 +33,13 @@ const endpointHandler = (fastify, options, done) => {
 				return resp.send({ success: false, code: 404, error: "User not found" });
 			}
 			const friend_cnt = fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${FT} WHERE user_id=?`).get(user['id'])['COUNT(user_id)'];
+			let is_friend = undefined;
+			if (req.body.my_id && req.body.my_id != user['id']) {
+				const exist = fastify.sqlite.prepare(`SELECT * FROM ${FT} WHERE user_id=? AND friend_id=?`).get(user['id'], req.body.my_id);
+				is_friend = false;
+				if (exist)
+					is_friend = true;
+			}
 			let stats = fastify.sqlite.prepare(`SELECT wins, losses, win_rate FROM ${ST} WHERE user_id=?`).get(user['id']);
 			if (!stats) {
 				stats = {
@@ -45,7 +52,7 @@ const endpointHandler = (fastify, options, done) => {
 			const games = fastify.sqlite.prepare(`SELECT
 				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.game, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
 				FROM ${HT} JOIN ${UT} ON ${HT}.winner_id = ${UT}.id WHERE ${HT}.user_id=? ORDER BY ${HT}.created_at DESC LIMIT 3 OFFSET 0`).all(req['user']);
-			return resp.send({ success: true, user: user, friend_cnt: friend_cnt, stats: stats, game_cnt: game_cnt, games: games });
+			return resp.send({ success: true, user, friend_cnt, stats, game_cnt, games, is_friend });
 		} catch (error) {
 			return resp.send({ success: false, code: 500, error: error.message });
 		}
