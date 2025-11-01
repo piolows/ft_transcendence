@@ -34,6 +34,12 @@ const endpointHandler = (fastify, options, done) => {
 				return reply.send({ success: false, code: 403, error: "Wrong password" });
 			}
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: user['avatarURL'] };
+			//TEMPORARY
+			fetch(process.env.USERS_URL + "/users", {
+				method: "POST",
+				body: req.session.user
+			});
+			//TEMPORARY
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
 			return reply.send({ success: false, code: 500, error: error.message });
@@ -77,6 +83,10 @@ const endpointHandler = (fastify, options, done) => {
 				}
 			});
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: avatarURI };
+			fetch(process.env.USERS_URL + "/users", {
+				method: "POST",
+				body: req.session.user
+			});
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
 			return reply.send({ success: false, code: 500, error: error.message });
@@ -106,16 +116,11 @@ const endpointHandler = (fastify, options, done) => {
 			const avatarURI = req.body.avatarURL && req.body.avatarURL != "" ? await save_pfp(req.body.avatarURL) : user['avatarURL'];
 			await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(username, req.body.email, password, avatarURI, req.body.email);
 			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
-			await fetch(`${process.env.USERS_URL}/users`, {
-				method: "POST",
-				body: {
-					id: user['id'],
-					username: user['username'],
-					email: user['email'],
-					avatarURL: user['avatarURL'],
-				}
-			});
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: avatarURI };
+			fetch(process.env.USERS_URL + "/users", {
+				method: "POST",
+				body: req.session.user
+			});
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
 			return reply.send({ success: false, code: 500, error: error.message });
@@ -152,6 +157,10 @@ const endpointHandler = (fastify, options, done) => {
 			}
 
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: user['avatarURL'] };
+			fetch(process.env.USERS_URL + "/users", {
+				method: "POST",
+				body: req.session.user
+			});
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
 			return reply.send({ success: false, code: 500, error: error.message });

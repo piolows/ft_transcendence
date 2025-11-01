@@ -10,14 +10,20 @@ const endpointHandler = (fastify, options, done) => {
 		if (!req.body.id || !req.body.username || !req.body.email || !req.body.avatarURL || !req.body.email)
 			return resp.send({ success: false, code: 400, error: "Must include all information" });
 		try {
-			const user = fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE email=?`).get(req.body.email);
-			if (!user) {
+			let record = fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE email=?`).get(req.body.email);
+			if (!record) {
 				await fastify.sqlite.prepare(`INSERT INTO ${UT} (id, username, email, avatarURL) VALUES (?, ?, ?, ?)`)
 					.run(req.body.id, req.body.username, req.body.email, req.body.avatarURI);
 			} else {
 				await fastify.sqlite.prepare(`UPDATE ${UT} SET id=?,username=?,email=?,avatarURL=? WHERE email=?`)
 				.run(req.body.id, req.body.username, req.body.email, req.body.avatarURL, req.body.email);
 			}
+			record = fastify.sqlite.prepare(`SELECT * FROM ${ST} WHERE user_id=?`).get(req.body.id);
+			if (!record) {
+				await fastify.sqlite.prepare(`INSERT INTO ${ST} (user_id, wins, losses, win_rate) VALUES (?, ?, ?, ?)`)
+					.run(req.body.id, 0, 0, 0);
+			}
+			console.log("WOAH");
 			return resp.reply({ success: true });
 		} catch (error) {
 			return resp.send({ success: false, code: 500, error: error.message });
@@ -51,7 +57,8 @@ const endpointHandler = (fastify, options, done) => {
 			const game_cnt = fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${HT} WHERE user_id=?`).get(user['id'])['COUNT(user_id)'];
 			const games = fastify.sqlite.prepare(`SELECT
 				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.game, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
-				FROM ${HT} JOIN ${UT} ON ${HT}.winner_id = ${UT}.id WHERE ${HT}.user_id=? ORDER BY ${HT}.created_at DESC LIMIT 3 OFFSET 0`).all(req['user']);
+				FROM ${HT} JOIN ${UT} ON ${HT}.winner_id = ${UT}.id WHERE ${HT}.user_id=? AND created_at > datetime('now', '-1 day')
+				ORDER BY ${HT}.created_at DESC LIMIT 3 OFFSET 0`).all(req['user']);
 			return resp.send({ success: true, user, friend_cnt, stats, game_cnt, games, is_friend });
 		} catch (error) {
 			return resp.send({ success: false, code: 500, error: error.message });
