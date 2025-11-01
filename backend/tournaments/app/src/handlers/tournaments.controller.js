@@ -5,30 +5,8 @@
 
 // an object that contains tournament information
 // it contains the players of the tournament, the spectators 
-import { randomUUID } from 'crypto';
-
-function shortUUID() {
-  return randomUUID().replace(/-/g, "").slice(0, 16);
-}
-
-var tournaments = {}; // uuid : tournament_object
-var tournament_admins = {}; // username : tournament_uuid
-
-class Tournament {
-    uuid;
-    game_uuid;  // this uuid is to associate a game object with this tournament
-    adminInfo;
-    maxPlayers;
-    players = {};
-    matches = {};   // match uuid : game JSON object
-    winner = null; // stores winner info which is: user_info object containing id/username/email/pfp
-    constructor(adminInfo, maxPlayers = 8) {
-        this.uuid = shortUUID();
-        this.game_uuid = shortUUID();   // this uuid will be sent to the games service to create a game for this tournament
-        this.adminInfo = adminInfo;
-        this.maxPlayers = maxPlayers;
-    }
-}
+import { tournaments, tournament_admins } from '../modules/tournaments_classes.js';
+import { Tournament } from '../modules/tournaments_classes.js'; 
 
 // tournament routes
 export const tournamentHandler = (fastify, options, done) => {

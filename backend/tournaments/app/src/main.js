@@ -1,4 +1,4 @@
-import { tournamentHandler } from "./tournaments.js";
+import { tournamentHandler } from "./handlers/tournaments.js";
 import Fastify from "fastify";
 import 'dotenv/config';
 import fastifyCookie from '@fastify/cookie';
