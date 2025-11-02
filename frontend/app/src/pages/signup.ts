@@ -5,7 +5,7 @@ export default class SignUp extends Component {
 		app.innerHTML += 
 		`<!-- register screen -->
 		<div id="signup-screen" class="fixed inset-0 z-50 flex items-center justify-center">
-            <div class="absolute inset-0 bg-black opacity-80"></div>
+            <div id="backscreen" class="absolute inset-0 bg-black opacity-80"></div>
             <div class="relative pixel-box bg-green-900 p-8 w-96 text-white">
                 <h2 class="text-2xl font-pixelify mb-6 rainbow text-center">SIGN UP</h2>
                 <form id="registerForm" class="space-y-6">
@@ -70,7 +70,7 @@ export default class SignUp extends Component {
 				if (response.ok && data && data.success) {
 					this.router.loggedin = true;
 					this.router.login_info = data.user;
-					history.back();
+					this.router.route(history.state?.route, "replace");
 				} else {
 					if (!data)
 						console.error("Fetch error");
@@ -85,7 +85,12 @@ export default class SignUp extends Component {
 		const close = document.getElementById("close-button")! as HTMLButtonElement;
 		close.style.cursor = "pointer";
 		close.onclick = () => {
-			history.back();
+			this.router.route(history.state?.route, "replace");
+		};
+
+		const bkscreen = document.getElementById("backscreen")!;
+		bkscreen.onclick = () => {
+			this.router.route(history.state?.route, "replace");
 		};
 
 		google.accounts.id.renderButton(

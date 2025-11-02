@@ -22,7 +22,7 @@ export default class Profile extends Component {
                 <!-- profile header -->
                 <div class="flex items-center justify-center mb-12">
                     <div class="pixel-box bg-blue-900 p-8 w-full max-w-4xl">
-                        <div id="prof_card" class="flex items-center space-x-8">
+                        <div class="flex items-center space-x-8">
                             <img src="${backend_url + this.profile_info.avatarURL}" 
                                 class="w-32 h-32 rounded-full pixel-box" alt="Profile Picture">
                             <div>
@@ -32,6 +32,9 @@ export default class Profile extends Component {
 							<div class="mx-auto">
 								<h1 class="pb-5 retro-shadow">Friends</h1>
 								<p>${ this.friend_count }</p>
+							</div>
+							<div id="follow_area" class="mx-auto" style="float: right;">
+								
 							</div>
                         </div>
                     </div>
@@ -91,7 +94,7 @@ export default class Profile extends Component {
 		if (user == "")
 			user = this.router.login_info.username;
 		try {
-			const response = await fetch(`${backend_url}/users/all/${user}?id=${this.router.login_info.id}`);
+			const response = await fetch(`${backend_url}/users/${user}?id=${this.router.login_info.id}`);
 			if (!response.ok) {
 				this.router.route_error(this.real_path, 500);
 				return ;
@@ -117,22 +120,94 @@ export default class Profile extends Component {
 			return ;
         this.navbar.init();
 
-		const pfcard = document.getElementById('prof_card')!;
-		if (this.is_friends == true) {
-			pfcard.innerHTML += `
-				<div class="mx-auto" style="float: right;">
-					<button id="followbtn" class="bg-green-600 text-white py-3 pixel-box font-pixelify hover:bg-green-700 clicky w-50">
-						+ Follow
-					</button>
-				</div>`;
-		} else if (this.is_friends == false) {
-			pfcard.innerHTML += `
-				<div class="mx-auto" style="float: right;">
-					<button id="followbtn" class="bg-green-600 text-white py-3 pixel-box font-pixelify hover:bg-green-700 clicky w-50">
-						+ Follow
-					</button>
-				</div>`;
+		const fa = document.getElementById('follow_area')!;
+		if (this.is_friends == false) {
+			fa.innerHTML = `
+				<button id="followbtn" class="bg-green-600 text-white py-3 pixel-box font-pixelify hover:bg-green-700 clicky w-50">
+					+ Follow
+				</button>`;
+			const fb = document.getElementById('followbtn')!;
+			fb.onclick = async () => {
+				try {
+					const resp = await fetch(`${backend_url}/users/${this.profile_info.username}/friends`, {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({
+							'user_id': this.router.login_info.id
+						})
+					});
+					if (!resp.ok) {
+						console.error(`Error while sending request: ${resp.status} - ${resp.text}`);
+						return ;
+					}
+					const data = await resp.json();
+					if (!data) {
+						console.error(`Error while sending request: 500 - Received invalid response`);
+						return ;
+					}
+					if (!data.success) {
+						console.error(`Error while sending request: ${data.code} - ${data.error}`);
+						return ;
+					}
+					this.router.route(this.real_path, false);
+				} catch (error: any) {
+					console.error(error.message);
+				}
+			};
+		} else if (this.is_friends == true) {
+			fa.innerHTML = `
+				<button id="followbtn" class="bg-red-600 text-white py-3 pixel-box font-pixelify hover:bg-red-700 clicky w-50">
+					- Unfollow
+				</button>`;
+			const fb = document.getElementById('followbtn')!;
+			fb.onclick = async () => {
+				try {
+					const resp = await fetch(`${backend_url}/users/${this.profile_info.username}/friends`, {
+						method: "DELETE",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({
+							'user_id': this.router.login_info.id
+						})
+					});
+					if (!resp.ok) {
+						console.error(`Error while sending request: ${resp.status} - ${resp.text}`);
+						return ;
+					}
+					const data = await resp.json();
+					if (!data) {
+						console.error(`Error while sending request: 500 - Received invalid response`);
+						return ;
+					}
+					if (!data.success) {
+						console.error(`Error while sending request: ${data.code} - ${data.error}`);
+						return ;
+					}
+					this.router.route(this.real_path, false);
+				} catch (error: any) {
+					console.error(error.message);
+				}
+			};
 		}
+		// const fa = document.getElementById('follow_area')!;
+		// if (this.is_friends == true) {
+		// 	fa.innerHTML = `
+		// 		<div class="mx-auto" style="float: right;">
+		// 			<button id="followbtn" class="bg-green-600 text-white py-3 pixel-box font-pixelify hover:bg-green-700 clicky w-50">
+		// 				+ Follow
+		// 			</button>
+		// 		</div>`;
+		// 	const fb = document.getElementById('followbtn')!;
+		// 	fb.onclick = () => {
+
+		// 	};
+		// } else if (this.is_friends == false) {
+		// 	fa.innerHTML = `
+		// 		<div class="mx-auto" style="float: right;">
+		// 			<button id="followbtn" class="bg-red-600 text-white py-3 pixel-box font-pixelify hover:bg-red-700 clicky w-50">
+		// 				- Unfollow
+		// 			</button>
+		// 		</div>`;
+		// }
 
         const totalGames = document.getElementById('total-games')!;
         const wins = document.getElementById('wins')!;

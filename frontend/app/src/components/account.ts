@@ -80,6 +80,8 @@ export default class AuthSection extends Component {
 				} catch (err) {
 					console.error("Failed to log out:", err);
 				}
+				if (this.router.auth_route)
+					this.router.route("/");
 			}
 		}
 	}

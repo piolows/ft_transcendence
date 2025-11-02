@@ -5,7 +5,7 @@ export default class PongJoin extends Component {
 		app.innerHTML += 
 		`<!-- join screen -->
         <div id="join-screen" class="fixed inset-0 z-50 flex items-center justify-center">
-            <div class="absolute inset-0 bg-black opacity-80"></div>
+            <div id="backscreen" class="absolute inset-0 bg-black opacity-80"></div>
             <div class="relative pixel-box bg-blue-900 p-8 w-96 text-white">
                 <h2 class="text-2xl font-pixelify mb-6 rainbow text-center">JOIN GAME</h2>
                 <form id="joinForm" class="space-y-6">
@@ -73,7 +73,12 @@ export default class PongJoin extends Component {
 		const close = document.getElementById("close-button")! as HTMLButtonElement;
 		close.style.cursor = "pointer";
 		close.onclick = () => {
-			history.back();
+			this.router.route(history.state?.route, "replace");
+		};
+
+		const bkscreen = document.getElementById("backscreen")!;
+		bkscreen.onclick = () => {
+			this.router.route(history.state?.route, "replace");
 		};
 	}
 }

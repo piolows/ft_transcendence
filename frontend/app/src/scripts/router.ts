@@ -41,6 +41,7 @@ export class Router {
 	private routes = new Map<string, any>();
 	private currpage: Component | null = null;
 	private errpage: DefaultErrorPage;
+	auth_route: boolean = false;
 	app: HTMLDivElement | HTMLElement;
 	login_info: any = null;
 	loggedin = false;
@@ -174,10 +175,10 @@ export class Router {
 		this.currpage = this.errpage;
 		this.errpage.error_code = 404;
 		this.errpage.custom_msg = undefined;
-		history.pushState({ route: path }, '', path);
+		history.replaceState({ route: path }, '', path);
 	}
 
-	async route(path: string, push: boolean = true) {
+	async route(path: string, push: any = true) {
 		let real_path = path;
 		path = this.root_without_wild(path);
 		const route = this.routes.get(path);
@@ -187,16 +188,22 @@ export class Router {
 		}
 		this.check_session().then(async () => {
 			if (!this.loggedin && route?.auth) {
-				if (!this.currpage)
-					await this.route(route.type == "overlay" ? route.back_url : "/", push);
-				this.route("/login", push);
+				if (!this.currpage || !route?.auth_overlay)
+					await this.route(route.type == "overlay" ? route.back_url : "/", "replace");
+				await this.route("/login", false);
 				return ;
 			}
 			if (!this.currpage && route?.type == "overlay") {
-				await this.route(route.back_url, push);
-				this.route(real_path, push);
+				await this.route(route.back_url, "replace");
+				await this.route(real_path, false);
 				return ;
 			}
+			if (route?.auth == false && this.loggedin)
+				return ;
+			this.auth_route = route?.auth;
+			if ((!this.currpage && push == true) || route.type == "overlay")
+				push = false;
+			console.warn(path, push);
 			this.currpage?.unload();
 			if (route && route.type != "overlay")
 				window.scrollTo(0, 0);
@@ -209,8 +216,10 @@ export class Router {
 				this.currpage && (this.currpage.real_path = real_path);
 				this.currpage?.load(this.app).then(() => this.currpage?.init());
 			}
-			if (push)
+			if (push == true || push == "force")
 				history.pushState({ route: real_path }, '', real_path);
+			else if (push == "replace")
+				history.replaceState({ route: real_path }, '', real_path);
 		});
 	}
 
