@@ -47,15 +47,15 @@
     <!-- main container for tournament listing -->
     <div class="container mx-auto px-4">
 
-        <div class="py-16" id="main-container">
+        <div class="py-16 h-100" id="main-container">
             <h2 class="text-4xl font-bold text-center mb-12 retro-shadow">Tournaments</h2>
 
             <div class="pixel-box bg-opacity-80 bg-blue-900 p-8 grid gap-y-5" id="tournament-list">
 
                 <div class="tournament-item grid grid-cols-3">
-                    <div>
-                        <p class="inline">Emad's room</p>
-                        <p class="player-count inline">1/16 players</p>
+                    <div class="crt-text flex flex-col">
+                        <p class="inline text-xl">Emad's room</p>
+                        <p class="player-count rainbow inline">1/16 players</p>
                     </div>
                     <div class="join-button inline pixel-box bg-green-500 px-4 py-2 hover:bg-green-600 col-start-3 clicky">
                         JOIN
@@ -63,8 +63,8 @@
             </div>
 
                 <div class="tournament-item grid grid-cols-3">
-                    <div>
-                        <p class="inline">Piolo's room</p>
+                    <div class="crt-text flex flex-col">
+                        <p class="inline text-xl">Piolo's room</p>
                         <p class="player-count inline">3/16 players</p>
                     </div>
                     <div class="join-button inline pixel-box bg-green-500 px-4 py-2 hover:bg-green-600 col-start-3 clicky">
@@ -73,8 +73,8 @@
                 </div>
 
                 <div class="tournament-item grid grid-cols-3">
-                    <div>
-                        <p class="inline">Piolo's room</p>
+                    <div class="crt-text flex flex-col">
+                        <p class="inline rainbow text-xl">Piolo's room</p>
                         <p class="player-count inline">3/16 players</p>
                     </div>
                     <div class="join-button inline pixel-box bg-green-500 px-4 py-2 hover:bg-green-600 col-start-3 clicky">
@@ -82,9 +82,14 @@
                     </div>
                 </div>
 
-                <!-- <div class="bg-green-500 px-4 py-2 pixel-box clicky col-start-3" id="create">
-                    <p>Create a tournament</p>
-                </div> -->
+                <div class="flex flex-row justify-center">
+                    <!-- navigate to next page -->
+                    <button class="mx-5 shadow-md/30 bg-blue-600 hover:bg-blue-700 clicky"><</button>
+
+                    <p>1/5</p>
+
+                    <button class="mx-5 shadow-md/30 bg-blue-600 hover:bg-blue-700 clicky">></button>
+                </div>
         </div>
 
     </div>
