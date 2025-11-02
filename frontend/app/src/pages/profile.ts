@@ -91,14 +91,7 @@ export default class Profile extends Component {
 		if (user == "")
 			user = this.router.login_info.username;
 		try {
-			const response = await fetch(`${backend_url}/users/all`, {
-				method: "POST",
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					my_id: this.router.login_info.id,
-					username: user
-				})
-			});
+			const response = await fetch(`${backend_url}/users/all/${user}?id=${this.router.login_info.id}`);
 			if (!response.ok) {
 				this.router.route_error(this.real_path, 500);
 				return ;

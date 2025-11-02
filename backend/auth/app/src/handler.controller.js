@@ -34,12 +34,11 @@ const endpointHandler = (fastify, options, done) => {
 				return reply.send({ success: false, code: 403, error: "Wrong password" });
 			}
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: user['avatarURL'] };
-			//TEMPORARY
 			fetch(process.env.USERS_URL + "/users", {
 				method: "POST",
-				body: req.session.user
-			});
-			//TEMPORARY
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(req.session.user)
+			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
 			return reply.send({ success: false, code: 500, error: error.message });
@@ -85,8 +84,9 @@ const endpointHandler = (fastify, options, done) => {
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: avatarURI };
 			fetch(process.env.USERS_URL + "/users", {
 				method: "POST",
-				body: req.session.user
-			});
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(req.session.user)
+			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
 			return reply.send({ success: false, code: 500, error: error.message });
@@ -119,8 +119,9 @@ const endpointHandler = (fastify, options, done) => {
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: avatarURI };
 			fetch(process.env.USERS_URL + "/users", {
 				method: "POST",
-				body: req.session.user
-			});
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(req.session.user)
+			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
 			return reply.send({ success: false, code: 500, error: error.message });
@@ -159,8 +160,9 @@ const endpointHandler = (fastify, options, done) => {
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: user['avatarURL'] };
 			fetch(process.env.USERS_URL + "/users", {
 				method: "POST",
-				body: req.session.user
-			});
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(req.session.user)
+			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
 			return reply.send({ success: false, code: 500, error: error.message });

@@ -5,10 +5,10 @@ const pongHandler = (fastify, options, done) => {
 	let games = {};		//game.uuid -> game
 	let admins = {};	//username -> game
 
-	fastify.get("/room/*", (req, resp) => {
+	fastify.get("/room/:room_id", (req, resp) => {
 		if (!req.session || !req.session.user)
 			return resp.send({ success: false, code: 403, error: "Must be signed" });
-		const room_code = (req.params["*"] ?? "").toUpperCase();
+		const room_code = (req.params.room_id ?? "").toUpperCase();
 		const room_code_regex = /^[A-Z0-9]{16}$/;
 		if (!room_code_regex.test(room_code)) {
 			return resp.send({ success: false, code: 400, error: "Invalid room code" });
