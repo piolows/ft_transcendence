@@ -203,12 +203,10 @@ export class Router {
 			this.auth_route = route?.auth;
 			if ((!this.currpage && push == true) || route.type == "overlay")
 				push = false;
-			console.warn(path, push);
 			this.currpage?.unload();
 			if (route && route.type != "overlay")
 				window.scrollTo(0, 0);
 			if (!route) {
-				console.log(window.location.pathname, window.location.href, real_path, path);
 				this.errpage.load(this.app).then(() => this.errpage.init());
 				this.currpage = this.errpage;
 			} else {
