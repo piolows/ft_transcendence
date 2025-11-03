@@ -29,7 +29,6 @@ export default class Homepage extends Component {
 		card = new MenuCard(this.router, "TOURNAMENTS", "FIGHT IN BRACKET-STYLE TOURNAMENTS AND CROWN THE ULTIMATE WINNER", "pink");
 		card.add_button("LIST", "/tournaments");
 		card.add_button("CREATE", "/tournaments/create");
-		card.add_button("JOIN", "/tournaments/join");
 		this.menu.add_card(card);
 	}
 

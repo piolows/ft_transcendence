@@ -26,12 +26,15 @@ export default class Menu extends Component {
 		for (let card of this.cards) {
 			cards_html += card.get_html();
 		}
+		const cols = this.cards.length >= 3 ? 'lg:grid-cols-3 md:grid-cols-2 grid-cols-1'
+			: this.cards.length === 2 ? 'md:grid-cols-2 grid-cols-1'
+			: 'grid-cols-1';
 		return `
 			<!-- selection grid -->
 				${ this.title ? `
 			<div class="py-16">
 				<h2 class="text-4xl font-bold text-center mb-12 retro-shadow">${ this.title }</h2>` : "" }
-				<div class="grid grid-cols-1 sm:grid-cols-${ this.cards.length >= 2 ? 2 : this.cards.length } md:grid-cols-${ this.cards.length >= 3 ? 3 : this.cards.length } lg:grid-cols-${ this.cards.length >= 3 ? 3 : this.cards.length } gap-8 justify-center">
+				<div class="grid ${cols} gap-8 justify-center">
 					${ cards_html }
 					${ this.title ? `</div>` : "" }
 			</div>`;

@@ -1,11 +1,13 @@
-import Component, { Router } from "../scripts/router";
+import Component from "../scripts/router";
 import NavBar from "../components/nav_bar";
+import ListView from "../components/list_view";
 
 export default class Dev extends Component {
 	private navbar = new NavBar(this.router);
 
 	async load(app: HTMLDivElement | HTMLElement) {
 		await this.navbar.load(app);
+
 		app.innerHTML += `
 			<!-- main content -->
 			<main class="container mx-auto mt-8 px-4">

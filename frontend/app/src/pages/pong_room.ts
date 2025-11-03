@@ -34,7 +34,7 @@ export default class PongRoom extends Component {
 		try {
 			const data = await response.json();
 			if (!data.success) {
-				this.router.route_error(this.real_path, data.code, data.error);
+				await this.router.route_error(this.real_path, data.code, data.error);
 				return ;
 			}
 			this.admin = data.admin;
@@ -70,7 +70,7 @@ export default class PongRoom extends Component {
 					</div>
 				</div>`;
 		} catch (error) {
-			this.router.route_error(this.real_path, 500);
+			await this.router.route_error(this.real_path, 500);
 			return ;
 		};
 	}

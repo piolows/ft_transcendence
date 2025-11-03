@@ -146,8 +146,9 @@ export class Router {
 		if (real_path == path && route.type == "strict_wild")
 			return true;
 		if (real_path != path && route.type != "wild") {
-			if (real_path.indexOf("?") != -1 && this.root_without_wild(real_path) != path)
-				return true;
+			if (real_path.indexOf("?") != -1 && this.root_without_wild(real_path) == path)
+					return false;
+			return true;
 		}
 		return false;
 	}
@@ -166,7 +167,7 @@ export class Router {
 		});
 	}
 
-	route_error(path: string, code: number, err_msg?: string) {
+	async route_error(path: string, code: number, err_msg?: string) {
 		this.currpage?.unload();
 		window.scrollTo(0, 0);
 		this.errpage.error_code = code;
@@ -183,7 +184,7 @@ export class Router {
 		path = this.root_without_wild(path);
 		const route = this.routes.get(path);
 		if (this.bad_route(real_path, path, route)) {
-			this.route_error(real_path, 404);
+			await this.route_error(real_path, 404);
 			return ;
 		}
 		this.check_session().then(async () => {
