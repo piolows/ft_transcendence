@@ -4,7 +4,7 @@
 */node_modules
 node_modules
 *.http
-*.Zone*
+*:Zone*
 *.Identifier*
-*/*.Zone*
+*/*:Zone*
 */*.Identifier*
