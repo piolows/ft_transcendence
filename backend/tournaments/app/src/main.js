@@ -1,4 +1,4 @@
-import { tournamentHandler } from "./handlers/tournaments.js";
+import { tournamentHandler } from "./handlers/tournaments.controller.js";
 import Fastify from "fastify";
 import 'dotenv/config';
 import fastifyCookie from '@fastify/cookie';
@@ -30,7 +30,6 @@ async function startServer() {
         })
     });
 
-    // await fastify.register(tournamentHandler, { prefix: "/tournaments" });
     await fastify.register(tournamentHandler);
 
     fastify.listen({ port: process.env.PORT, host: '0.0.0.0' })

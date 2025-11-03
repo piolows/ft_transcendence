@@ -33,7 +33,7 @@ export const tournamentHandler = (fastify, options, done) => {
             return reply.send({ success: false, code: 403, error: "Must be signed in to create a tournament" });
         if (tournament_admins[req.session.user.username])
             return reply.send({ success: false, code: 403, error: "User already has an open tournament" });
-        const tournament = new Tournament(req.session.user, req.body !== undefined ? req.body.maxPlayers : 8);
+        const tournament = new Tournament(req.body !== undefined ? req.body.roomName : "", req.session.user, req.body !== undefined ? req.body.maxPlayers : 8);
         const rooms = Math.ceil(tournament.maxPlayers / 2);
         const headers = { ...req.headers };
         fastify.log.info(`creating ${rooms} rooms`);
