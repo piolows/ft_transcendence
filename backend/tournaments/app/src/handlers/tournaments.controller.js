@@ -31,29 +31,29 @@ export const tournamentHandler = (fastify, options, done) => {
     fastify.post("/create", async (req, reply) => {
         if (!req.session || !req.session.user)
             return reply.send({ success: false, code: 403, error: "Must be signed in to create a tournament" });
-        if (tournament_admins[req.session.user.username])
-            return reply.send({ success: false, code: 403, error: "User already has an open tournament" });
+        // if (tournament_admins[req.session.user.username])
+        //     return reply.send({ success: false, code: 403, error: "User already has an open tournament" });
         const tournament = new Tournament(req.body !== undefined ? req.body.roomName : "", req.session.user, req.body !== undefined ? req.body.maxPlayers : 8);
         const rooms = Math.ceil(tournament.maxPlayers / 2);
         const headers = { ...req.headers };
         fastify.log.info(`creating ${rooms} rooms`);
-        for (let i = 0; i < rooms; i++)
-        {
-            try {
-                headers['Content-Type'] = 'application/json';
-                // call new game from games service
-                const res = await fetch(process.env.GAMES_URL + '/pong/new', {
-                    method: "POST",
-                    headers: headers,
-                    // send the tournament uuid in the body
-                    body: JSON.stringify({
-                        tournament_id: tournament.uuid
-                    })
-                });
-            } catch (error) {
-                reply.send({ success: false, code: 500, error: "Failed to create game rooms"});
-            }
-        }
+        // for (let i = 0; i < rooms; i++)
+        // {
+        //     try {
+        //         headers['Content-Type'] = 'application/json';
+        //         // call new game from games service
+        //         const res = await fetch(process.env.GAMES_URL + '/pong/new', {
+        //             method: "POST",
+        //             headers: headers,
+        //             // send the tournament uuid in the body
+        //             body: JSON.stringify({
+        //                 tournament_id: tournament.uuid
+        //             })
+        //         });
+        //     } catch (error) {
+        //         reply.send({ success: false, code: 500, error: "Failed to create game rooms"});
+        //     }
+        // }
         tournaments[tournament.uuid] = tournament;
         tournament_admins[req.session.user.username] = tournament.uuid;
         return reply.send({ success: true, tournamentId: tournament.uuid });
@@ -97,9 +97,15 @@ export const tournamentHandler = (fastify, options, done) => {
 
     fastify.post("/join", async (req, reply) => {
         if (!req.session || !req.session.user)
-            return reply.send({ success: false, code: 403, error: "Must be signed in to create a tournament" });
+            return reply.send({ success: false, code: 403, error: "Must be signed in to join a tournament" });
         // body would contain as player: true, false
-        return reply.send({ success: true, msg: "testing tournaments backend" });
+        const tournamentId = req.body.tournamentId;
+        if (!tournaments[tournamentId].players[req.session.user.username])
+        {
+            tournaments[tournamentId].players[req.session.user.username] = req.session.user;
+            return reply.send({ success: true, msg: "Joined the tournament successfully"});
+        }
+        return reply.send({ success: false, msg: "User is already in tournament" });
     });
 
 
