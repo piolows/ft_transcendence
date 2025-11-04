@@ -1,11 +1,12 @@
 import Component from "../scripts/router";
 import NavBar from "../components/nav_bar";
-import { Router, backend_url } from "../scripts/router";
+import { backend_url } from "../scripts/router";
 
 export default class Tournament extends Component {
     private navbar = new NavBar(this.router);
     // private items: any = [];
 
+<<<<<<< Updated upstream
     constructor(router: Router) {
         super(router);
 
@@ -47,6 +48,8 @@ export default class Tournament extends Component {
         // }
     }
 
+=======
+>>>>>>> Stashed changes
     async load (app: HTMLDivElement | HTMLElement) {
         await this.navbar.load(app);
         const data = await this.getTournamentData();
