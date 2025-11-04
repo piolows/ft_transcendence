@@ -14,6 +14,7 @@ import Profile from "./pages/profile";
 import History from "./pages/history";
 // import Friends from "./pages/friends";
 import Tournament from "./pages/tournaments";
+import Leaderboards from "./pages/leaderboards";
 
 const app_div = document.querySelector<HTMLDivElement>("#app")!;
 
@@ -33,6 +34,7 @@ router.add_route("/login", new Login(router), { auth: false, back_url: "/", type
 router.add_route("/tournaments", new Tournament(router), { auth: true });
 router.add_route("/profile", new Profile(router), { auth: true });
 router.add_route("/history", new History(router), { auth: true, type: "wild" });
+router.add_route("/leaderboards", new Leaderboards(router));
 // router.add_route("/friends", new Friends(router), { auth: true, type: "wild" });
 // router.add_route("/roshambo", new Roshambo());
 
