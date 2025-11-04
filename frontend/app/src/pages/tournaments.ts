@@ -6,12 +6,6 @@ export default class Tournament extends Component {
     private navbar = new NavBar(this.router);
     // private items: any = [];
 
-<<<<<<< Updated upstream
-    constructor(router: Router) {
-        super(router);
-
-    }
-
     private tournamentItem(roomName: String, playerCount: Number, maxPlayers: Number) {
         const color = playerCount < maxPlayers ? "text-green-300" : "text-red-500";
         return `
@@ -48,8 +42,6 @@ export default class Tournament extends Component {
         // }
     }
 
-=======
->>>>>>> Stashed changes
     async load (app: HTMLDivElement | HTMLElement) {
         await this.navbar.load(app);
         const data = await this.getTournamentData();
