@@ -18,7 +18,7 @@ export default class Profile extends Component {
 			return ;
 		await this.navbar.load(app);
 		app.innerHTML += `
-			<main class="container mx-auto px-4 py-8">
+			<main class="container mx-auto px-4 py-8 pr-8">
 				<!-- profile header -->
 				<div class="flex items-center justify-center mb-12">
 					<div class="pixel-box bg-blue-900 p-8 w-auto">
@@ -31,8 +31,16 @@ export default class Profile extends Component {
 									<p class="text-gray-400 font-silkscreen">${this.profile_info.email}</p>
 								</div>
 							</div>
-							<div class="grid grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
-								<a href="/friends/${this.profile_info.username}" class="flex flex-row lg:flex-col justify-between lg:justify-center w-full mx-auto pt-8 md:pt-0 pr-4 md:pr-0">
+							<div ${
+								this.profile_info.id != this.router.login_info.id ?
+								`class="grid grid-cols-2 md:grid-cols-1 lg:grid-cols-2"` :
+								``
+							}>
+								<a href="/friends/${this.profile_info.username}" ${
+									this.profile_info.id != this.router.login_info.id ?
+									`class="flex flex-row lg:flex-col justify-between lg:items-center lg:justify-center w-full mx-auto pt-8 md:pt-0 pr-4 md:pr-0"` :
+									`class="flex flex-row justify-between mt-8 md:mt-0 md:flex-col h-full items-center md:justify-center "`
+								}>
 									<div><h1 class="pb-5 retro-shadow">Friends</h1></div>
 									<div><p>${ this.friend_count }</p></div>
 								</a>
@@ -49,7 +57,7 @@ export default class Profile extends Component {
 					<!-- Game Statistics -->
 					<div class="pixel-box bg-blue-900 p-6" style="height: 306px; max-height: 306px;">
 						<h2 class="text-2xl font-bold retro-shadow mb-6">Game Statistics</h2>
-						<div class="flex flex-col justify-between" style="height: 180px;">
+						<div class="flex flex-col justify-between h-40 pt-6">
 							<div class="flex justify-between items-center">
 								<span class="font-silkscreen">Total Games</span>
 								<span id="total-games" class="crt-text">0</span>
@@ -72,7 +80,7 @@ export default class Profile extends Component {
 					<!-- recent activity -->
 					<div class="pixel-box bg-blue-900 p-6" style="height: 306px; max-height: 306px;">
 						<h2 class="text-2xl font-bold retro-shadow mb-6">Recent Activity</h2>
-						<div id="recent-games" class="space-y-4" style="height: 160px; max-height: 160px;">
+						<div id="recent-games" class="space-y-4 h-32 sm:h-40" style="max-height: 160px;">
 							<div class="text-center font-silkscreen text-gray-400">
 								No recent games
 							</div>

@@ -14,8 +14,8 @@ export default class NavBar extends Component {
 	get_html() {
 		return `
 		<!-- nav bar -->
-		<nav class="relative z-10 p-4">
-			<div class="container mx-auto flex justify-between items-center">
+		<nav class="z-10 p-4">
+			<div class="flex flex-col gap-y-5 sm:gap-y-0 sm:flex-row justify-between items-center">
 				<!-- logo -->
 				<div class="flex items-center space-x-2">
 					<a href="/" router-link>

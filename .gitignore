@@ -10,9 +10,4 @@ node_modules
 */*.Identifier*
 *sessions.db
 */*sessions.db
-./backend/storage/databases/auth.db
-./backend/storage/databases/auth.db-shm
-./backend/storage/databases/auth.db-wal
-./backend/storage/databases/sessions.db
-./backend/storage/databases/users.db-shm
-./backend/storage/databases/users.db-wal
+./backend/storage/databases/*

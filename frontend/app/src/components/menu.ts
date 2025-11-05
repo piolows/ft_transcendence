@@ -34,7 +34,7 @@ export default class Menu extends Component {
 				${ this.title ? `
 			<div class="py-16">
 				<h2 class="text-4xl font-bold text-center mb-12 retro-shadow">${ this.title }</h2>` : "" }
-				<div class="grid ${cols} gap-8 justify-center">
+				<div class="grid ${cols} gap-8 justify-center mr-4">
 					${ cards_html }
 					${ this.title ? `</div>` : "" }
 			</div>`;
