@@ -78,7 +78,7 @@ export default class ListView extends Component {
 			return `
 				<div id="row-${idx}" class="w-full grid ${cols} ${borders}" ${row_h}>
 					${ row.items.map((item, id) => {
-							return `<div id="item-${idx}-${id}" class="overflow-hidden cols-${item.cols}">${item.value}</div>`;
+							return `<div id="item-${idx}-${id}" class="overflow-hidden col-span-${item.cols}">${item.value}</div>`;
 						}).join('')
 					}
 				</div>

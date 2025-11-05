@@ -100,7 +100,7 @@ const endpointHandler = (fastify, options, done) => {
 			if (!user) {
 				return resp.send({ success: false, code: 404, error: "User not found" });
 			}
-			if (!req.query.page) {
+			if (!(page in req.query)) {
 				const count = await fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${HT} WHERE user_id=?`).get(user['id']);
 				return resp.send({ success: true, count: count });
 			}
@@ -108,6 +108,10 @@ const endpointHandler = (fastify, options, done) => {
 			const games = await fastify.sqlite.prepare(`SELECT
 				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.winner_id, ${HT}.game, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
 				FROM ${HT} JOIN ${UT} ON ${HT}.op_id = ${UT}.id WHERE ${HT}.user_id=? ORDER BY ${HT}.created_at DESC LIMIT ? OFFSET ?`).all(user['id'], GAMES_PER_PAGE, OFFSET);
+			if (req.query.page == 0) {
+				const user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE username=?`).get(req.params.username);
+				return resp.send({ success: true, games: games, user });
+			}
 			return resp.send({ success: true, games: games });
 		} catch (error) {
 			return resp.send({ success: false, code: 500, error: error.message });
