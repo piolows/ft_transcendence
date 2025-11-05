@@ -108,6 +108,18 @@ export const tournamentHandler = (fastify, options, done) => {
         return reply.send({ success: false, msg: "User is already in tournament" });
     });
 
+    fastify.post('/leave', async (req, reply) => {
+        if (!req.session || !req.session.user)
+            return reply.send({ success: false, code: 403, error: "Must be signed in to leave a tournament" });
+        const tournamentId = req.body.tournamentId;
+        if (tournaments[tournamentId] && tournaments[tournamentId].players[req.session.user.username])
+        {
+            delete tournaments[tournamentId].players[req.session.user.username];
+            return reply.send({ success: true, msg: "Left the tournament successfully"});
+        }
+        return reply.send({ success: false, msg: "User is not in tournament" });
+    });
+
 
     done();
 }
