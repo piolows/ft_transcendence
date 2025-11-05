@@ -210,26 +210,6 @@ export default class Profile extends Component {
 				}
 			};
 		}
-		// const fa = document.getElementById('follow_area')!;
-		// if (this.is_friends == true) {
-		// 	fa.innerHTML = `
-		// 		<div class="mx-auto" style="float: right;">
-		// 			<button id="followbtn" class="bg-green-600 text-white py-3 pixel-box font-pixelify hover:bg-green-700 clicky w-50">
-		// 				+ Follow
-		// 			</button>
-		// 		</div>`;
-		// 	const fb = document.getElementById('followbtn')!;
-		// 	fb.onclick = () => {
-
-		// 	};
-		// } else if (this.is_friends == false) {
-		// 	fa.innerHTML = `
-		// 		<div class="mx-auto" style="float: right;">
-		// 			<button id="followbtn" class="bg-red-600 text-white py-3 pixel-box font-pixelify hover:bg-red-700 clicky w-50">
-		// 				- Unfollow
-		// 			</button>
-		// 		</div>`;
-		// }
 
 		const totalGames = document.getElementById('total-games')!;
 		const wins = document.getElementById('wins')!;
@@ -252,12 +232,14 @@ export default class Profile extends Component {
 			recentGames.innerHTML = `
 				<div class="grid md:grid-cols-14 grid-cols-10 gap-y-5">
 					${games.map(game => `
-						<div class="flex-row col-span-4 hidden md:flex"><img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
-						<span style="padding-top: 5px; padding-left: 7px;">${this.profile_info.username}</span></div>
+						<div class="flex-row col-span-4 overflow-hidden hidden md:flex"><img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
+							<span style="padding-top: 5px; padding-left: 7px;">${this.profile_info.username}</span>
+						</div>
 						<div class="flex col-span-1"><span style="padding-top: 7px;">VS</span></div>
 						<div class="flex flex-row col-span-4"><img src="${game.op_pfp}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
-						<span style="padding-top: 5px; padding-left: 7px;">${game.op_uname}</span></div>
-						<div class="flex col-span-2"><span style="padding-top: 5px;" class="${game.result === 'WIN' ? 'text-green-400' : 'text-red-400'}">${game.result}</span></div>
+							<span style="padding-top: 5px; padding-left: 7px;">${game.op_uname}</span>
+						</div>
+						<div class="flex col-span-2"><span style="padding-top: 5px;" class="w-full text-right pr-4 ${game.result === 'WIN' ? 'text-green-400' : 'text-red-400'}">${game.result}</span></div>
 						<div class="flex col-span-3"><span style="padding-top: 5px;">${game.score}</span></div>
 					`).join('')}
 				</div>`;

@@ -14,7 +14,7 @@ export default class NavBar extends Component {
 	get_html() {
 		return `
 		<!-- nav bar -->
-		<nav class="z-10 p-4">
+		<nav class="z-10 p-4 pr-8">
 			<div class="flex flex-col gap-y-5 sm:gap-y-0 sm:flex-row justify-between items-center">
 				<!-- logo -->
 				<div class="flex items-center space-x-2">

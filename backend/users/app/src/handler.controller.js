@@ -1,3 +1,23 @@
+export const leaderboardTop = (fastify, options, done) => {
+	const PLAYERS_PER_PAGE = 10;
+
+	fastify.get("/top", async (req, resp) => {
+		try {
+			if (!("page" in req.query) || req.query.page < 1) {
+				const games = await fastify.sqlite.prepare(`SELECT ${UT}.username ${ST}.points FROM ${HT}
+					JOIN ${UT} ON ${ST}.user_id = ${UT}.id ORDER BY ${ST}.points DESC LIMIT 3 OFFSET 0`).all();
+				return resp.send({ success: true, games });
+			}
+			const OFFSET = (req.query.page - 1) * PLAYERS_PER_PAGE;
+			const games = await fastify.sqlite.prepare(`SELECT ${UT}.username ${ST}.points FROM ${HT}
+					JOIN ${UT} ON ${ST}.user_id = ${UT}.id ORDER BY ${ST}.points DESC LIMIT ? OFFSET ?`).all(PLAYERS_PER_PAGE, OFFSET);
+			return resp.send({ success: true, user, friend_cnt, stats, game_cnt, games, is_friend });
+		} catch (error) {
+			return resp.send({ success: false, code: 500, error: error.message });
+		}
+	});
+}
+
 const endpointHandler = (fastify, options, done) => {
 	const UT = process.env.USERS_TABLE;
 	const ST = process.env.STATS_TABLE;
@@ -100,7 +120,7 @@ const endpointHandler = (fastify, options, done) => {
 			if (!user) {
 				return resp.send({ success: false, code: 404, error: "User not found" });
 			}
-			if (!(page in req.query)) {
+			if (!("page" in req.query) || req.query.page < 1) {
 				const count = await fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${HT} WHERE user_id=?`).get(user['id']);
 				return resp.send({ success: true, count: count });
 			}
@@ -108,7 +128,7 @@ const endpointHandler = (fastify, options, done) => {
 			const games = await fastify.sqlite.prepare(`SELECT
 				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.winner_id, ${HT}.game, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
 				FROM ${HT} JOIN ${UT} ON ${HT}.op_id = ${UT}.id WHERE ${HT}.user_id=? ORDER BY ${HT}.created_at DESC LIMIT ? OFFSET ?`).all(user['id'], GAMES_PER_PAGE, OFFSET);
-			if (req.query.page == 0) {
+			if (req.query.page == 1) {
 				const user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE username=?`).get(req.params.username);
 				return resp.send({ success: true, games: games, user });
 			}

@@ -49,7 +49,7 @@ export default class ListView extends Component {
 			this.rows[row_id].add(value, columns);
 	}
 
-	add_row(values: Array<any>) {
+	add_row(values: Array<any>, opts?: any) {
 		let row = [];
 		for (let value of values) {
 			if (typeof value == "string" || !value.cols || value.cols < 1)
@@ -57,7 +57,13 @@ export default class ListView extends Component {
 			else
 				row.push(value);
 		}
-		this.rows.push(new ListViewItem(row));
+		const lvi = new ListViewItem(row);
+		if (opts) {
+			opts.height && (lvi.height = opts.height);
+			opts.bg_color && (lvi.bg_color = opts.bg_color);
+			opts.text_color && (lvi.text_color = opts.text_color);
+		}
+		this.rows.push(lvi);
 	}
 
 	private get_list() {
@@ -76,9 +82,9 @@ export default class ListView extends Component {
 			else if (h != FIT)
 				row_h = `style="height: ${row.height}px;"`;
 			return `
-				<div id="row-${idx}" class="w-full grid ${cols} ${borders}" ${row_h}>
+				<div id="row-${idx}" class="w-full grid p-2 ${row.bg_color} ${row.text_color} ${cols} ${borders}" ${row_h}>
 					${ row.items.map((item, id) => {
-							return `<div id="item-${idx}-${id}" class="overflow-hidden col-span-${item.cols}">${item.value}</div>`;
+							return `<div id="item-${idx}-${id}" class="col-span-${item.cols}">${item.value}</div>`;
 						}).join('')
 					}
 				</div>
@@ -89,10 +95,10 @@ export default class ListView extends Component {
 		
 		const mid = this.rows.length == 0 ? 'items-center justify-center' : '';
 		const ofy = this.per_page == 0 ? 'overflow-y-auto' : '';
-		const classes = `"flex flex-col h-full box-border m-4 mr-6 pixel-box overflow-x-auto ${mid} ${ofy} ${this.bg_color} ${this.text_color}"`;
+		const classes = `"h-full pixel-box m-4 mr-8 ${mid} ${ofy} ${this.bg_color} ${this.text_color}"`;
 		const table_contents = this.rows.length == 0 ? `<p class="text-center">No ${this.items_str}</p>` : this.get_list();
 		return `
-			<div class=${classes} style="widt: 100%;">
+			<div class=${classes}>
 				${table_contents}
 			</div>`;
 	}

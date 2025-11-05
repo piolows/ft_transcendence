@@ -15,13 +15,13 @@ export default class MainTitle extends Component {
                 <div class="w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-20 animate-pulse"></div>
             </div>
             <div class="relative">
-                <h1 class="text-8xl font-bold mb-8 popout-huge">
+                <h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-8 popout-huge">
                     <span class="retro-shadow crt-text">${ this.title }</span>
                 </h1>
                 <p class="text-xl font-silkscreen mb-12 rainbow">PONG ON STEROIDS!</p>
                 <div class="space-y-4">
                 <a href="/pong/menu" router-link>
-                    <button class="pixel-box bg-green-500 px-8 py-4 text-xl hover:bg-green-600 clicky wiggler">
+                    <button class="pixel-box bg-green-500 px-6 sm:px-7 lg:px-8 py-4 text-sm md:text-lg lg:text-xl hover:bg-green-600 clicky wiggler w-80 sm:w-120 md:w-160 lg:w-180 mr-2">
                         CLICK HERE TO PLAY INSTANTLY
                     </button>
                 </a>
