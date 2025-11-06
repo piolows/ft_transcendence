@@ -128,11 +128,7 @@ const endpointHandler = (fastify, options, done) => {
 			const games = await fastify.sqlite.prepare(`SELECT
 				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.winner_id, ${HT}.game, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
 				FROM ${HT} JOIN ${UT} ON ${HT}.op_id = ${UT}.id WHERE ${HT}.user_id=? ORDER BY ${HT}.created_at DESC LIMIT ? OFFSET ?`).all(user['id'], GAMES_PER_PAGE, OFFSET);
-			if (req.query.page == 1) {
-				const user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE username=?`).get(req.params.username);
-				return resp.send({ success: true, games: games, user });
-			}
-			return resp.send({ success: true, games: games });
+			return resp.send({ success: true, games: games, user });
 		} catch (error) {
 			return resp.send({ success: false, code: 500, error: error.message });
 		}
@@ -193,14 +189,30 @@ const endpointHandler = (fastify, options, done) => {
 			if (!user) {
 				return resp.send({ success: false, code: 404, error: "User not found" });
 			}
-			if (!req.query.page) {
+			if (!("page" in req.query) || req.query.page < 1) {
 				const count = await fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${FT} WHERE user_id=?`).get(user['id']);
 				return resp.send({ success: true, count: count });
 			}
 			const OFFSET = (req.query.page - 1) * FRIENDS_PER_PAGE;
-			const friends = await fastify.sqlite.prepare(`SELECT ${UT}.username, ${UT}.email, ${UT}.avatarURL FROM ${FT}
-				JOIN ${UT} ON ${FT}.friend_id = ${UT}.id WHERE ${FT}.user_id=? ORDER BY ${UT}.username ASC LIMIT ? OFFSET ?`).all(user['id'], FRIENDS_PER_PAGE, OFFSET);
-			return resp.send({ success: true, friends: friends });
+			if (!("uid" in req.query)) {
+				const friends = await fastify.sqlite.prepare(`SELECT ${UT}.username, ${UT}.avatarURL FROM ${FT}
+					JOIN ${UT} ON ${FT}.friend_id = ${UT}.id WHERE ${FT}.user_id=? ORDER BY ${UT}.username ASC LIMIT ? OFFSET ?`).all(user['id'], FRIENDS_PER_PAGE, OFFSET);
+				return resp.send({ success: true, friends: friends, user });
+			}
+			else {
+				const query = `SELECT u.id, u.username, u.avatarURL, pts.points, pts.win_rate,
+					CASE WHEN f2.friend_id IS NOT NULL THEN 1 ELSE 0 END AS is_friend
+					FROM ${FT} f1
+					JOIN ${UT} u ON u.id = f1.friend_id
+					LEFT JOIN ${ST} pts
+					ON f1.friend_id = pts.user_id
+					LEFT JOIN ${FT} f2
+					ON f1.friend_id = f2.friend_id
+					AND f2.user_id = ?
+					WHERE f1.user_id = ? ORDER BY u.username ASC LIMIT ? OFFSET ?;`;
+				const friends = await fastify.sqlite.prepare(query).all(req.query.uid, user['id'], FRIENDS_PER_PAGE, OFFSET);
+				return resp.send({ success: true, friends: friends, user });
+			}
 		} catch (error) {
 			return resp.send({ success: false, code: 500, error: error.message });
 		}

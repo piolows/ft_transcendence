@@ -29,7 +29,7 @@ class ListViewItem {
 }
 
 export default class ListView extends Component {
-	private rows: Array<ListViewItem> = [];
+	rows: Array<ListViewItem> = [];
 	page: number = 0;
 	per_page: number = 0;
 	arrows: boolean = true;
@@ -40,7 +40,7 @@ export default class ListView extends Component {
 	borders: number = 0;
 
 	add_value(value: string, row_id: number, columns?: number) {
-		if (row_id > this.rows.length) {
+		if (row_id >= this.rows.length) {
 			for (let i = this.rows.length; i < row_id; i++)
 				this.rows.push(new ListViewItem());
 			this.rows.push(new ListViewItem([{ value, cols: columns && columns > 1 ? columns : 1 }]));
@@ -63,6 +63,10 @@ export default class ListView extends Component {
 			opts.bg_color && (lvi.bg_color = opts.bg_color);
 			opts.text_color && (lvi.text_color = opts.text_color);
 		}
+		if (!opts?.bg_color)
+			lvi.bg_color = this.bg_color;
+		if (!opts?.text_color)
+			lvi.text_color = this.text_color;
 		this.rows.push(lvi);
 	}
 
@@ -82,7 +86,7 @@ export default class ListView extends Component {
 			else if (h != FIT)
 				row_h = `style="height: ${row.height}px;"`;
 			return `
-				<div id="row-${idx}" class="w-full grid p-2 ${row.bg_color} ${row.text_color} ${cols} ${borders}" ${row_h}>
+				<div id="row-${idx}" class="w-full grid grid-flow-col auto-cols-fr p-2 ${row.bg_color} ${row.text_color} ${cols} ${borders}" ${row_h}>
 					${ row.items.map((item, id) => {
 							return `<div id="item-${idx}-${id}" class="col-span-${item.cols}">${item.value}</div>`;
 						}).join('')
@@ -92,11 +96,10 @@ export default class ListView extends Component {
 	}
 
 	get_html() {
-		
 		const mid = this.rows.length == 0 ? 'items-center justify-center' : '';
 		const ofy = this.per_page == 0 ? 'overflow-y-auto' : '';
 		const classes = `"h-full pixel-box m-4 mr-8 ${mid} ${ofy} ${this.bg_color} ${this.text_color}"`;
-		const table_contents = this.rows.length == 0 ? `<p class="text-center">No ${this.items_str}</p>` : this.get_list();
+		const table_contents = this.rows.length == 0 ? `<div class="h-full w-full flex justify-center items-center"><p class="text-center">No more ${this.items_str}</p></div>` : this.get_list();
 		return `
 			<div class=${classes}>
 				${table_contents}

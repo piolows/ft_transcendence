@@ -232,13 +232,13 @@ export default class Profile extends Component {
 			recentGames.innerHTML = `
 				<div class="grid md:grid-cols-14 grid-cols-10 gap-y-5">
 					${games.map(game => `
-						<div class="flex-row col-span-4 overflow-hidden hidden md:flex"><img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
-							<span style="padding-top: 5px; padding-left: 7px;">${this.profile_info.username}</span>
-						</div>
+						<a href="/profile/${this.profile_info.username}" class="flex-row col-span-4 overflow-hidden hidden md:flex"><img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
+							<span class="w-35 overflow-hidden" style="padding-top: 5px; padding-left: 7px;">${this.profile_info.username}</span>
+						</a>
 						<div class="flex col-span-1"><span style="padding-top: 7px;">VS</span></div>
-						<div class="flex flex-row col-span-4"><img src="${game.op_pfp}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
-							<span style="padding-top: 5px; padding-left: 7px;">${game.op_uname}</span>
-						</div>
+						<a href="/profile/${game.op_uname}" class="flex flex-row col-span-4"><img src="${game.op_pfp}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
+							<span class="w-35 overflow-hidden" style="padding-top: 5px; padding-left: 7px;">${game.op_uname}</span>
+						</a>
 						<div class="flex col-span-2"><span style="padding-top: 5px;" class="w-full text-right pr-4 ${game.result === 'WIN' ? 'text-green-400' : 'text-red-400'}">${game.result}</span></div>
 						<div class="flex col-span-3"><span style="padding-top: 5px;">${game.score}</span></div>
 					`).join('')}
