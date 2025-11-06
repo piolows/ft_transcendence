@@ -16,6 +16,7 @@ export default class History extends Component {
 		this.listview.bg_color = "bg-blue-800";
 		this.listview.text_color = "text-white";
 		this.listview.items_str = "games";
+		this.listview.col_sets = "grid-cols-10 lg:grid-cols-14";
 	}
 
 	async load(app: HTMLDivElement | HTMLElement) {
@@ -27,10 +28,12 @@ export default class History extends Component {
 			const info = { op_uname: game.username, op_pfp: backend_url + game.avatarURL, op_email: game.email,
 				result: game.winner_id == this.profile_info.id ? 'WIN' : 'LOSS', score: `${game.p1_score} - ${game.p2_score}` };
 			const row = [];
-			row.push({ value: `<a href="/profile/${this.profile_info.username}" class="flex flex-row overflow-hidden"><img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
-				<span style="padding-top: 5px; padding-left: 7px;">${this.profile_info.username}</span></a>`, cols: 4 });
-			row.push({ value: `<div class="flex"><span style="padding-top: 7px;">VS</span></div>`, cols: 1 });
-			row.push({ value: `<a href="/profile/${info.op_uname}" class="flex flex-row overflow-hidden"><img src="${info.op_pfp}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
+			row.push({ value: `<a href="/profile/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity flex flex-row overflow-hidden">
+				<img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
+				<span style="padding-top: 5px; padding-left: 7px;">${this.profile_info.username}</span></a>`, cols: 4, classes: "hidden lg:flex" });
+			row.push({ value: `<div class="flex"><span style="padding-top: 7px;">VS</span></div>` });
+			row.push({ value: `<a href="/profile/${info.op_uname}" router-link class="hover:opacity-80 transition-opacity flex flex-row overflow-hidden">
+				<img src="${info.op_pfp}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
 				<span style="padding-top: 5px; padding-left: 7px;">${info.op_uname}</span></a>`, cols: 4 });
 			row.push({ value: `<div class="flex"><span style="padding-top: 5px;" class="${info.result === 'WIN' ? 'text-green-400' : 'text-red-400'}">${info.result}</span></div>`, cols: 2 });
 			row.push({ value: `<div class="flex"><span style="padding-top: 5px;">${info.score}</span></div>`, cols: 3 });
@@ -38,7 +41,7 @@ export default class History extends Component {
 		}
 		await this.navbar.load(app);
 		app.innerHTML += `<h1 class="h-full text-center text-5xl font-bold mb-12 retro-shadow">MATCH HISTORY</h1>
-			<div class="w-full h-120">${this.listview.get_html()}</div>` + this.footer.get_html();
+			<div class="w-full h-140">${this.listview.get_html()}</div>` + this.footer.get_html();
 	}
 
 	async get_info() {
