@@ -36,10 +36,10 @@ export default class Profile extends Component {
 								`class="grid grid-cols-2 md:grid-cols-1 lg:grid-cols-2"` :
 								``
 							}>
-								<a href="/friends/${this.profile_info.username}" ${
+								<a href="/friends/${this.profile_info.username}" router-link ${
 									this.profile_info.id != this.router.login_info.id ?
-									`class="flex flex-row lg:flex-col justify-between lg:items-center lg:justify-center w-full mx-auto pt-8 md:pt-0 pr-4 md:pr-0"` :
-									`class="flex flex-row justify-between mt-8 md:mt-0 md:flex-col h-full items-center md:justify-center "`
+									`class="hover:opacity-80 transition-opacity flex flex-row lg:flex-col justify-between lg:items-center lg:justify-center w-full mx-auto pt-8 md:pt-0 pr-4 md:pr-0"` :
+									`class="hover:opacity-80 transition-opacity flex flex-row justify-between mt-8 md:mt-0 md:flex-col h-full items-center md:justify-center "`
 								}>
 									<div><h1 class="pb-5 retro-shadow">Friends</h1></div>
 									<div><p>${ this.friend_count }</p></div>
@@ -86,7 +86,7 @@ export default class Profile extends Component {
 							</div>
 						</div>
 						<div class="mt-6 w-full text-center" style="font-size: 14px;">
-							<a href="/history/${this.profile_info.username}">
+							<a href="/history/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity">
 								View Match History
 							</a>
 						</div>
@@ -232,11 +232,11 @@ export default class Profile extends Component {
 			recentGames.innerHTML = `
 				<div class="grid md:grid-cols-14 grid-cols-10 gap-y-5">
 					${games.map(game => `
-						<a href="/profile/${this.profile_info.username}" class="flex-row col-span-4 overflow-hidden hidden md:flex"><img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
+						<a href="/profile/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity flex-row col-span-4 overflow-hidden hidden md:flex"><img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
 							<span class="w-35 overflow-hidden" style="padding-top: 5px; padding-left: 7px;">${this.profile_info.username}</span>
 						</a>
 						<div class="flex col-span-1"><span style="padding-top: 7px;">VS</span></div>
-						<a href="/profile/${game.op_uname}" class="flex flex-row col-span-4"><img src="${game.op_pfp}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
+						<a href="/profile/${game.op_uname}" router-link class="hover:opacity-80 transition-opacity flex flex-row col-span-4"><img src="${game.op_pfp}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
 							<span class="w-35 overflow-hidden" style="padding-top: 5px; padding-left: 7px;">${game.op_uname}</span>
 						</a>
 						<div class="flex col-span-2"><span style="padding-top: 5px;" class="w-full text-right pr-4 ${game.result === 'WIN' ? 'text-green-400' : 'text-red-400'}">${game.result}</span></div>

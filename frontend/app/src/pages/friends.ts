@@ -32,7 +32,7 @@ export default class Friends extends Component {
 				- Unfollow
 			</button></div>`;
 		for (const [idx, friend] of this.friends.entries()) {
-			const row =  [{ value: `<a href="/profile/${friend.username}" class="flex flex-col sm:flex-row overflow-hidden"><img src="${backend_url + friend.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
+			const row =  [{ value: `<a href="/profile/${friend.username}" router-link class="hover:opacity-80 transition-opacity flex flex-col sm:flex-row overflow-hidden"><img src="${backend_url + friend.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
 				<span style="padding-top: 5px; padding-left: 7px;">${friend.username}</span></a>`, cols: 2 },
 				{ value: `<div><span>${friend.points} PTS</span></div>`, cols: 2 },
 				{ value: `<div><span>${friend.win_rate * 100}% Win Rate</span></div>`, cols: 2 }];
@@ -43,10 +43,13 @@ export default class Friends extends Component {
 			this.listview.add_row(row);
 		}
 		await this.navbar.load(app);
-		app.innerHTML += `<h1 class="h-full text-center text-5xl font-bold mb-12 retro-shadow">FRIENDS LIST</h1>
-		<div class="flex flex-row items-center justify-center w-full gap-x-5"><p>Friends of</p><div><a href="/profile/${this.profile_info.username}" class="flex-row md:flex overflow-hidden"><img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
-				<span style="padding-top: 5px; padding-left: 7px;">${this.profile_info.username}</span></a></div></div>
-			<div class="w-full h-100">${this.listview.get_html()}</div>` + this.footer.get_html();
+		app.innerHTML += `
+			<h1 class="h-full text-center text-5xl font-bold mb-12 retro-shadow">FRIENDS LIST</h1>
+			<div class="flex flex-row items-center justify-center w-full gap-x-5"><p>Friends of</p><div>
+			<a href="/profile/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity flex-row md:flex overflow-hidden">
+			<img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
+			<span style="padding-top: 5px; padding-left: 7px;">${this.profile_info.username}</span></a></div></div>
+			<div class="w-full h-120">${this.listview.get_html()}</div>` + this.footer.get_html();
 	}
 
 	async get_info() {
