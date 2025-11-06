@@ -58,6 +58,15 @@ export default class Tournament extends Component {
         await this.navbar.load(app);
         const data = await this.getTournamentData();
         const tournaments = Object.values(data.tournaments);
+        const navButton = `<div class="mt-8 flex justify-center items-center space-x-8 font-pixelify">
+                            <button class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky">
+                                ◄ PREV
+                            </button>
+                            <span class="text-xl font-vt323">Page 1 / 5</span>
+                            <button class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky">
+                                NEXT ►
+                            </button>
+                        </div>`;
         if (tournaments.length === 0) {
             app.innerHTML += `
             <div class="container mx-auto px-4">
@@ -76,8 +85,7 @@ export default class Tournament extends Component {
             <div class="container mx-auto px-4">
 
                 <div class="py-16 h-100" id="main-container">
-                <h2 class="text-4xl font-bold text-center mb-12 retro-shadow">Tournaments</h2>
-
+                    <h2 class="text-4xl font-bold text-center mb-12 retro-shadow">Tournaments</h2>
             <div class="pixel-box bg-opacity-80 bg-blue-900 p-8 grid gap-y-5" id="tournament-list">
         `
         for (let i = 0, length = Object.keys(tournaments).length; i < length; i++) {
@@ -85,7 +93,9 @@ export default class Tournament extends Component {
             const playerCount = Object.keys(players).length;
             html += this.tournamentItem(uuid, roomName, playerCount, maxPlayers);
         }
+        html += navButton;
         app.innerHTML += html;
+
         document.querySelectorAll('.join-button',).forEach((button) => {
             button.addEventListener('click', async (event) => {
                 const tournamentItem = (event.currentTarget as HTMLElement).closest('.tournament-item');
