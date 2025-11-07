@@ -4,19 +4,20 @@ import { backend_url } from "../scripts/router";
 
 export default class Tournament extends Component {
     private navbar = new NavBar(this.router);
+    // base the container height on the height of the screen
 
     private tournamentItem(tournamentId: string, roomName: String, playerCount: Number, maxPlayers: Number) {
         const color = playerCount < maxPlayers ? "text-green-300" : "text-red-500";
         return `
-        <div class="tournament-item grid grid-cols-2" data-tournament-id="${tournamentId}">
-                <div class="crt-text flex flex-col">
-                    <p class="inline text-[32px]">${roomName}</p>
-                    <p class="player-count ${color} inline">${playerCount}/${maxPlayers} players</p>
-                </div>
-                <div class="join-button inline pixel-box bg-green-500 px-4 py-2 hover:bg-green-600 col-start-4 clicky w-60">
-                    JOIN
-                </div>
-            </div> 
+        <div class="tournament-item grid grid-cols-2 h-[7em]" data-tournament-id="${tournamentId}">
+            <div class="crt-text flex flex-col">
+                <p class="inline text-[32px]">${roomName}</p>
+                <p class="player-count ${color} inline">${playerCount}/${maxPlayers} players</p>
+            </div>
+            <div class="join-button flex items-center justify-center pixel-box h-[60px] bg-green-500 px-4 py-2 hover:bg-green-600 col-start-4 clicky w-60">
+                <p>JOIN</p>
+            </div>
+        </div>
         `;
     }
 
@@ -58,23 +59,23 @@ export default class Tournament extends Component {
         await this.navbar.load(app);
         const data = await this.getTournamentData();
         const tournaments = Object.values(data.tournaments);
-        const navButton = `<div class="mt-8 flex justify-center items-center space-x-8 font-pixelify">
-                            <button class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky">
-                                ◄ PREV
-                            </button>
-                            <span class="text-xl font-vt323">Page 1 / 5</span>
-                            <button class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky">
-                                NEXT ►
-                            </button>
-                        </div>`;
+        const navButtons = `<div class="mt-8 flex justify-center items-center space-x-8 font-pixelify">
+                                <button class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky">
+                                    ◄ PREV
+                                </button>
+                                <span class="text-xl font-vt323">Page 1 / 5</span>
+                                <button class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky">
+                                    NEXT ►
+                                </button>
+                            </div>`;
         if (tournaments.length === 0) {
             app.innerHTML += `
             <div class="container mx-auto px-4">
 
-                <div class="py-16 h-100" id="main-container">
+                <div class="py-16 h-[400px]" id="main-container">
                     <h2 class="text-4xl font-bold text-center mb-12 retro-shadow">Tournaments</h2>
 
-                    <div class="pixel-box bg-opacity-80 bg-blue-900 p-8 grid gap-y-5" id="tournament-list">
+                    <div class="pixel-box h-[400px] bg-opacity-80 bg-blue-900 p-8 grid gap-y-5" id="tournament-list">
                         <p class="text-center crt-text text-2xl">No tournaments available at the moment.</p>
                     </div>
                 </div>
@@ -84,9 +85,11 @@ export default class Tournament extends Component {
         let html = `
             <div class="container mx-auto px-4">
 
-                <div class="py-16 h-100" id="main-container">
+                <div class="pt-16">
                     <h2 class="text-4xl font-bold text-center mb-12 retro-shadow">Tournaments</h2>
-            <div class="pixel-box bg-opacity-80 bg-blue-900 p-8 grid gap-y-5" id="tournament-list">
+                </div>
+
+                    <div class="pixel-box h-[60vh] bg-opacity-80 bg-blue-900 p-8 grid overflow-hidden content-start" id="tournament-list">
         `
         for (let i = 0, length = Object.keys(tournaments).length; i < length; i++) {
             const { uuid, roomName, players, maxPlayers } = tournaments[i] as any;
@@ -95,7 +98,7 @@ export default class Tournament extends Component {
         }
         html += navButton;
         app.innerHTML += html;
-
+        app.innerHTML += navButtons + `</div></div>`;
         document.querySelectorAll('.join-button',).forEach((button) => {
             button.addEventListener('click', async (event) => {
                 const tournamentItem = (event.currentTarget as HTMLElement).closest('.tournament-item');
