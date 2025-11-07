@@ -11,7 +11,7 @@ export default class Tournament extends Component {
         return `
         <div class="tournament-item grid grid-cols-2 h-[7em]" data-tournament-id="${tournamentId}">
             <div class="crt-text flex flex-col">
-                <p class="inline text-[32px]">${roomName}</p>
+                <p class="inline text-[2em]">${roomName}</p>
                 <p class="player-count ${color} inline">${playerCount}/${maxPlayers} players</p>
             </div>
             <div class="join-button flex items-center justify-center pixel-box h-[60px] bg-green-500 px-4 py-2 hover:bg-green-600 col-start-4 clicky w-60">
@@ -89,14 +89,13 @@ export default class Tournament extends Component {
                     <h2 class="text-4xl font-bold text-center mb-12 retro-shadow">Tournaments</h2>
                 </div>
 
-                    <div class="pixel-box h-[60vh] bg-opacity-80 bg-blue-900 p-8 grid overflow-hidden content-start" id="tournament-list">
+                    <div class="pixel-box h-[60dvh] bg-opacity-80 bg-blue-900 p-8 grid overflow-hidden content-start" id="tournament-list">
         `
         for (let i = 0, length = Object.keys(tournaments).length; i < length; i++) {
             const { uuid, roomName, players, maxPlayers } = tournaments[i] as any;
             const playerCount = Object.keys(players).length;
             html += this.tournamentItem(uuid, roomName, playerCount, maxPlayers);
         }
-        html += navButton;
         app.innerHTML += html;
         app.innerHTML += navButtons + `</div></div>`;
         document.querySelectorAll('.join-button',).forEach((button) => {
