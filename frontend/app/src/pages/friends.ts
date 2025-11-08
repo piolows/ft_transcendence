@@ -3,16 +3,20 @@ import NavBar from "../components/nav_bar";
 import Footer from "../components/footer";
 import ListView from "../components/list_view";
 
+const FRIENDS_PER_PAGE = 8;
+
 export default class Friends extends Component {
 	private navbar = new NavBar(this.router);
 	private listview = new ListView(this.router);
 	private footer = new Footer(this.router);
 	private profile_info: any;
 	private friends: Array<any> = [];
+	private max_page: number = 1;
+	private page: number = 1;
 
 	constructor(router: Router) {
 		super(router);
-		this.listview.per_page = 8;
+		this.listview.per_page = FRIENDS_PER_PAGE;
 		this.listview.bg_color = "bg-blue-800";
 		this.listview.text_color = "text-white";
 		this.listview.items_str = "friends";
@@ -22,6 +26,8 @@ export default class Friends extends Component {
 		await this.get_info();
 		if (!this.profile_info)
 			return ;
+		this.listview.page = this.page;
+		this.listview.max_page = this.max_page;
 		this.listview.rows = [];
 		const follow = (id: number) => `
 			<div class="flex"><button id="follow-${id}" class="bg-green-600 text-white pixel-box font-pixelify hover:bg-green-700 clicky h-10 w-40">
@@ -67,8 +73,10 @@ export default class Friends extends Component {
 			user = this.router.login_info.username;
 		const params = new URLSearchParams(window.location.search);
 		try {
-			const page = params.get("page") ?? 1;
-			const response = await fetch(`${backend_url}/users/${user}/friends?page=${page}&uid=${this.router.login_info.id}`);
+			const page = params.get("page");
+			this.page = page ? parseInt(page) : 1;
+			console.log(page, this.page);
+			const response = await fetch(`${backend_url}/users/${user}/friends?page=${this.page}&uid=${this.router.login_info.id}`);
 			if (!response.ok) {
 				await this.router.route_error(this.real_path, 500);
 				return ;
@@ -80,6 +88,7 @@ export default class Friends extends Component {
 			}
 			this.profile_info = data.user;
 			this.friends = data.friends;
+			this.max_page = Math.floor(data.count / FRIENDS_PER_PAGE) + (data.count % FRIENDS_PER_PAGE > 0 ? 1 : 0);
 		} catch(error: any) {
 			console.error(error);
 			await this.router.route_error(this.real_path, 500, error.message);
@@ -152,5 +161,14 @@ export default class Friends extends Component {
 				};
 			}
 		}
+		const left = document.getElementById('prev_btn');
+		if (left)
+			left.onclick = () => this.router.route(`/friends/${this.profile_info.username}?page=${this.page - 1}`);
+		const right = document.getElementById('next_btn');
+		if (right)
+			right.onclick = () => this.router.route(`/friends/${this.profile_info.username}?page=${this.page + 1}`);
+		const pager = document.getElementById('pager') as HTMLSelectElement | null;
+		if (pager)
+			pager.onchange = () => this.router.route(`/friends/${this.profile_info.username}?page=${pager.value}`);
 	}
 }

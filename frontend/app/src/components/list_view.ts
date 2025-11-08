@@ -34,7 +34,7 @@ export default class ListView extends Component {
 	max_page: number = 5;
 	per_page: number = 0;
 	arrows: boolean = true;
-	selector: boolean = false;
+	selector: boolean = true;
 	bg_color: string = "bg-white";
 	text_color: string = "text-black";
 	items_str: string = "items";
@@ -106,6 +106,7 @@ export default class ListView extends Component {
 				<p class="text-center">No more ${this.items_str}
 				</p>
 			</div>` : this.get_list();
+		this.max_page = Math.max(1, this.max_page);
 		this.page = this.page < 1 ? 1 : (this.page > this.max_page ? this.max_page : this.page);
 		const larrow = this.arrows && this.page > 1 ? `
 			<button id="prev_btn" class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky">

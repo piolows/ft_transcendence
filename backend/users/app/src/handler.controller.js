@@ -23,7 +23,7 @@ const endpointHandler = (fastify, options, done) => {
 	const ST = process.env.STATS_TABLE;
 	const FT = process.env.FRIENDS_TABLE;
 	const HT = process.env.HISTORY_TABLE;
-	const FRIENDS_PER_PAGE = 10;
+	const FRIENDS_PER_PAGE = 8;
 	const GAMES_PER_PAGE = 10;
 
 	function isDictionary(obj) {
@@ -121,14 +121,14 @@ const endpointHandler = (fastify, options, done) => {
 				return resp.send({ success: false, code: 404, error: "User not found" });
 			}
 			if (!("page" in req.query) || req.query.page < 1) {
-				const count = await fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${HT} WHERE user_id=?`).get(user['id']);
-				return resp.send({ success: true, count: count });
+				req.query.page = 1;
 			}
 			const OFFSET = (req.query.page - 1) * GAMES_PER_PAGE;
 			const games = await fastify.sqlite.prepare(`SELECT
 				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.winner_id, ${HT}.game, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
 				FROM ${HT} JOIN ${UT} ON ${HT}.op_id = ${UT}.id WHERE ${HT}.user_id=? ORDER BY ${HT}.created_at DESC LIMIT ? OFFSET ?`).all(user['id'], GAMES_PER_PAGE, OFFSET);
-			return resp.send({ success: true, games: games, user });
+			const count = await fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${HT} WHERE user_id=?`).get(user['id'])['COUNT(user_id)'];
+			return resp.send({ success: true, games: games, user, count });
 		} catch (error) {
 			return resp.send({ success: false, code: 500, error: error.message });
 		}
@@ -190,14 +190,14 @@ const endpointHandler = (fastify, options, done) => {
 				return resp.send({ success: false, code: 404, error: "User not found" });
 			}
 			if (!("page" in req.query) || req.query.page < 1) {
-				const count = await fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${FT} WHERE user_id=?`).get(user['id']);
-				return resp.send({ success: true, count: count });
+				req.query.page = 1;
 			}
 			const OFFSET = (req.query.page - 1) * FRIENDS_PER_PAGE;
 			if (!("uid" in req.query)) {
 				const friends = await fastify.sqlite.prepare(`SELECT ${UT}.username, ${UT}.avatarURL FROM ${FT}
 					JOIN ${UT} ON ${FT}.friend_id = ${UT}.id WHERE ${FT}.user_id=? ORDER BY ${UT}.username ASC LIMIT ? OFFSET ?`).all(user['id'], FRIENDS_PER_PAGE, OFFSET);
-				return resp.send({ success: true, friends: friends, user });
+				const count = await fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${FT} WHERE user_id=?`).get(user['id']);
+				return resp.send({ success: true, friends: friends, user, count });
 			}
 			else {
 				const query = `SELECT u.id, u.username, u.avatarURL, pts.points, pts.win_rate,
@@ -211,7 +211,8 @@ const endpointHandler = (fastify, options, done) => {
 					AND f2.user_id = ?
 					WHERE f1.user_id = ? ORDER BY u.username ASC LIMIT ? OFFSET ?;`;
 				const friends = await fastify.sqlite.prepare(query).all(req.query.uid, user['id'], FRIENDS_PER_PAGE, OFFSET);
-				return resp.send({ success: true, friends: friends, user });
+				const count = await fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${FT} WHERE user_id=?`).get(user['id'])['COUNT(user_id)'];
+				return resp.send({ success: true, friends: friends, user, count });
 			}
 		} catch (error) {
 			return resp.send({ success: false, code: 500, error: error.message });
