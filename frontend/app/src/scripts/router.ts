@@ -204,6 +204,10 @@ export class Router {
 			this.auth_route = route?.auth;
 			if ((!this.currpage && push == true) || route.type == "overlay")
 				push = false;
+			if (push == true || push == "force")
+				history.pushState({ route: real_path }, '', real_path);
+			else if (push == "replace")
+				history.replaceState({ route: real_path }, '', real_path);
 			this.currpage?.unload();
 			if (route && route.type != "overlay")
 				window.scrollTo(0, 0);
@@ -215,10 +219,6 @@ export class Router {
 				this.currpage && (this.currpage.real_path = real_path);
 				this.currpage?.load(this.app).then(() => this.currpage?.init());
 			}
-			if (push == true || push == "force")
-				history.pushState({ route: real_path }, '', real_path);
-			else if (push == "replace")
-				history.replaceState({ route: real_path }, '', real_path);
 		});
 	}
 

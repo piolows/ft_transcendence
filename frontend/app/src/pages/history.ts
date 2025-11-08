@@ -31,7 +31,8 @@ export default class History extends Component {
 		this.listview.max_page = this.max_page;
 		this.listview.rows = [];
 		for (let game of this.games) {
-			const info = { op_uname: game.username, op_pfp: backend_url + game.avatarURL, op_email: game.email,
+			const info = { op_uname: game.username, op_pfp:
+			 backend_url + game.avatarURL, op_email: game.email,
 				result: game.winner_id == this.profile_info.id ? 'WIN' : 'LOSS', score: `${game.p1_score} - ${game.p2_score}` };
 			const row = [];
 			row.push({ value: `<a href="/profile/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity flex flex-row overflow-hidden">
@@ -63,10 +64,14 @@ export default class History extends Component {
 			user = user.substring(1);
 		if (user == "")
 			user = this.router.login_info.username;
+		if (user.indexOf("?") != -1)
+			user = user.substring(0, user.indexOf("?"));
 		const params = new URLSearchParams(window.location.search);
 		try {
 			const page = params.get("page");
 			this.page = page ? parseInt(page) : 1;
+			if (this.page < 1)
+				this.router.route(`/history/${user}?page=1`);
 			const response = await fetch(`${backend_url}/users/${user}/history?page=${this.page}`);
 			if (!response.ok) {
 				await this.router.route_error(this.real_path, 500);
@@ -79,7 +84,9 @@ export default class History extends Component {
 			}
 			this.profile_info = data.user;
 			this.games = data.games;
-			this.max_page = Math.floor(data.count / GAMES_PER_PAGE) + (data.count % GAMES_PER_PAGE > 0 ? 1 : 0);
+			this.max_page = Math.max(Math.floor(data.count / GAMES_PER_PAGE) + (data.count % GAMES_PER_PAGE > 0 ? 1 : 0), 1);
+			if (this.page > this.max_page)
+				this.router.route(`/history/${user}?page=${this.max_page}`);
 		} catch(error: any) {
 			console.error(error);
 			await this.router.route_error(this.real_path, 500, error.message);
@@ -91,13 +98,16 @@ export default class History extends Component {
 			return ;
 		this.navbar.init();
 		const left = document.getElementById('prev_btn');
-		if (left)
-			left.onclick = () => this.router.route(`/friends/${this.profile_info.username}?page=${this.page - 1}`);
+		if (left) {
+			left.onclick = () => this.router.route(`/history/${this.profile_info.username}?page=${this.page - 1}`);
+		}
 		const right = document.getElementById('next_btn');
-		if (right)
-			right.onclick = () => this.router.route(`/friends/${this.profile_info.username}?page=${this.page + 1}`);
+		if (right) {
+			right.onclick = () => this.router.route(`/history/${this.profile_info.username}?page=${this.page + 1}`);
+		}
 		const pager = document.getElementById('pager') as HTMLSelectElement | null;
-		if (pager)
-			pager.onchange = () => this.router.route(`/friends/${this.profile_info.username}?page=${pager.value}`);
+		if (pager) {
+			pager.onchange = () => this.router.route(`/history/${this.profile_info.username}?page=${pager.value}`);
+		}
 	}
 }

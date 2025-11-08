@@ -71,11 +71,14 @@ export default class Friends extends Component {
 			user = user.substring(1);
 		if (user == "")
 			user = this.router.login_info.username;
+		if (user.indexOf("?") != -1)
+			user = user.substring(0, user.indexOf("?"));
 		const params = new URLSearchParams(window.location.search);
 		try {
 			const page = params.get("page");
 			this.page = page ? parseInt(page) : 1;
-			console.log(page, this.page);
+			if (this.page < 1)
+				this.router.route(`/friends/${user}?page=1`);
 			const response = await fetch(`${backend_url}/users/${user}/friends?page=${this.page}&uid=${this.router.login_info.id}`);
 			if (!response.ok) {
 				await this.router.route_error(this.real_path, 500);
@@ -88,7 +91,9 @@ export default class Friends extends Component {
 			}
 			this.profile_info = data.user;
 			this.friends = data.friends;
-			this.max_page = Math.floor(data.count / FRIENDS_PER_PAGE) + (data.count % FRIENDS_PER_PAGE > 0 ? 1 : 0);
+			this.max_page = Math.max(Math.floor(data.count / FRIENDS_PER_PAGE) + (data.count % FRIENDS_PER_PAGE > 0 ? 1 : 0), 1);
+			if (this.page > this.max_page)
+				this.router.route(`/friends/${user}?page=${this.max_page}`);
 		} catch(error: any) {
 			console.error(error);
 			await this.router.route_error(this.real_path, 500, error.message);

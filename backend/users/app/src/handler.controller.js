@@ -128,6 +128,7 @@ const endpointHandler = (fastify, options, done) => {
 				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.winner_id, ${HT}.game, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
 				FROM ${HT} JOIN ${UT} ON ${HT}.op_id = ${UT}.id WHERE ${HT}.user_id=? ORDER BY ${HT}.created_at DESC LIMIT ? OFFSET ?`).all(user['id'], GAMES_PER_PAGE, OFFSET);
 			const count = await fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${HT} WHERE user_id=?`).get(user['id'])['COUNT(user_id)'];
+			console.log("TEST: ", req.query.page, GAMES_PER_PAGE);
 			return resp.send({ success: true, games: games, user, count });
 		} catch (error) {
 			return resp.send({ success: false, code: 500, error: error.message });
