@@ -145,7 +145,7 @@ export class Router {
 			return false;
 		if (real_path == path && route.type == "strict_wild")
 			return true;
-		if (real_path != path && route.type != "wild") {
+		if (real_path != path && route.type != "wild" && route.type != "strict_wild") {
 			if (real_path.indexOf("?") != -1 && this.root_without_wild(real_path) == path)
 					return false;
 			return true;

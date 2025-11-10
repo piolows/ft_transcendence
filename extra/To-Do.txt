@@ -12,3 +12,12 @@
 [X] Add a friends counter on /profile and /profile/{username}
 [X] Fix register for google account not logging in
 [X] Fix login repeatedly
+
+New issues:
+[] Login not rereouting to page with logged in user in navbar, but user still gets logged in regardless
+error message:
+    router.ts:134 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'includes')
+        at Router.root_without_wild (router.ts:134:29)
+        at Router.route (router.ts:184:15)
+        at HTMLFormElement.<anonymous> (login.ts:64:18)
+Moreover, the login modal cannot be removed
