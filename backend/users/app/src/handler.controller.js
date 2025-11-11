@@ -39,7 +39,7 @@ const endpointHandler = (fastify, options, done) => {
 	}
 
 	async function addGame(user_id, op_id, info, date) {
-		await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, winner_id, game, p1_score, p2_score, time, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`)
+		await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, winner_id, game, p1_score, p2_score, time, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
 			.run(user_id, op_id, info.winner_id, info.game, info.p1_score, info.p2_score, info.time, date);
 		const stats = await fastify.sqlite.prepare(`SELECT * FROM ${ST} WHERE user_id=?`).get(user_id);
 		if (user_id == info.winner_id) {
