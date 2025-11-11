@@ -45,3 +45,4 @@ error message:
         at Router.route (router.ts:184:15)
         at HTMLFormElement.<anonymous> (login.ts:64:18)
 Moreover, the login modal cannot be removed
+[ ] Auto-reconnect attempt in game rooms
