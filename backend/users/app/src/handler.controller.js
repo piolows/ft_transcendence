@@ -175,6 +175,15 @@ const endpointHandler = (fastify, options, done) => {
 			if (!user) {
 				return resp.send({ success: false, code: 404, error: "User not found" });
 			}
+			if (user['id'] == req.body.op_id) {
+				return resp.send({ success: false, code: 400, error: "Players can't play against themself" });
+			}
+			if ((req.body.winner_id == req.body.op_id && req.body.p1_score > req.body.p2_score)
+				|| (req.body.winner_id == user['id'] && req.body.p1_score < req.body.p2_score)) {
+				let tmp = req.body.p1_score;
+				req.body.p1_score = req.body.p2_score;
+				req.body.p2_score = tmp;
+			}
 			const date = sqliteNow();
 			addGame(user['id'], req.body.op_id, req.body, date);
 			let tmp = req.body.p1_score;

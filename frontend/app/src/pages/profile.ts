@@ -220,7 +220,7 @@ export default class Profile extends Component {
 		const winRate = document.getElementById('win-rate')!;
 
 		totalGames.textContent = this.game_count.toString();
-		winRate.textContent = `${this.user_stats.win_rate * 100}%`;
+		winRate.textContent = `${Math.round(this.user_stats.win_rate * 10000) / 100}%`;
 		losses.textContent = this.user_stats.losses.toString();
 		wins.textContent = this.user_stats.wins.toString();
 
