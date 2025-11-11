@@ -84,11 +84,11 @@ export default class ListView extends Component {
 			let h = this.per_page <= 0 || row.height < FIT ? FIT : row.height;
 			let row_h = '';
 			if (h == AUTO)
-				row_h = `style="max-height: ${1 / this.per_page * 100}%; height: ${1 / this.per_page * 100}%;"`;
+				row_h = `style="min-height: ${100 / this.per_page}%;"`;
 			else if (h != FIT)
 				row_h = `style="height: ${row.height}px;"`;
 			return `
-				<div id="row-${idx}" class="w-full grid grid-flow-col auto-cols-fr p-2 ${row.bg_color} ${row.text_color} ${cols} ${borders}" ${row_h}>
+				<div id="row-${idx}" class="w-full grid grid-flow-col auto-cols-fr px-4 py-3 font-silkscreen text-base ${row.bg_color} ${row.text_color} ${cols} ${borders}" ${row_h}>
 					${ row.items.map((item, id) => {
 							return `<div id="item-${idx}-${id}" class="col-span-${item.cols} ${"classes" in item ? item.classes : ''}">${item.value}</div>`;
 						}).join('')
@@ -100,34 +100,33 @@ export default class ListView extends Component {
 	get_html() {
 		const mid = this.rows.length == 0 ? 'items-center justify-center' : '';
 		const ofy = this.per_page == 0 ? 'overflow-y-auto' : '';
-		const classes = `"h-full pixel-box m-4 mr-8 ${mid} ${ofy} ${this.bg_color} ${this.text_color}"`;
+		const classes = `pixel-box mx-auto ${mid} ${ofy} ${this.bg_color} ${this.text_color}`;
 		const table_contents = this.rows.length == 0 ?
 			`<div class="h-full w-full flex justify-center items-center">
-				<p class="text-center">No more ${this.items_str}
-				</p>
+				<p class="text-center font-silkscreen">No more ${this.items_str}</p>
 			</div>` : this.get_list();
 		this.max_page = Math.max(1, this.max_page);
 		this.page = this.page < 1 ? 1 : (this.page > this.max_page ? this.max_page : this.page);
 		const larrow = this.arrows && this.page > 1 ? `
-			<button id="prev_btn" class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky">
+			<button id="prev_btn" class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky font-pixelify">
 				◄ PREV
 			</button>` : '';
 		const rarrow = this.arrows && this.page < this.max_page ? `
-			<button id="next_btn" class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky">
+			<button id="next_btn" class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky font-pixelify">
 				NEXT ►
 			</button>` : '';
-		let pglist = `<select id="pager" class="bg-white text-black">\n`;
+		let pglist = `<select id="pager" class="bg-white text-black pixel-box border-2 border-blue-500 font-pixelify px-2 py-1">\n`;
 		for (let i = 1; i <= this.max_page; i++)
 			pglist += `<option value="${i}" ${i == this.page ? 'selected' : ''}>${i}</option>\n`;
 		pglist += '</select>';
-		const pager = `<span class="text-xl font-vt323">Page ${this.selector ? pglist : this.page} / ${this.max_page}</span>`;
+		const pager = `<span class="text-base font-silkscreen">Page ${this.selector ? pglist : this.page} / ${this.max_page}</span>`;
 		const foot = this.arrows || this.page ? `
-					<div class="relative h-1/6 flex justify-center items-center space-x-8 font-pixelify">
-						${larrow}${pager}${rarrow}
-					</div>` : '';
+				<div class="mt-12 flex justify-center items-center space-x-12 font-pixelify pb-8">
+					${larrow}${pager}${rarrow}
+				</div>` : '';
 		return `
-			<div class=${classes}>
-				<div ${this.arrows || this.page ? `class="h-5/6"` : ''}>
+			<div class="${classes}" style="width: 100%; display: flex; flex-direction: column; min-height: 500px; max-width: 900px;">
+				<div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
 					${table_contents}
 				</div>
 				${foot}

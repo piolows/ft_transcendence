@@ -41,7 +41,7 @@ export default class Friends extends Component {
 			const row =  [{ value: `<a href="/profile/${friend.username}" router-link class="hover:opacity-80 transition-opacity flex flex-col sm:flex-row overflow-hidden"><img src="${backend_url + friend.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
 				<span style="padding-top: 5px; padding-left: 7px;">${friend.username}</span></a>`, cols: 2 },
 				{ value: `<div><span>${friend.points} PTS</span></div>`, cols: 2 },
-				{ value: `<div><span>${Math.round(friend.win_rate * 10000) / 100}% Win Rate</span></div>`, cols: 2 }];
+				{ value: `<div><span>${friend.win_rate * 100}% Win Rate</span></div>`, cols: 2 }];
 			if (friend.id != this.router.login_info.id)
 				row.push({ value: friend.is_friend ? unfollow(idx) : follow(idx), cols: 1 });
 			else
@@ -50,12 +50,14 @@ export default class Friends extends Component {
 		}
 		await this.navbar.load(app);
 		app.innerHTML += `
-			<h1 class="h-full text-center text-5xl font-bold mb-12 retro-shadow">FRIENDS LIST</h1>
-			<div class="flex flex-row items-center justify-center w-full gap-x-5"><p>Friends of</p><div>
-			<a href="/profile/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity flex-row flex overflow-hidden">
-			<img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
-			<span style="padding-top: 5px; padding-left: 7px;">${this.profile_info.username}</span></a></div></div>
-			<div class="w-full h-120">${this.listview.get_html()}</div>` + this.footer.get_html();
+			<div class="container mx-auto px-4 py-8">
+				<h1 class="text-center text-5xl font-bold mb-12 retro-shadow">FRIENDS LIST</h1>
+				<div class="flex flex-row items-center justify-center w-full gap-x-5 mb-12"><p>Friends of</p><div>
+				<a href="/profile/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity flex-row flex overflow-hidden">
+				<img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
+				<span style="padding-top: 5px; padding-left: 7px;">${this.profile_info.username}</span></a></div></div>
+				<div class="flex justify-center">${this.listview.get_html()}</div>
+			</div>` + this.footer.get_html();
 	}
 
 	async get_info() {

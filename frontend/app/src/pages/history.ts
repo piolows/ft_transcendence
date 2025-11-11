@@ -47,8 +47,11 @@ export default class History extends Component {
 			this.listview.add_row(row);
 		}
 		await this.navbar.load(app);
-		app.innerHTML += `<h1 class="h-full text-center text-5xl font-bold mb-12 retro-shadow">MATCH HISTORY</h1>
-			<div class="w-full h-140">${this.listview.get_html()}</div>` + this.footer.get_html();
+		app.innerHTML += `
+			<div class="container mx-auto px-4 py-8">
+				<h1 class="text-center text-5xl font-bold mb-12 retro-shadow">MATCH HISTORY</h1>
+				<div class="flex justify-center">${this.listview.get_html()}</div>
+			</div>` + this.footer.get_html();
 	}
 
 	async get_info() {

@@ -1,6 +1,6 @@
  -  Piolo:
 [ ] Loading Screen
-[ ] Fix design of friends and history page
+[X] Fix design of friends and history page
 [ ] Fix design of LAN and Multiplayer pong rooms
 
  -  Pierce
