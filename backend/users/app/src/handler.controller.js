@@ -3,19 +3,23 @@ export const leaderboardTop = (fastify, options, done) => {
 
 	fastify.get("/top", async (req, resp) => {
 		try {
-			if (!("page" in req.query) || req.query.page < 1) {
-				const games = await fastify.sqlite.prepare(`SELECT ${UT}.username ${ST}.points FROM ${HT}
+			if (!("page" in req.query)) {
+				const top_players = await fastify.sqlite.prepare(`SELECT ${UT}.username ${ST}.points FROM ${ST}
 					JOIN ${UT} ON ${ST}.user_id = ${UT}.id ORDER BY ${ST}.points DESC LIMIT 3 OFFSET 0`).all();
-				return resp.send({ success: true, games });
+				return resp.send({ success: true, top_players });
 			}
+			if (req.query.page < 1)
+				req.query.page = 1;
 			const OFFSET = (req.query.page - 1) * PLAYERS_PER_PAGE;
-			const games = await fastify.sqlite.prepare(`SELECT ${UT}.username ${ST}.points FROM ${HT}
+			const top_players = await fastify.sqlite.prepare(`SELECT ${UT}.username ${ST}.points FROM ${ST}
 					JOIN ${UT} ON ${ST}.user_id = ${UT}.id ORDER BY ${ST}.points DESC LIMIT ? OFFSET ?`).all(PLAYERS_PER_PAGE, OFFSET);
-			return resp.send({ success: true, user, friend_cnt, stats, game_cnt, games, is_friend });
+			return resp.send({ success: true, top_players });
 		} catch (error) {
 			return resp.send({ success: false, code: 500, error: error.message });
 		}
 	});
+
+	done();
 }
 
 const endpointHandler = (fastify, options, done) => {
@@ -25,9 +29,33 @@ const endpointHandler = (fastify, options, done) => {
 	const HT = process.env.HISTORY_TABLE;
 	const FRIENDS_PER_PAGE = 8;
 	const GAMES_PER_PAGE = 10;
+	
+	function sqliteNow() {
+		return new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
+	}
 
 	function isDictionary(obj) {
 		return obj != null && typeof obj == 'object' && !Array.isArray(obj);
+	}
+
+	async function addGame(user_id, op_id, info, date) {
+		await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, winner_id, game, p1_score, p2_score, time, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`)
+			.run(user_id, op_id, info.winner_id, info.game, info.p1_score, info.p2_score, info.time, date);
+		const stats = await fastify.sqlite.prepare(`SELECT * FROM ${ST} WHERE user_id=?`).get(user_id);
+		if (user_id == info.winner_id) {
+			stats.wins += 1;
+			stats.points += 50;
+		}
+		else if (info.winner_id == op_id) {
+			stats.losses += 1;
+			stats.points -= 30;
+		}
+		else {
+			stats.draws += 1;
+		}
+		stats.win_rate = stats.wins / (stats.wins + stats.losses);
+		await fastify.sqlite.prepare(`UPDATE ${ST} SET wins=?, losses=?, draws=?, win_rate=?, points=? WHERE user_id=?`)
+			.run(stats.wins, stats.losses, stats.draws, stats.win_rate, stats.points, user_id);
 	}
 
 	fastify.post("/", async (req, resp) => {
@@ -50,8 +78,8 @@ const endpointHandler = (fastify, options, done) => {
 			}
 			record = await fastify.sqlite.prepare(`SELECT * FROM ${ST} WHERE user_id=?`).get(req.body.id);
 			if (!record) {
-				await fastify.sqlite.prepare(`INSERT INTO ${ST} (user_id, wins, losses, win_rate) VALUES (?, ?, ?, ?)`)
-					.run(req.body.id, 0, 0, 0);
+				await fastify.sqlite.prepare(`INSERT INTO ${ST} (user_id) VALUES (?)`)
+					.run(req.body.id);
 			}
 			return resp.send({ success: true });
 		} catch (error) {
@@ -95,14 +123,7 @@ const endpointHandler = (fastify, options, done) => {
 				if (exist)
 					is_friend = true;
 			}
-			let stats = await fastify.sqlite.prepare(`SELECT wins, losses, win_rate FROM ${ST} WHERE user_id=?`).get(user['id']);
-			if (!stats) {
-				stats = {
-					wins: 0,
-					losses: 0,
-					win_rate: 0
-				}
-			}
+			const stats = await fastify.sqlite.prepare(`SELECT * FROM ${ST} WHERE user_id=?`).get(user['id']);
 			const game_cnt = stats.wins + stats.losses;
 			const games = await fastify.sqlite.prepare(`SELECT
 				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.winner_id, ${HT}.game, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
@@ -128,7 +149,6 @@ const endpointHandler = (fastify, options, done) => {
 				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.winner_id, ${HT}.game, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
 				FROM ${HT} JOIN ${UT} ON ${HT}.op_id = ${UT}.id WHERE ${HT}.user_id=? ORDER BY ${HT}.created_at DESC LIMIT ? OFFSET ?`).all(user['id'], GAMES_PER_PAGE, OFFSET);
 			const count = await fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${HT} WHERE user_id=?`).get(user['id'])['COUNT(user_id)'];
-			console.log("TEST: ", req.query.page, GAMES_PER_PAGE);
 			return resp.send({ success: true, games: games, user, count });
 		} catch (error) {
 			return resp.send({ success: false, code: 500, error: error.message });
@@ -155,16 +175,12 @@ const endpointHandler = (fastify, options, done) => {
 			if (!user) {
 				return resp.send({ success: false, code: 404, error: "User not found" });
 			}
-			await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, winner_id, game, p1_score, p2_score, time) VALUES (?, ?, ?, ?, ?, ?, ?)`)
-				.run(user['id'], req.body.op_id, req.body.winner_id, req.body.game, req.body.p1_score, req.body.p2_score, req.body.time);
-			const stats = await fastify.sqlite.prepare(`SELECT wins, losses, win_rate FROM ${ST} WHERE user_id=?`).get(user['id']);
-			if (user['id'] == req.body.winner_id)
-				stats.wins += 1;
-			else
-				stats.losses += 1;
-			stats.win_rate = stats.wins / (stats.wins + stats.losses);
-			await fastify.sqlite.prepare(`UPDATE ${ST} SET wins=?, losses=?, win_rate=? WHERE user_id=?`)
-				.run(stats.wins, stats.losses, stats.win_rate, user['id']);
+			const date = sqliteNow();
+			addGame(user['id'], req.body.op_id, req.body, date);
+			let tmp = req.body.p1_score;
+			req.body.p1_score = req.body.p2_score;
+			req.body.p2_score = tmp;
+			addGame(req.body.op_id, user['id'], req.body, date);
 			return resp.send({ success: true });
 		} catch (error) {
 			return resp.send({ success: false, code: 500, error: error.message });
@@ -177,7 +193,7 @@ const endpointHandler = (fastify, options, done) => {
 			if (!user) {
 				return resp.send({ success: false, code: 404, error: "User not found" });
 			}
-			const stats = await fastify.sqlite.prepare(`SELECT wins, losses, win_rate FROM ${ST} WHERE user_id=?`).get(user['id']);
+			const stats = await fastify.sqlite.prepare(`SELECT * FROM ${ST} WHERE user_id=?`).get(user['id']);
 			return resp.send({ success: true, stats: stats });
 		} catch (error) {
 			return resp.send({ success: false, code: 500, error: error.message });

@@ -75,7 +75,6 @@ export class Router {
 				if ((window as any).google?.accounts?.id) {
 					resolve();
 				} else {
-					console.warn("Waiting for google script to load...");
 					setTimeout(check, 100);
 				}
 			};
@@ -180,6 +179,9 @@ export class Router {
 	}
 
 	async route(path: string, push: any = true) {
+		if (!path) {
+			path = window.location.pathname;
+		}
 		let real_path = path;
 		path = this.root_without_wild(path);
 		const route = this.routes.get(path);

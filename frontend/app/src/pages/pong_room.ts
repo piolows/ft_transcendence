@@ -8,9 +8,9 @@ export default class PongRoom extends Component {
 	private game_over: boolean = false;
 	private socket: WebSocket | null = null;
 	private admin: any = null;
-	private direction: number = 0;
 	private left_player: any = null;
 	private right_player: any = null;
+	private direction: number = 0;
 	private paddle: any;
 	private canvas: any;
 	private ball: any;
@@ -27,11 +27,61 @@ export default class PongRoom extends Component {
 		</div>`;
 
 	async load(app: HTMLDivElement | HTMLElement) {
-		this.game_id = this.real_path.substring(this.real_path.lastIndexOf("/") + 1);
-		const response = await fetch(`${sockets_url}${this.real_path}`, {
-			credentials: "include",
-		});
+		await this.get_info();
+		if (!this.admin)
+			return ;
+		this.navbar.load(app);
+		app.innerHTML += `
+			<div id="p1_score" hidden>0</div>
+			<div id="p2_score" hidden>0</div>
+			<div class="flex justify-center w-full" style="height: 500px;">
+				<div id="gameInfo" class="flex flex-col pl-8 justify-center space-y-8 w-120">
+					<div class="flex justify-left space-x-7"><label>Game Result: </label><label id="result"></label></div>
+					<div class="flex justify-left space-x-7"><label>Game Timer: </label><div id="timer"><label id="minutes">00</label>:<label id="seconds">00</label></div></div>
+					<div class="flex justify-left space-x-7"><label>Spectator Count: </label><label id="spectators">0</label></div>
+					<div class="flex flex-col justify-left space-y-2"><label>Game Room Code:</label><label>${ this.game_id }</label></div>
+					<div class="flex justify-left space-x-7"><label>Room Created By:</label></div>
+					<div id="admin-info">
+						<div class="flex items-center space-x-4">
+							<img id="pfp" src="${ backend_url + this.admin.avatarURL }" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
+							<div>
+								<h4 id="username" class="crt-text">${ this.admin.username }</h4>
+								<p id="email" class="text-xs font-silkscreen">${ this.admin.email }</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="parent-container" class="flex">
+				</div>
+				<div id="playersInfo" class="flex flex-col justify-center pl-8 space-y-10 w-120">
+				</div>
+			</div>`;
+	}
+
+	async get_info() {
+		const root_len = "/pong/room".length;
+		const uri_len = this.real_path?.length;
+		if (!uri_len || uri_len < root_len) {
+			await this.router.route_error(this.real_path, 404);
+			return ;
+		}
+		let room = this.real_path.substring(root_len);
+		if (room.length >= 1 && room[0] == "/")
+			room = room.substring(1);
+		if (room.indexOf("?") != -1)
+			room = room.substring(0, room.indexOf("?"));
+		const slash_at = room.indexOf("/");
+		if ((slash_at != -1 && slash_at != room.length - 1) || room.length <= 1) {
+			await this.router.route_error(this.real_path, 404);
+			return ;
+		}
+		if (slash_at == room.length - 1)
+			room = room.substring(0, room.length - 1);
+		this.game_id = room;
 		try {
+			const response = await fetch(`${sockets_url}/pong/room/${this.game_id}`, {
+				credentials: "include",
+			});
 			const data = await response.json();
 			if (!data.success) {
 				await this.router.route_error(this.real_path, data.code, data.error);
@@ -43,32 +93,6 @@ export default class PongRoom extends Component {
 			this.canvas = data.canvas_info;
 			this.paddle = data.paddle_info;
 			this.ball = data.ball_info;
-			this.navbar.load(app);
-			app.innerHTML += `
-				<div id="p1_score" hidden>0</div>
-				<div id="p2_score" hidden>0</div>
-				<div class="flex justify-center w-full" style="height: 500px;">
-					<div id="gameInfo" class="flex flex-col pl-8 justify-center space-y-8 w-120">
-						<div class="flex justify-left space-x-7"><label>Game Result: </label><label id="result"></label></div>
-						<div class="flex justify-left space-x-7"><label>Game Timer: </label><div id="timer"><label id="minutes">00</label>:<label id="seconds">00</label></div></div>
-						<div class="flex justify-left space-x-7"><label>Spectator Count: </label><label id="spectators">0</label></div>
-						<div class="flex flex-col justify-left space-y-2"><label>Game Room Code:</label><label>${this.game_id}</label></div>
-						<div class="flex justify-left space-x-7"><label>Room Created By:</label></div>
-						<div id="admin-info">
-							<div class="flex items-center space-x-4">
-								<img id="pfp" src="${ backend_url + this.admin.avatarURL }" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
-								<div>
-									<h4 id="username" class="crt-text">${ this.admin.username }</h4>
-									<p id="email" class="text-xs font-silkscreen">${ this.admin.email }</p>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div id="parent-container" class="flex">
-					</div>
-					<div id="playersInfo" class="flex flex-col justify-center pl-8 space-y-10 w-120">
-					</div>
-				</div>`;
 		} catch (error) {
 			await this.router.route_error(this.real_path, 500);
 			return ;
@@ -116,7 +140,7 @@ export default class PongRoom extends Component {
 					draw_frame(this.elements, msg, this);
 				}
 			} catch (error) {
-				console.error("Unexpected communication from server.");
+				console.error("Unexpected communication from server.", message);
 			}
 		};
 		this.socket.onclose = () => {

@@ -100,7 +100,6 @@ export default class Profile extends Component {
 	async get_info() {
 		const root_len = "/profile".length;
 		const uri_len = this.real_path?.length;
-
 		if (!uri_len || uri_len < root_len) {
 			await this.router.route_error(this.real_path, 400, "Invalid URL");
 			return ;
@@ -108,13 +107,17 @@ export default class Profile extends Component {
 		let user = this.real_path.substring(root_len);
 		if (user.length >= 1 && user[0] == "/")
 			user = user.substring(1);
-		if (user == "")
-			user = this.router.login_info.username;
-		const slash = user.indexOf("/");
-		if (slash != -1 && slash != user.length - 1) {
+		if (user.indexOf("?") != -1)
+			user = user.substring(0, user.indexOf("?"));
+		const slash_at = user.indexOf("/");
+		if (slash_at != -1 && slash_at != user.length - 1) {
 			await this.router.route_error(this.real_path, 404);
 			return ;
 		}
+		if (slash_at == user.length - 1)
+			user = user.substring(0, user.length - 1);
+		if (user == "")
+			user = this.router.login_info.username;
 		try {
 			const response = await fetch(`${backend_url}/users/${user}?id=${this.router.login_info.id}`);
 			if (!response.ok) {

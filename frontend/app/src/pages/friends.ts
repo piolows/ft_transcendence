@@ -52,7 +52,7 @@ export default class Friends extends Component {
 		app.innerHTML += `
 			<h1 class="h-full text-center text-5xl font-bold mb-12 retro-shadow">FRIENDS LIST</h1>
 			<div class="flex flex-row items-center justify-center w-full gap-x-5"><p>Friends of</p><div>
-			<a href="/profile/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity flex-row md:flex overflow-hidden">
+			<a href="/profile/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity flex-row flex overflow-hidden">
 			<img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
 			<span style="padding-top: 5px; padding-left: 7px;">${this.profile_info.username}</span></a></div></div>
 			<div class="w-full h-120">${this.listview.get_html()}</div>` + this.footer.get_html();
@@ -69,10 +69,17 @@ export default class Friends extends Component {
 		let user = this.real_path.substring(root_len);
 		if (user.length >= 1 && user[0] == "/")
 			user = user.substring(1);
-		if (user == "")
-			user = this.router.login_info.username;
 		if (user.indexOf("?") != -1)
 			user = user.substring(0, user.indexOf("?"));
+		const slash_at = user.indexOf("/");
+		if (slash_at != -1 && slash_at != user.length - 1) {
+			await this.router.route_error(this.real_path, 404);
+			return ;
+		}
+		if (slash_at == user.length - 1)
+			user = user.substring(0, user.length - 1);
+		if (user == "")
+			user = this.router.login_info.username;
 		const params = new URLSearchParams(window.location.search);
 		try {
 			const page = params.get("page");

@@ -1,4 +1,21 @@
-[ ] Test backend_users extensively
+ -  Piolo:
+[ ] Loading Screen
+[ ] Fix design of friends and history page
+[ ] Fix design of LAN and Multiplayer pong rooms
+
+ -  Pierce
+[ ] Tournaments backend: 
+	[ ] Create 
+	[ ] Destroy 
+	[ ] Start 
+	[ ] Matchmaking 
+	[ ] Join 
+	[ ] Leave 
+	[ ] Get paginated list
+[ ] Tournaments testing FULL (Frontend / Backend)
+
+ -  Emad
+[ ] Fix login not working on Firefox (OPTIONS Request)
 [ ] Add Online/Offline status (through regular pings to the server)
 [ ] Tournaments page (frontend)
 [ ] Add a page for game history (paged-view)
@@ -12,6 +29,13 @@
 [X] Add a friends counter on /profile and /profile/{username}
 [X] Fix register for google account not logging in
 [X] Fix login repeatedly
+[ ] Connect leaderboard to backend
+[ ] Allow editing profile info on the frontend
+[ ] Allow file upload for profile pictures
+[ ] Make non-local games update history
+[ ] Test server-side bot
+[ ] Test leaderboard
+[ ] Fix bots AI
 
 New issues:
 [] Login not rereouting to page with logged in user in navbar, but user still gets logged in regardless
