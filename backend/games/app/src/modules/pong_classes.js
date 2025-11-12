@@ -145,11 +145,29 @@ export class Game {
 		this.setup.start_game();
 	}
 
-	stop_game() {
+	async stop_game() {
 		if (this.setup.game_over)
 			throw new Error("Game not running");
 		this.setup.end_game();
-		for (let player of Object.values(this.players)) {
+		const players = Object.values(this.players);
+		if (this.setup.game_over) {
+			try {
+				await fetch(`${process.env.USERS_URL}/users/${players[0].user_info.username}/history`, {
+					method: "POST",
+					body: {
+						game: "pong",
+						op_id: players[1].user_info.id,
+						winner_id: this.winner == 0 ? -1 : (this.winner == -1 ? players[0].user_info.id : players[1].user_info.id),
+						time: this.setup.time,
+						p1_score: this.setup.p1_score,
+						p2_score: this.setup.p2_score,
+					}
+				});
+			} catch (error) {
+				console.log(error);
+			}
+		}
+		for (let player of players) {
 			this.specs[player.user_info.username] = player;
 			delete this.players[player.user_info.username];
 		}

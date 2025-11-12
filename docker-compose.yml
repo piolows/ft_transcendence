@@ -101,6 +101,7 @@ services:
       - SESSION_SECRET=${SESSION_SECRET}
       - FRONTEND_URL=https://localhost
       - TOURNAMENT_URL=http://backend_tournaments:41613
+      - USERS_URL=http://backend_users:41613
       - PORT=4116
     ports:
       - "4116:4116"

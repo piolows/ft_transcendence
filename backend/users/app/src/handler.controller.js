@@ -21,7 +21,8 @@ export const leaderboardTop = (fastify, options, done) => {
 
 	done();
 }
-
+// handle get request for online/offline status (of someone)
+// handle post request for online/offline status (of ourself)
 const endpointHandler = (fastify, options, done) => {
 	const UT = process.env.USERS_TABLE;
 	const ST = process.env.STATS_TABLE;

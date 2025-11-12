@@ -17,10 +17,16 @@
  -  Emad
 [ ] Fix login not working on Firefox (OPTIONS Request)
 [ ] Add Online/Offline status (through regular pings to the server)
-[ ] Tournaments page (frontend)
-[ ] Add a page for game history (paged-view)
-[ ] Add a page for friends list (paged-view)
-[ ] Tournaments backend and testing
+[ ] Connect leaderboard to backend
+[ ] Allow editing profile info on the frontend
+[ ] Allow file upload for profile pictures
+[X] Make non-local games update history
+[ ] Test game end update history
+[ ] Fix the game room IN GENERAL
+[ ] Test server-side bot
+[ ] Test leaderboard
+[ ] Fix bots AI
+
 [X] Allow deleting user data in backend_users
 [X] Connect profile page to users endpoint
 [X] Connect /profile/${username} to users
@@ -29,13 +35,6 @@
 [X] Add a friends counter on /profile and /profile/{username}
 [X] Fix register for google account not logging in
 [X] Fix login repeatedly
-[ ] Connect leaderboard to backend
-[ ] Allow editing profile info on the frontend
-[ ] Allow file upload for profile pictures
-[ ] Make non-local games update history
-[ ] Test server-side bot
-[ ] Test leaderboard
-[ ] Fix bots AI
 
 New issues:
 [] Login not rereouting to page with logged in user in navbar, but user still gets logged in regardless

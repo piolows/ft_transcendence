@@ -16,4 +16,11 @@ export default defineConfig({
 		host: "0.0.0.0",
 		port: 443,
 	},
+	proxy: {
+		'/cdn': {
+			target: 'https://localhost:4161',
+			changeOrigin: true,
+			// rewrite: path => path.replace(/^\/cdn/, '/cdn')
+		}
+	},
 });

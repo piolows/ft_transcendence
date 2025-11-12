@@ -5,7 +5,7 @@ import { hash, validate_registration, save_pfp } from './utils.js';
 
 const endpointHandler = (fastify, options, done) => {
 	fastify.get("/me", async (req, reply) => {
-		if (req.session?.user) {
+		if (req.session && req.session.user) {
 			return reply.send({ loggedIn: true, user: req.session.user });
 		}
 		return reply.send({ loggedIn: false });
@@ -19,9 +19,6 @@ const endpointHandler = (fastify, options, done) => {
 		try {
 			if (!req.session) {
 				req.session.init();
-			}
-			if (req.session.user) {
-				req.session.user = null;
 			}
 			const user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`).get(req.body.username);
 			if (!user) {
