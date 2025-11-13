@@ -80,8 +80,8 @@ export default class Profile extends Component {
 					<!-- recent activity -->
 					<div class="pixel-box bg-blue-900 p-6" style="height: 306px; max-height: 306px;">
 						<h2 class="text-2xl font-bold retro-shadow mb-6">Recent Activity</h2>
-						<div id="recent-games" class="space-y-4 h-32 sm:h-40" style="max-height: 160px;">
-							<div class="text-center font-silkscreen text-gray-400">
+						<div id="recent-games" class="space-y-4 h-32 sm:h-40 font-silkscreen text-base" style="max-height: 160px;">
+							<div class="text-center text-gray-400">
 								No recent games
 							</div>
 						</div>
