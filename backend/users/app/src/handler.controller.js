@@ -197,6 +197,54 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	});
 
+	// AGG [WIP]
+	// Description: Send post request for last seen online. Check if user exists using id from frontend. Get time now, update.
+	fastify.post("/status", async (req, resp) => {
+		if (!req.body || !isDictionary(req.body))
+			return resp.send({ success: false, code: 400, error: `Invalid Request: JSON Body required` });
+		if (!req.body.id)
+			return resp.send({ success: false, code: 400, error: `Missing field: id`});
+		try {
+			const user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE id=?`).get(req.body.id);
+			if (!user)
+				return resp.send({ success: false, code: 404, error: "User not found" });
+
+			const now = sqliteNow();
+			await fastify.sqlite.prepare(`UPDATE ${UT} SET last_seen=? WHERE id=?`).run(now,req.body.id);
+
+			return resp.send({ success: true, last_seen: now });
+		} catch (error) {
+			return resp.send({ success: false, code: 500, error: error.message });
+		}
+	});
+
+	// Get the latest last seen time from the database for the given username. Calculate if the user is online based on the last seen time.
+	fastify.get("/status/:username", async (req, resp) => {
+		const username = req.params.username;
+		if (!username || username == "")
+			return resp.send({ success: false, code: 400, error: "Must provide username" });
+		try {
+			const user = await fastify.sqlite.prepare(`SELECT id, username, last_seen FROM ${UT} WHERE username=?`).get(username);
+			if (!user)
+				return resp.send({ success: false, code: 404, error: "User not found" });
+
+			let online = false;
+			let lastSeen = user.last_seen;
+
+			if (lastSeen) {
+				const last = new Date(lastSeen.replace(' ', 'T') + 'Z');
+				const now = new Date();
+				const diffMs = now - last;
+				const THRESHOLD_MS = 60 * 1000;
+				online = diffMs <= THRESHOLD_MS;
+			}
+			return resp.send({ success: true, username: user.username, online, last_seen: lastSeen });
+		} catch (error) {
+			return resp.send({ success: false, code: 500, error: error.message });
+		}
+	});
+	// AGG [WIP]
+
 	fastify.get("/:username/stats", async (req, resp) => {
 		try {
 			const user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE username=?`).get(req.params.username);
