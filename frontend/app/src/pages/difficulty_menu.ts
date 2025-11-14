@@ -11,6 +11,8 @@ export default class DifficultyMenu extends Component {
 	
 	constructor(router: Router) {
 		super(router);
+		this.back_url = "/pong/menu";
+		this.navbar.back_url = "/pong/menu";
 
 		let card = new MenuCard(this.router, "EASY", "Challenge the AI bot on Easy difficulty", "green");
 		card.add_button("EASY PEASY", "/pong/game?op=bot&difficulty=0");

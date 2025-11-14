@@ -43,13 +43,7 @@ export default class NavBar extends Component {
 		this.log_sect.init();
 		const backBtn = document.getElementById('navbar_back_btn');
 		if (backBtn) {
-			backBtn.onclick = () => {
-				if (history.length > 2) {
-					history.back();
-				} else {
-					this.router.route('/');
-				}
-			};
+			backBtn.onclick = () => this.router.route(this.back_url);
 		}
 	}
 }

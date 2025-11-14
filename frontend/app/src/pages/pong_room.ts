@@ -1,5 +1,5 @@
 import NavBar from "../components/nav_bar";
-import Component, { backend_url, backend_websocket, sockets_url } from "../scripts/router";
+import Component, { backend_url, backend_websocket, Router, sockets_url } from "../scripts/router";
 import { Ball, Paddle, draw_frame } from "../scripts/server_game";
 
 export default class PongRoom extends Component {
@@ -25,6 +25,12 @@ export default class PongRoom extends Component {
 				</div>
 			</div>
 		</div>`;
+	
+	constructor(router: Router) {
+		super(router);
+		this.back_url = "/pong/menu";
+		this.navbar.back_url = "/pong/menu";
+	}
 
 	async load(app: HTMLDivElement | HTMLElement) {
 		await this.get_info();

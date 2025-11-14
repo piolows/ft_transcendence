@@ -27,6 +27,8 @@ export default class History extends Component {
 		await this.get_info();
 		if (!this.profile_info)
 			return ;
+		this.back_url = `/profile/${this.profile_info.username}`;
+		this.navbar.back_url = `/profile/${this.profile_info.username}`;
 		this.listview.page = this.page;
 		this.listview.max_page = this.max_page;
 		this.listview.rows = [];

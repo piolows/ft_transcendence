@@ -14,6 +14,7 @@ export var backend_websocket = "wss://localhost:4116";
 export default abstract class Component {
 	router: Router;
 	real_path: string = "";
+	back_url: string = "/";
 
 	constructor(router: Router) {
 		this.router = router;

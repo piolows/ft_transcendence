@@ -1,8 +1,16 @@
-import Component, { backend_url, sockets_url } from "../scripts/router";
+import Component, { Router, backend_url, sockets_url } from "../scripts/router";
 import { Player, Ball, Bot, Paddle, start_game } from "../scripts/game";
+import NavBar from "../components/nav_bar";
 
 export default class Pong extends Component {
 	private end_game: () => void = () => {};
+	private navbar = new NavBar(this.router);
+		
+	constructor(router: Router) {
+		super(router);
+		this.back_url = "/pong/menu";
+		this.navbar.back_url = "/pong/menu";
+	}
 
 	async load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML = `
