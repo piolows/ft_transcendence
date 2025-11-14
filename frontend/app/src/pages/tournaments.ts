@@ -2,7 +2,7 @@ import Component from "../scripts/router";
 import NavBar from "../components/nav_bar";
 import { backend_url } from "../scripts/router";
 
-export default class Tournament extends Component {
+export default class TournamentList extends Component {
     private navbar = new NavBar(this.router);
     private windowHeight = window.innerHeight;
     private windowWidth = window.innerWidth;
@@ -16,9 +16,11 @@ export default class Tournament extends Component {
                 <p class="inline sm:text-[1em] md:text-[1.5em]">${roomName}</p>
                 <p class="player-count ${color} inline">${playerCount}/${maxPlayers} players</p>
             </div>
-            <button class="join-button flex items-center mx-auto justify-center pixel-box h-[60px] sm:w-sm md:w-[200px] lg:w-sm bg-green-500 px-4 py-2 hover:bg-green-600 col-start-4 clicky">
-                <p>JOIN</p>
-            </button>
+            <a href="/tournaments/room/${tournamentId}">
+                <button class="join-button flex items-center mx-auto justify-center pixel-box h-[60px] sm:w-sm md:w-[200px] lg:w-sm bg-green-500 px-4 py-2 hover:bg-green-600 col-start-4 clicky">
+                    <p>JOIN</p>
+                </button>
+            </a>
         </div>
         `;
     }
