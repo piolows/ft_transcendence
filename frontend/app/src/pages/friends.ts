@@ -31,11 +31,11 @@ export default class Friends extends Component {
 		this.listview.rows = [];
 		const follow = (id: number) => `
 			<div class="flex"><button id="follow-${id}" class="bg-green-600 text-white pixel-box font-pixelify hover:bg-green-700 clicky h-10 w-40">
-				+ Follow
+				+ FOLLOW
 			</button></div>`;
 		const unfollow = (id: number) => `
 			<div class="flex"><button id="follow-${id}" class="bg-red-600 text-white pixel-box font-pixelify hover:bg-red-700 clicky h-10 w-40">
-				- Unfollow
+				- UNFOLLOW
 			</button></div>`;
 		for (const [idx, friend] of this.friends.entries()) {
 			const row =  [{ value: `<a href="/profile/${friend.username}" router-link class="hover:opacity-80 transition-opacity flex flex-col sm:flex-row overflow-hidden"><img src="${backend_url + friend.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>

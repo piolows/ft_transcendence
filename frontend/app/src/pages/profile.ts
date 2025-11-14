@@ -149,7 +149,7 @@ export default class Profile extends Component {
 		if (this.is_friends == false) {
 			fa.innerHTML = `
 				<button id="followbtn" class="bg-green-600 text-white py-3 pixel-box font-pixelify hover:bg-green-700 clicky w-50">
-					+ Follow
+					+ FOLLOW
 				</button>`;
 			const fb = document.getElementById('followbtn')!;
 			fb.onclick = async () => {
@@ -182,7 +182,7 @@ export default class Profile extends Component {
 		} else if (this.is_friends == true) {
 			fa.innerHTML = `
 				<button id="followbtn" class="bg-red-600 text-white py-3 pixel-box font-pixelify hover:bg-red-700 clicky w-50">
-					- Unfollow
+					- UNFOLLOW
 				</button>`;
 			const fb = document.getElementById('followbtn')!;
 			fb.onclick = async () => {

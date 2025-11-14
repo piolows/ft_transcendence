@@ -19,8 +19,8 @@ export default class AuthSection extends Component {
 						</div>
 					</a>
 				</div>
-				<div>
-					<button id="logout-button" class="hidden hover:text-blue-200 clicky wiggler">
+				<div class="flex space-x-4">
+					<button id="logout-button" class="pixel-box bg-red-600 px-6 py-2 hover:bg-red-700 clicky">
 						LOGOUT
 					</button>
 				</div>

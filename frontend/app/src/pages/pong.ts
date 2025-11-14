@@ -1,49 +1,145 @@
-import Component from "../scripts/router";
+import Component, { backend_url, sockets_url } from "../scripts/router";
 import { Player, Ball, Bot, Paddle, start_game } from "../scripts/game";
-import NavBar from "../components/nav_bar";
 
 export default class Pong extends Component {
 	private end_game: () => void = () => {};
-	private navbar = new NavBar(this.router);
 
 	async load(app: HTMLDivElement | HTMLElement) {
-		await this.navbar.load(app);
-		app.innerHTML += `
-			<div id="p1_score" class="hidden">0</div>
-			<div id="p2_score" class="hidden">0</div>
-			<div class="flex justify-center w-full" style="height: 500px;">
-				<div id="gameInfo" class="flex flex-col pl-8 justify-center space-y-8 w-120">
-					<div class="flex justify-left space-x-7">
-						<button class="bg-blue-500 text-white py-3 pixel-box font-pixelify hover:bg-blue-600 clicky" id="back_btn" style="width: 100px;">BACK</button>
-					</div>
-					<div class="flex justify-left space-x-7">
-						<div id="timer" class="my-auto text-white">
-							<label>Timer: </label><label id="minutes">00</label>:<label id="seconds">00</label>
+		app.innerHTML = `
+			<div class="w-full h-screen bg-gray-900 flex flex-col overflow-hidden">
+				<!-- navbar clone -->
+				<div class="bg-blue-900 border-b-4 border-blue-700 px-4 py-3 z-10">
+					<div class="flex flex-col gap-y-5 sm:gap-y-0 sm:flex-row justify-between items-center">
+						<!-- logo + back button -->
+						<div class="flex items-center space-x-4">
+							<a href="/" router-link>
+								<h1 class="text-4xl font-bold pixel-box bg-opacity-50 p-4 hover:opacity-80 transition-opacity cursor-pointer">PONGOID</h1>
+							</a>
+							<button id="back_btn" class="pixel-box bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 font-pixelify transition-colors clicky">
+								◄ BACK
+							</button>
+						</div>
+						<!-- timer -->
+						<div class="pixel-box bg-blue-800 px-8 py-2 text-center">
+							<p class="text-xs text-cyan-300 font-pixelify">TIMER</p>
+							<div id="timer" class="text-3xl font-bold text-white tracking-wider">
+								<span id="minutes">00</span><span>:</span><span id="seconds">00</span>
+							</div>
+						</div>
+						<!-- gamemode (disblaed temp) and user info -->
+						<div class="flex items-center space-x-6">
+							<!-- div id="gamemode" class="pixel-box bg-blue-700 px-4 py-2 text-white font-pixelify text-sm">VS PLAYER</div -->
+							<div id="user-section"></div>
 						</div>
 					</div>
-					<div class="flex justify-left space-x-7">
-						<label>Game Mode: </label>
-						<label id="gamemode"></label>
+				</div>
+
+				<!-- main area -->
+				<div class="flex-1 flex overflow-hidden">
+					<!-- left sidebar -->
+					<div class="w-48 bg-blue-900 border-r-2 border-blue-700 p-4 flex flex-col justify-between overflow-y-auto">
+						<div class="space-y-4">
+							<div class="pixel-box bg-blue-800 p-4 text-center">
+								<p class="text-xs font-pixelify text-yellow-300">PLAYER 1</p>
+								<p id="p1_score" class="text-3xl font-bold text-white">0</p>
+							</div>
+							<div class="pixel-box bg-blue-800 p-4 text-center">
+								<p class="text-xs font-pixelify text-cyan-300">TIMER</p>
+								<div id="timer" class="text-3xl font-bold text-white font-pixelify tracking-wider">
+									<span id="minutes">00</span><span>:</span><span id="seconds">00</span>
+								</div>
+							</div>
+						</div>
+						<div class="pixel-box bg-blue-800 p-3 text-center">
+							<p class="text-xs font-pixelify text-gray-300 mb-2">CONTROLS</p>
+							<p class="text-xs text-white">W/S or ↑/↓</p>
+							<p class="text-xs text-white">to move</p>
+						</div>
+					</div>
+
+					<!-- canvas -->
+					<div class="flex-1 flex items-center justify-center bg-black">
+						<canvas id="gameCanvas" width="700" height="520" style="background-color: black; border: 3px solid #1e40af;"></canvas>
+					</div>
+
+					<!-- right sidebar -->
+					<div class="w-48 bg-blue-900 border-l-2 border-blue-700 p-4 flex flex-col justify-between overflow-y-auto">
+						<div class="space-y-4">
+							<div class="pixel-box bg-blue-800 p-4 text-center">
+								<p class="text-xs font-pixelify text-red-300">PLAYER 2</p>
+								<p id="p2_score" class="text-3xl font-bold text-white">0</p>
+							</div>
+							<div class="pixel-box bg-blue-800 p-4 text-center">
+								<p class="text-xs font-pixelify text-green-300">STATUS</p>
+								<p id="game_status" class="text-sm text-white">READY</p>
+							</div> <!-- can be some kind of pause thing maybe?? -->
+						</div>
+						<a href="/pong/menu" router-link>
+							<div class="pixel-box bg-blue-800 p-3 text-center text-xs">
+								<p class="font-pixelify text-gray-300 mb-2">GAME MODE</p>
+								<p id="mode-display" class="text-white">LOCAL</p>
+							</div>
+						</a>
 					</div>
 				</div>
-				<div id="parent-container" class="flex justify-center">
-					<canvas id="gameCanvas" width="800" height="600" style="background-color: black;"></canvas>
-				</div>
-				<div class="w-120"><!-- Spacer to balance layout --></div>
-			</div>`;
+			</div>
+		`;
 	}
 
 	init() {
-		this.navbar.init();
+		// back
 		const backbtn = document.getElementById('back_btn')!;
 		backbtn.onclick = () => {
 			if (history.length > 1) {
 				history.back();
-			}
-			else {
-				this.router.route("/");
+			} else {
+				this.router.route("/pong/menu");
 			}
 		};
+
+		// user info
+		const userSection = document.getElementById('user-section')!;
+		if (this.router.loggedin) {
+			userSection.innerHTML = `
+				<div class="flex items-center space-x-6">
+					<a href="/profile" router-link class="hover:opacity-80 transition-opacity">
+						<div class="flex items-center space-x-4">
+							<img id="pfp" src="${backend_url + this.router.login_info.avatarURL}" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
+							<div>
+								<h4 id="username" class="crt-text text-white text-sm">${this.router.login_info.username}</h4>
+								<p id="email" class="text-xs font-silkscreen text-gray-300">${this.router.login_info.email}</p>
+							</div>
+						</div>
+					</a>
+					<button id="logout-button" class="pixel-box bg-red-600 px-4 py-2 text-white hover:bg-red-700 transition-colors clicky">
+						LOGOUT
+					</button>
+				</div>
+			`;
+			const logoutbtn = document.getElementById('logout-button')!;
+			logoutbtn.onclick = async () => {
+				try {
+					await fetch(sockets_url + "/pong/destroy", {
+						method: "POST",
+						body: JSON.stringify({}),
+						credentials: "include"
+					});
+				} catch (err) {
+					console.error("Failed to destroy room:", err);
+				}
+				try {
+					await fetch(backend_url + "/auth/logout", {
+						method: "POST",
+						body: JSON.stringify({}),
+						credentials: "include"
+					});
+					this.router.login_info = null;
+					this.router.route("/");
+				} catch (err) {
+					console.error("Failed to log out:", err);
+				}
+			};
+		}
 
 		const ball_speed = 8;
 		const ball_radius = 16;
@@ -52,12 +148,15 @@ export default class Pong extends Component {
 		const op = params.get("op");
 		const difficulty = parseInt(params.get("difficulty") ?? "1");
 		
-		const gamemodeLabel = document.getElementById('gamemode')!;
+		// const gamemodeLabel = document.getElementById('gamemode')!;
+		const modeDisplay = document.getElementById('mode-display')!;
 		if (op === "bot") {
 			const difficultyNames = ["EASY", "HARD", "EXTREME"];
-			gamemodeLabel.textContent = `VS BOT (${difficultyNames[difficulty]})`;
+			// gamemodeLabel.textContent = `VS BOT (${difficultyNames[difficulty]})`;
+			modeDisplay.textContent = difficultyNames[difficulty];
 		} else {
-			gamemodeLabel.textContent = "VS PLAYER";
+			// gamemodeLabel.textContent = "VS PLAYER";
+			modeDisplay.textContent = "PLAYER";
 		}
 
 		const cv = document.getElementById("gameCanvas") as HTMLCanvasElement;
