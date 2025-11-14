@@ -7,7 +7,7 @@ export default class AuthSection extends Component {
 
 	logged_in_block() {
 		return `
-			<div class="flex items-center space-x-6">
+			<div class="flex flex-row sm:flex-col md:flex-row items-center space-x-4 sm:space-x-0 md:space-x-4 sm:space-y-4 md:space-y-0">
 				<div id="profile-info">
 					<a href="/profile" router-link class="hover:opacity-80 transition-opacity">
 						<div class="flex items-center space-x-4">
@@ -19,7 +19,7 @@ export default class AuthSection extends Component {
 						</div>
 					</a>
 				</div>
-				<div class="flex space-x-4">
+				<div>
 					<button id="logout-button" class="hidden hover:text-blue-200 clicky wiggler">
 						LOGOUT
 					</button>
@@ -29,19 +29,17 @@ export default class AuthSection extends Component {
 
 	logged_out_block() {
 		return `
-			<div class="flex items-center space-x-6">
-				<div class="flex space-x-4">
-					<a href="/login" router-link>
-						<button id="login-button" class="pixel-box bg-blue-600 px-6 py-2 hover:bg-blue-700 clicky">
-							LOGIN
-						</button>
-					</a>
-					<a href="/register" router-link>
-						<button id="signup-button" class="pixel-box bg-green-500 px-6 py-2 hover:bg-green-600 clicky">
-							SIGN UP
-						</button>
-					</a>
-				</div>
+			<div class="flex flex-row sm:flex-col md:flex-row items-center space-x-4 sm:space-x-0 md:space-x-4 sm:space-y-4 md:space-y-0">
+				<a href="/login" router-link>
+					<button id="login-button" class="pixel-box bg-blue-600 px-6 py-2 hover:bg-blue-700 sm:w-40 md:w-auto clicky">
+						LOGIN
+					</button>
+				</a>
+				<a href="/register" router-link>
+					<button id="signup-button" class="pixel-box bg-green-500 px-4 py-2 hover:bg-green-600 clicky">
+						SIGN UP
+					</button>
+				</a>
 			</div>`;
 	}
 

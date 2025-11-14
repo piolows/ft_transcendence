@@ -44,7 +44,7 @@ export default class NavBar extends Component {
 		const backBtn = document.getElementById('navbar_back_btn');
 		if (backBtn) {
 			backBtn.onclick = () => {
-				if (history.length > 1) {
+				if (history.length > 2) {
 					history.back();
 				} else {
 					this.router.route('/');
