@@ -39,7 +39,7 @@ export default class NavBar extends Component {
 		app.innerHTML = this.get_html();
 	}
 
-	init() {
+	async init() {
 		this.log_sect.init();
 		const backBtn = document.getElementById('navbar_back_btn');
 		if (backBtn) {

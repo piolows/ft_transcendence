@@ -88,7 +88,7 @@ export default class Leaderboards extends Component {
         app.innerHTML += this.footer.get_html();
     }
 
-    init() {
+    async init() {
         this.navbar.init();
     }
 }

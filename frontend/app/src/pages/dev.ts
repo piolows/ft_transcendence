@@ -96,7 +96,7 @@ export default class Dev extends Component {
 		// 	</footer>`;
 	}
 
-	init() {
+	async init() {
 		this.navbar.init();
 	}
 }

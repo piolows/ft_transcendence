@@ -187,7 +187,7 @@ export default class PongRoom extends Component {
 		}
 	}
 
-	init() {
+	async init() {
 		this.navbar.init();
 		this.setupSocket();
 		document.addEventListener('keyup', this.keyUpHandler, false);

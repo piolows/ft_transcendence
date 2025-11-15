@@ -32,7 +32,7 @@ export default class DifficultyMenu extends Component {
 		app.innerHTML += "<div class=\"container mx-auto px-4\">" + this.menu.get_html() + "</div>" + this.footer.get_html();
 	}
 
-	init() {
+	async init() {
 		this.navbar.init();
 	}
 }

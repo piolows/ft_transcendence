@@ -15,7 +15,7 @@ export default class ErrorHandler extends DefaultErrorPage {
 		app.innerHTML = this.navbar.get_html() + err_msg + this.footer.get_html();
 	}
 
-	init() {
+	async init() {
 		this.navbar.init();
 	}
 }

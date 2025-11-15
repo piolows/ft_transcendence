@@ -54,7 +54,7 @@ export default class AuthSection extends Component {
 		app.innerHTML = this.get_html();
 	}
 
-	init() {
+	async init() {
 		if (this.router.loggedin) {
 			const logoutbtn = document.getElementById('logout-button')! as HTMLButtonElement;
 			logoutbtn.onclick = async () => {

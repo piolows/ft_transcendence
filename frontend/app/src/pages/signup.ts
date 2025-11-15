@@ -49,7 +49,7 @@ export default class SignUp extends Component {
         </div>`;
 	}
 
-	init() {
+	async init() {
 		const form = document.getElementById("registerForm") as HTMLFormElement;
 
 		form.addEventListener("submit", async (event) => {

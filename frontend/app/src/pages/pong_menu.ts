@@ -28,7 +28,7 @@ export default class PongMenu extends Component {
 		app.innerHTML += "<div class=\"container mx-auto px-4\">" + this.menu.get_html() + "</div>" + this.footer.get_html();
 	}
 
-	init() {
+	async init() {
 		this.navbar.init();
 		const create_btn = document.getElementById("pong_create")! as HTMLButtonElement;
 		create_btn.onclick = async () => {

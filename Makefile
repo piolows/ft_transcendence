@@ -1,7 +1,7 @@
 all: build
 
 build:
-	@docker compose --env-file .env up --build -d
+	@docker compose --env-file .env up --build -d || echo "Unexpected error during build process."
 
 restart:
 	@docker compose restart

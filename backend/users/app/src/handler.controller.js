@@ -1,26 +1,3 @@
-export const leaderboardTop = (fastify, options, done) => {
-	const PLAYERS_PER_PAGE = 10;
-
-	fastify.get("/top", async (req, resp) => {
-		try {
-			if (!("page" in req.query)) {
-				const top_players = await fastify.sqlite.prepare(`SELECT ${UT}.username ${ST}.points FROM ${ST}
-					JOIN ${UT} ON ${ST}.user_id = ${UT}.id ORDER BY ${ST}.points DESC LIMIT 3 OFFSET 0`).all();
-				return resp.send({ success: true, top_players });
-			}
-			if (req.query.page < 1)
-				req.query.page = 1;
-			const OFFSET = (req.query.page - 1) * PLAYERS_PER_PAGE;
-			const top_players = await fastify.sqlite.prepare(`SELECT ${UT}.username ${ST}.points FROM ${ST}
-					JOIN ${UT} ON ${ST}.user_id = ${UT}.id ORDER BY ${ST}.points DESC LIMIT ? OFFSET ?`).all(PLAYERS_PER_PAGE, OFFSET);
-			return resp.send({ success: true, top_players });
-		} catch (error) {
-			return resp.send({ success: false, code: 500, error: error.message });
-		}
-	});
-
-	done();
-}
 // handle get request for online/offline status (of someone)
 // handle post request for online/offline status (of ourself)
 const endpointHandler = (fastify, options, done) => {
@@ -30,6 +7,7 @@ const endpointHandler = (fastify, options, done) => {
 	const HT = process.env.HISTORY_TABLE;
 	const FRIENDS_PER_PAGE = 8;
 	const GAMES_PER_PAGE = 10;
+	const PLAYERS_PER_PAGE = 10;
 	
 	function sqliteNow() {
 		return new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
@@ -244,6 +222,24 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	});
 	// AGG [WIP]
+
+	fastify.get("/to", async (req, resp) => {
+		try {
+			if (!("page" in req.query)) {
+				const top_players = await fastify.sqlite.prepare(`SELECT ${UT}.username, ${ST}.points FROM ${ST}
+					JOIN ${UT} ON ${ST}.user_id = ${UT}.id ORDER BY ${ST}.points DESC LIMIT 3 OFFSET 0`).all();
+				return resp.send({ success: true, top_players });
+			}
+			if (req.query.page < 1)
+				req.query.page = 1;
+			const OFFSET = (req.query.page - 1) * PLAYERS_PER_PAGE;
+			const top_players = await fastify.sqlite.prepare(`SELECT ${UT}.username, ${ST}.points FROM ${ST}
+					JOIN ${UT} ON ${ST}.user_id = ${UT}.id ORDER BY ${ST}.points DESC LIMIT ? OFFSET ?`).all(PLAYERS_PER_PAGE, OFFSET);
+			return resp.send({ success: true, top_players });
+		} catch (error) {
+			return resp.send({ success: false, code: 500, error: error.message });
+		}
+	});
 
 	fastify.get("/:username/stats", async (req, resp) => {
 		try {

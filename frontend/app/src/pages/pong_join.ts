@@ -37,7 +37,7 @@ export default class PongJoin extends Component {
         </div>`;
 	}
 
-	init() {
+	async init() {
 		const form = document.getElementById("joinForm")! as HTMLFormElement;
 
 		form.addEventListener("submit", async (event) => {

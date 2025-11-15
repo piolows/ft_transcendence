@@ -21,7 +21,7 @@ export default abstract class Component {
 	}
 
 	async load(app: HTMLDivElement | HTMLElement) {}
-	init() {}
+	async init() {}
 	unload() {}
 }
 

@@ -18,7 +18,7 @@ export default class TournamentRoom extends Component {
         // let res = await fetch(`${backend_url}/tournaments/`)
     }
 
-    init() {
+    async init() {
 
     }
 

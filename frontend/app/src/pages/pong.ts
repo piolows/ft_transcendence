@@ -94,7 +94,7 @@ export default class Pong extends Component {
 		`;
 	}
 
-	init() {
+	async init() {
 		// back
 		const backbtn = document.getElementById('back_btn')!;
 		backbtn.onclick = () => {

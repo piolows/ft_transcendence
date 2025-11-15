@@ -39,7 +39,7 @@ export default class Login extends Component {
         </div>`;
 	}
 
-	init() {
+	async init() {
 		const form = document.getElementById("loginForm") as HTMLFormElement;
 	
 		form.addEventListener("submit", async (event) => {

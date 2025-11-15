@@ -105,7 +105,7 @@ export default class History extends Component {
 		};
 	}
 
-	init() {
+	async init() {
 		if (!this.profile_info)
 			return ;
 		this.navbar.init();

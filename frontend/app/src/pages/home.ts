@@ -38,7 +38,8 @@ export default class Homepage extends Component {
 			+ this.topPlayers.get_html() + "</div>" + this.footer.get_html();
 	}
 
-	init() {
+	async init() {
 		this.navbar.init();
+		this.topPlayers.init();
 	}
 }

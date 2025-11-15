@@ -111,7 +111,7 @@ export default class Friends extends Component {
 		};
 	}
 
-	init() {
+	async init() {
 		if (!this.profile_info)
 			return ;
 		this.navbar.init();
