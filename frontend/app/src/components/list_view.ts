@@ -34,7 +34,7 @@ export default class ListView extends Component {
 	max_page: number = 5;
 	per_page: number = 0;
 	arrows: boolean = true;
-	selector: boolean = true;
+	selector: boolean = false;
 	bg_color: string = "bg-white";
 	text_color: string = "text-black";
 	items_str: string = "items";
@@ -115,7 +115,7 @@ export default class ListView extends Component {
 			<button id="next_btn" class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky font-pixelify">
 				NEXT ►
 			</button>` : '';
-		let pglist = `<select id="pager" class="bg-white text-black pixel-box border-2 border-blue-500 font-pixelify px-2 py-1">\n`;
+		let pglist = `<select id="pager" class="bg-white text-black pixel-box border-2 border-blue-500 px-2 py-1">\n`;
 		for (let i = 1; i <= this.max_page; i++)
 			pglist += `<option value="${i}" ${i == this.page ? 'selected' : ''}>${i}</option>\n`;
 		pglist += '</select>';
