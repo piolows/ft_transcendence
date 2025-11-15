@@ -20,28 +20,11 @@
 [ ] Connect leaderboard to backend
 [ ] Allow editing profile info on the frontend
 [ ] Allow file upload for profile pictures
-[X] Make non-local games update history
 [ ] Test game end update history
 [ ] Fix the game room IN GENERAL
 [ ] Test server-side bot
 [ ] Test leaderboard
 [ ] Fix bots AI
 
-[X] Allow deleting user data in backend_users
-[X] Connect profile page to users endpoint
-[X] Connect /profile/${username} to users
-[X] Add a way to add friends (frontend)
-[X] Add a way to add friends (backend)
-[X] Add a friends counter on /profile and /profile/{username}
-[X] Fix register for google account not logging in
-[X] Fix login repeatedly
-
 New issues:
-[] Login not rereouting to page with logged in user in navbar, but user still gets logged in regardless
-error message:
-    router.ts:134 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'includes')
-        at Router.root_without_wild (router.ts:134:29)
-        at Router.route (router.ts:184:15)
-        at HTMLFormElement.<anonymous> (login.ts:64:18)
-Moreover, the login modal cannot be removed
 [ ] Auto-reconnect attempt in game rooms

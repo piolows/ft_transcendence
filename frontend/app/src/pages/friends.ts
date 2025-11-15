@@ -43,7 +43,7 @@ export default class Friends extends Component {
 			const row =  [{ value: `<a href="/profile/${friend.username}" router-link class="hover:opacity-80 transition-opacity flex flex-col sm:flex-row overflow-hidden"><img src="${backend_url + friend.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
 				<span style="padding-top: 5px; padding-left: 7px;">${friend.username}</span></a>`, cols: 2 },
 				{ value: `<div><span>${friend.points} PTS</span></div>`, cols: 2 },
-				{ value: `<div><span>${friend.win_rate * 100}% Win Rate</span></div>`, cols: 2 }];
+				{ value: `<div><span>${Math.round(friend.win_rate * 10000) / 100}% Win Rate</span></div>`, cols: 2 }];
 			if (friend.id != this.router.login_info.id)
 				row.push({ value: friend.is_friend ? unfollow(idx) : follow(idx), cols: 1 });
 			else

@@ -266,8 +266,19 @@ const pongHandler = (fastify, options, done) => {
 						member.leave();
 						console.log(`User ${member.user_info.username} - ${member.user_info.email} left game #${id}`);
 						if (games[id].player_count() == 0 && (Object.keys(games[id].all).length == 0 || games[id].setup.game_over)) {
-							destroy_game(admins, games, id);
-							console.log(`Destroyed room ${id}`);
+							if (Object.keys(games[id].all).length == 0 && !games[id].setup.game_over) {
+								const func = () => {
+									if (Object.keys(games[id].all).length == 0) {
+										destroy_game(admins, games, id);
+										console.log(`Destroyed room ${id}`);
+									}
+								};
+								setTimeout(func, 5000);
+							}
+							else {
+								destroy_game(admins, games, id);
+								console.log(`Destroyed room ${id}`);
+							}
 						}
 						else {
 							broadcast_game(games[id], false, null);

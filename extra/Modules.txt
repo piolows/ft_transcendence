@@ -10,7 +10,7 @@ No unhandled errors or warnings.									(DONE)
 Must use Docker.													(DONE)
 Must run project from /goinfre										(DONE)
 Never push .env														(DONE)
-Protection against SQL/XSS attacks.
+Protection against SQL/XSS attacks.									(DONE - UNTESTED)
 Tournaments that allow multiple winners.
 Registration system for the Tournaments.
 Matchmaking system for Tournaments that organizes participants.
@@ -29,8 +29,8 @@ PEAP:
 Game/Backend - User stats (AI-Algo 2) (m)                           (DONE 50%)
 Game/Backend - Remote Players (M)									(DONE)
 Backend/Game/Frontend - Server-Side Pong (Server-Side Pong 1) (M)	(DONE)
-Frontend - Support on all devices (Accessibility 1) (m)             (DONE 50%)
 Frontend - Expand Browser Compatibilitiy (Accessibility 1) (m)      (DONE)
+Frontend - Support on all devices (Accessibility 1) (m)             (DONE 50%)
 
 Alex & ej:
 Backend - User Auth & Info (M) (User management 1)					(DONE)
