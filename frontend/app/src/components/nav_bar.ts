@@ -15,7 +15,7 @@ export default class NavBar extends Component {
 		const isHomepage = location.pathname === "/" || location.pathname === "";
 		const backButton = !isHomepage ? `
 			<button id="navbar_back_btn" class="pixel-box bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 font-pixelify transition-colors clicky">
-				◄ BACK
+				<<
 			</button>
 		` : '';
 		return `

@@ -87,8 +87,7 @@ export class Router {
 
 	private async setup_google() {
 		await this.wait_for_google();
-
-		google.accounts.id.initialize({
+		(window as any).google.accounts.id.initialize({
 			client_id: "336093315647-mlq5ufc06999l3vhrvbimtn36jqvmgtk.apps.googleusercontent.com",
 			callback: (resp: any) => this.handle_google_login(resp),
 			auto_select: false

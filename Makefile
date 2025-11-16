@@ -9,8 +9,8 @@ restart:
 clean:
 	@docker compose down --volumes --remove-orphans
 
-fclean: clean
-	@docker compose down --rmi all --remove-orphans
+fclean:
+	@docker compose down --rmi all --volumes --remove-orphans
 	@docker volume rm $$(docker volume ls -q) 2&>/dev/null || true
 	@docker system prune --all --force
 	@docker volume prune -f

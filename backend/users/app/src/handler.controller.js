@@ -223,7 +223,7 @@ const endpointHandler = (fastify, options, done) => {
 	});
 	// AGG [WIP]
 
-	fastify.get("/to", async (req, resp) => {
+	fastify.get("/top", async (req, resp) => {
 		try {
 			if (!("page" in req.query)) {
 				const top_players = await fastify.sqlite.prepare(`SELECT ${UT}.username, ${ST}.points FROM ${ST}
