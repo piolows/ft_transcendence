@@ -14,47 +14,43 @@ export default class Pong extends Component {
 
 	async load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML = `
+			<div id="p1_score" hidden>0</div>
+			<div id="p2_score" hidden>0</div>
 			<div class="w-full h-screen bg-gray-900 flex flex-col overflow-hidden">
-				<!-- navbar clone -->
-				<div class="bg-blue-900 border-b-4 border-blue-700 px-4 py-3 z-10">
-					<div class="flex flex-col gap-y-5 sm:gap-y-0 sm:flex-row justify-between items-center">
-						<!-- logo + back button -->
-						<div class="flex items-center space-x-4">
-							<a href="/" router-link>
-								<h1 class="text-4xl font-bold pixel-box bg-opacity-50 p-4 hover:opacity-80 transition-opacity cursor-pointer">PONGOID</h1>
-							</a>
-							<button id="back_btn" class="pixel-box bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 font-pixelify transition-colors clicky">
-								<<
-							</button>
-						</div>
-						<!-- timer -->
-						<div class="pixel-box bg-blue-800 px-8 py-2 text-center">
-							<p class="text-xs text-cyan-300 font-pixelify">TIMER</p>
-							<div id="timer" class="text-3xl font-bold text-white tracking-wider">
-								<span id="minutes">00</span><span>:</span><span id="seconds">00</span>
-							</div>
-						</div>
-						<!-- gamemode (disblaed temp) and user info -->
-						<div class="flex items-center space-x-6">
-							<!-- div id="gamemode" class="pixel-box bg-blue-700 px-4 py-2 text-white font-pixelify text-sm">VS PLAYER</div -->
-							<div id="user-section"></div>
+			<!-- navbar clone -->
+			<div class="bg-blue-900 border-b-4 border-blue-700 px-4 py-3 z-10">
+				<div class="grid grid-cols-3 items-center gap-4">
+					<!-- logo + back button -->
+					<div class="flex items-center space-x-4">
+						<a href="/" router-link>
+							<h1 class="text-4xl font-bold pixel-box bg-opacity-50 p-4 hover:opacity-80 transition-opacity cursor-pointer">PONGOID</h1>
+						</a>
+						<button id="back_btn" class="pixel-box bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 font-pixelify transition-colors clicky">
+							<<
+						</button>
+					</div>
+					<!-- timer -->
+					<div class="pixel-box bg-blue-800 px-8 py-2 text-center mx-auto">
+						<p class="text-xs text-cyan-300 font-pixelify">TIMER</p>
+						<div id="timer" class="text-3xl font-bold text-white tracking-wider">
+							<span id="minutes">00</span><span>:</span><span id="seconds">00</span>
 						</div>
 					</div>
+					<!-- gamemode (disblaed temp) and user info -->
+					<div class="flex items-center space-x-6 justify-end">
+						<!-- div id="gamemode" class="pixel-box bg-blue-700 px-4 py-2 text-white font-pixelify text-sm">VS PLAYER</div -->
+						<div id="user-section"></div>
+					</div>
 				</div>
-
-				<!-- main area -->
+			</div>
+			
+			<!-- main area -->
 				<div class="flex-1 flex overflow-hidden">
 					<!-- left sidebar -->
 					<div class="w-48 bg-blue-900 border-r-2 border-blue-700 p-4 flex flex-col justify-between overflow-y-auto">
-						<div class="space-y-4">
-							<div class="pixel-box bg-blue-800 p-4 text-center">
-								<p class="text-xs font-pixelify text-yellow-300">PLAYER 1</p>
-								<p id="p1_score" class="text-3xl font-bold text-white">0</p>
-							</div>
-						</div>
 						<div class="pixel-box bg-blue-800 p-3 text-center">
 							<p class="text-xs font-pixelify text-gray-300 mb-2">CONTROLS</p>
-							<p class="text-xs text-white">W/S or ↑/↓</p>
+							<p class="text-xs text-white">W/S</p>
 							<p class="text-xs text-white">to move</p>
 						</div>
 					</div>
@@ -66,15 +62,10 @@ export default class Pong extends Component {
 
 					<!-- right sidebar -->
 					<div class="w-48 bg-blue-900 border-l-2 border-blue-700 p-4 flex flex-col justify-between overflow-y-auto">
-						<div class="space-y-4">
-							<div class="pixel-box bg-blue-800 p-4 text-center">
-								<p class="text-xs font-pixelify text-red-300">PLAYER 2</p>
-								<p id="p2_score" class="text-3xl font-bold text-white">0</p>
-							</div>
-							<!-- <div class="pixel-box bg-blue-800 p-4 text-center">
-								<p class="text-xs font-pixelify text-green-300">STATUS</p>
-								<p id="game_status" class="text-sm text-white">READY</p>
-							</div> can be some kind of pause thing maybe?? -->
+						<div id="right-controls" class="pixel-box bg-blue-800 p-3 text-center">
+							<p class="text-xs font-pixelify text-gray-300 mb-2">CONTROLS</p>
+							<p class="text-xs text-white">↑/↓</p>
+							<p class="text-xs text-white">to move</p>
 						</div>
 						<a href="/pong/menu" router-link>
 							<div class="pixel-box bg-blue-800 p-3 text-center text-xs">
@@ -152,13 +143,16 @@ export default class Pong extends Component {
 		
 		// const gamemodeLabel = document.getElementById('gamemode')!;
 		const modeDisplay = document.getElementById('mode-display')!;
+		const rightControls = document.getElementById('right-controls')!;
 		if (op === "bot") {
 			const difficultyNames = ["EASY", "HARD", "EXTREME"];
 			// gamemodeLabel.textContent = `VS BOT (${difficultyNames[difficulty]})`;
 			modeDisplay.textContent = difficultyNames[difficulty];
+			rightControls.style.display = 'none'; // Hide controls for bot mode
 		} else {
 			// gamemodeLabel.textContent = "VS PLAYER";
 			modeDisplay.textContent = "PLAYER";
+			rightControls.style.display = 'block'; // Show controls for vs player
 		}
 
 		const cv = document.getElementById("gameCanvas") as HTMLCanvasElement;
