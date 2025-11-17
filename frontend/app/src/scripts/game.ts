@@ -241,7 +241,7 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 	let animationId: number;
 	const left_paddle = left_player.paddle;
 	const right_paddle = right_player.paddle;
-	const mins = timer.children[1];
+	const mins = timer.children[0];
 	const secs = timer.children[2];
 	let lastTime = performance.now();
 	let lastSecond = performance.now();
@@ -310,8 +310,10 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 		{
 			const seconds = parseInt(secs.innerHTML);
 			secs.innerHTML = getTimePlus(secs.innerHTML);
-			if (seconds == 59)
+			if (seconds == 59) {
 				mins.innerHTML = getTimePlus(mins.innerHTML);
+				secs.innerHTML = "00";
+			}
 			lastSecond = currentTime;
 		}
 		if (currentTime - lastSecondBot >= 1000)

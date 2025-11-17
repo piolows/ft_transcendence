@@ -24,7 +24,7 @@ export default class Pong extends Component {
 								<h1 class="text-4xl font-bold pixel-box bg-opacity-50 p-4 hover:opacity-80 transition-opacity cursor-pointer">PONGOID</h1>
 							</a>
 							<button id="back_btn" class="pixel-box bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 font-pixelify transition-colors clicky">
-								◄ BACK
+								<<
 							</button>
 						</div>
 						<!-- timer -->
@@ -51,12 +51,6 @@ export default class Pong extends Component {
 								<p class="text-xs font-pixelify text-yellow-300">PLAYER 1</p>
 								<p id="p1_score" class="text-3xl font-bold text-white">0</p>
 							</div>
-							<div class="pixel-box bg-blue-800 p-4 text-center">
-								<p class="text-xs font-pixelify text-cyan-300">TIMER</p>
-								<div id="timer" class="text-3xl font-bold text-white font-pixelify tracking-wider">
-									<span id="minutes">00</span><span>:</span><span id="seconds">00</span>
-								</div>
-							</div>
 						</div>
 						<div class="pixel-box bg-blue-800 p-3 text-center">
 							<p class="text-xs font-pixelify text-gray-300 mb-2">CONTROLS</p>
@@ -77,10 +71,10 @@ export default class Pong extends Component {
 								<p class="text-xs font-pixelify text-red-300">PLAYER 2</p>
 								<p id="p2_score" class="text-3xl font-bold text-white">0</p>
 							</div>
-							<div class="pixel-box bg-blue-800 p-4 text-center">
+							<!-- <div class="pixel-box bg-blue-800 p-4 text-center">
 								<p class="text-xs font-pixelify text-green-300">STATUS</p>
 								<p id="game_status" class="text-sm text-white">READY</p>
-							</div> <!-- can be some kind of pause thing maybe?? -->
+							</div> can be some kind of pause thing maybe?? -->
 						</div>
 						<a href="/pong/menu" router-link>
 							<div class="pixel-box bg-blue-800 p-3 text-center text-xs">
