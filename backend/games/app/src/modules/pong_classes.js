@@ -135,6 +135,14 @@ export class Game {
 		this.setup = new Setup();
 		this.tournament_id = tournament_id;
 	}
+	
+	getWinnerID(players) {
+		if (this.winner == 0)
+			return -1;
+		const lp = players[0].is_left ? players[0] : players[1];
+		const rp = players[0].is_left ? players[1] : players[0];
+		return (this.winner == -1 ? lp : rp);
+	}
 
 	start_game() {
 		if (this.player_count() < 2)
@@ -157,7 +165,7 @@ export class Game {
 					body: {
 						game: "pong",
 						op_id: players[1].user_info.id,
-						winner_id: this.winner == 0 ? -1 : (this.winner == -1 ? players[0].user_info.id : players[1].user_info.id),
+						winner_id: this.getWinnerID(),
 						time: this.setup.time,
 						p1_score: this.setup.p1_score,
 						p2_score: this.setup.p2_score,

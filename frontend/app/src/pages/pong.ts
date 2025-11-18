@@ -83,10 +83,10 @@ export default class Pong extends Component {
 		// back
 		const backbtn = document.getElementById('back_btn')!;
 		backbtn.onclick = () => {
-			if (history.length > 1) {
+			if (history.length > 2) {
 				history.back();
 			} else {
-				this.router.route("/pong/menu");
+				this.router.route(this.back_url);
 			}
 		};
 

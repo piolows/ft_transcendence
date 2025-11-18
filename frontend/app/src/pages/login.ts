@@ -84,7 +84,7 @@ export default class Login extends Component {
 			this.router.route(history.state?.route, "replace");
 		};
 
-		google.accounts.id.renderButton(
+		(window as any).google.accounts.id.renderButton(
 			document.getElementById("googleButton")!,
 			{ 
 				shape: "circle",
