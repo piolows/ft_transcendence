@@ -151,8 +151,8 @@ export default class PongRoom extends Component {
 				return ;
 			}
 			this.admin = data.admin;
-			this.left_player = data.players[0];
-			this.right_player = data.players[1];
+			this.left_player = data.left_player;
+			this.right_player = data.right_player;
 			this.canvas = data.canvas_info;
 			this.paddle = data.paddle_info;
 			this.ball = data.ball_info;
@@ -202,7 +202,8 @@ export default class PongRoom extends Component {
 				else {
 					draw_frame(this.elements, msg, this);
 				}
-			} catch (error) {
+			} catch (error: any) {
+				console.error(error.status, error.text);
 				console.error("Unexpected communication from server.", message);
 			}
 		};
@@ -245,6 +246,7 @@ export default class PongRoom extends Component {
 	}
 
 	async init() {
+		this.navbar.init();
 		// back button
 		const backbtn = document.getElementById('back_btn')!;
 		backbtn.onclick = () => {

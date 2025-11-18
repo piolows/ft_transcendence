@@ -132,8 +132,8 @@ export function draw_frame(elements: any, message: any, room: any) {
 		elements.secs.innerText = timeFormat(message.time % 60);
 		elements.spectators.innerText = message.spec_count;
 		elements.result.innerText = message.game_over ? (message.winner == 0 ? 'Draw' : (message.winner == -1 ? 'Player 1 Won' : 'Player 2 Won')) : '';
-		room.left_player = message.players[0];
-		room.right_player = message.players[1];
+		room.left_player = message.left_player;
+		room.right_player = message.right_player;
 		elements.playersInfo.innerHTML = `
 			<div><p class="pb-4">Player 1:</p>
 			${ room.left_player ?

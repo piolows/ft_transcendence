@@ -4,7 +4,7 @@ export var tournaments = {}; // uuid : tournament_object
 export var tournament_admins = {}; // username : tournament_uuid
 
 function shortUUID() {
-  return randomUUID().replace(/-/g, "").slice(0, 16);
+  return randomUUID().replace(/-/g, "").slice(0, 5);
 }
 
 

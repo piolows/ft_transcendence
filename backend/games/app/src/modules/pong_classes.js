@@ -6,7 +6,7 @@ const GAME_FPS = 60;
 const FRAME_TIME = ONE_SECOND / GAME_FPS;
 
 function shortUUID() {
-  return randomUUID().replace(/-/g, "").slice(0, 16).toUpperCase();
+  return randomUUID().replace(/-/g, "").slice(0, 5).toUpperCase();
 }
 
 export class Member {
@@ -135,13 +135,21 @@ export class Game {
 		this.setup = new Setup();
 		this.tournament_id = tournament_id;
 	}
-	
-	getWinnerID(players) {
-		if (this.winner == 0)
-			return -1;
-		const lp = players[0].is_left ? players[0] : players[1];
-		const rp = players[0].is_left ? players[1] : players[0];
-		return (this.winner == -1 ? lp : rp);
+
+	getPlayer(side) {
+		const players = Object.values(this.players);
+		if (side == "left") {
+			if (players[0] && players[0].is_left)
+				return players[0];
+			if (players[1] && players[1].is_left)
+				return players[1];
+		}
+		else if (side == "right") {
+			if (players[0] && !players[0].is_left)
+				return players[0];
+			if (players[1] && !players[1].is_left)
+				return players[1];
+		}
 	}
 
 	start_game() {
@@ -158,21 +166,23 @@ export class Game {
 			throw new Error("Game not running");
 		this.setup.end_game();
 		const players = Object.values(this.players);
-		if (this.setup.game_over) {
-			try {
-				await fetch(`${process.env.USERS_URL}/users/${players[0].user_info.username}/history`, {
-					method: "POST",
-					body: {
-						game: "pong",
-						op_id: players[1].user_info.id,
-						winner_id: this.getWinnerID(),
-						time: this.setup.time,
-						p1_score: this.setup.p1_score,
-						p2_score: this.setup.p2_score,
-					}
-				});
-			} catch (error) {
-				console.log(error);
+		if (players.length > 1) {
+			if (this.setup.game_over) {
+				try {
+					await fetch(`${process.env.USERS_URL}/users/${players[0].user_info.username}/history`, {
+						method: "POST",
+						body: {
+							game: "pong",
+							op_id: players[1].user_info.id,
+							winner_id: this.winner == 0 ? -1 : (this.winner == -1 ? this.getPlayer('left') : this.getPlayer('right')),
+							time: this.setup.time,
+							p1_score: this.setup.p1_score,
+							p2_score: this.setup.p2_score,
+						}
+					});
+				} catch (error) {
+					console.log(error);
+				}
 			}
 		}
 		for (let player of players) {
@@ -180,10 +190,6 @@ export class Game {
 			delete this.players[player.user_info.username];
 		}
 		if (this.tournament_id) {
-			let players = [];
-			for (let player of Object.values(this.players)) {
-				players.push(player.user_info);
-			}
 			fetch(`${process.env.TOURNAMENT_URL}/${req.body.tournament_id}`, {
 				method: "POST",
 				body: {
@@ -191,7 +197,8 @@ export class Game {
 					admin: this.admin_info,
 					winner: this.winner,
 					time: this.setup.time,
-					players: players,
+					left_player: this.getPlayer('left'),
+					right_player: this.getPlayer('right'),
 					p1_score: this.setup.p1_score,
 					p2_score: this.setup.p2_score,
 				}
@@ -399,7 +406,8 @@ function game_state(gameObj) {
 		full: (gameObj.player_count() == 2),
 		winner: gameObj.winner,
 		time: game.time,
-		players: players,
+		left_player: gameObj.getPlayer('left'),
+		right_player: gameObj.getPlayer('right'),
 		timeout: game.timeout,
 		reset: game.reset,
 		p1_score: game.p1_score,

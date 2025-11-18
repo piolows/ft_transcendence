@@ -18,7 +18,7 @@ export async function hash(password) {
 }
 
 export function shortUUID() {
-  return randomUUID().replace(/-/g, "").slice(0, 16);
+  return randomUUID().replace(/-/g, "").slice(0, 5);
 }
 
 export function validate_registration(user, req, update = false) {
