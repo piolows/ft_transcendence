@@ -201,10 +201,10 @@ const pongHandler = (fastify, options, done) => {
 							}
 							member.leave();
 							console.log(`User ${member.user_info.username} - ${member.user_info.email} left game #${gid}`);
-							if (games[gid].player_count() == 0 && (Object.keys(games[gid].all).length == 0 || games[gid].setup.game_over)) {
-								destroy_game(admins, games, gid);
-								console.log(`Destroyed room ${gid}`);
-							}
+							// if (games[gid].player_count() == 0 && (Object.keys(games[gid].all).length == 0 || games[gid].setup.game_over)) {
+							// 	destroy_game(admins, games, gid);
+							// 	console.log(`Destroyed room ${gid}`);
+							// }
 							// socket.send("Left game #" + gid);
 							socket.send(JSON.stringify({ success: true }));
 							break;
@@ -273,7 +273,7 @@ const pongHandler = (fastify, options, done) => {
 										console.log(`Destroyed room ${id}`);
 									}
 								};
-								setTimeout(func, 5000);
+								setTimeout(func, 20000);
 							}
 							else {
 								destroy_game(admins, games, id);

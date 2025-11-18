@@ -83,9 +83,8 @@ export class Bot extends Player {
 			return;
 		}
 		const modifier = 2 - this.difficulty;
-		const variation = modifier * (Math.random() + Math.random()) * (0.05 * this.cv.height)
+		const variation = modifier * (Math.random()) * (0.05 * this.cv.height)
 			* (Math.random() > 0.5 ? -1 : 1) * (Math.random() < (0.4 * modifier) ? 1 : 0);
-		console.log(variation);
 		const intersect = ball_xVel > 0 ? this.cv.width : -this.cv.width;
 		const steps = Math.abs(intersect - ball_x) / ball_xVel;
 		const dest = Math.abs(ball_y + ball_yVel * steps);
@@ -173,7 +172,7 @@ function hit_paddle(paddle: Paddle, ball: Ball, is_left: boolean = false)
 			const angle = normal_intersect * (Math.PI / 4);
 			ball.xVel = ball.speed * Math.cos(angle);
 			ball.yVel = ball.speed * Math.sin(angle);
-			// ball.speed *= 1.05;
+			ball.speed *= 1.05;
 			if (!is_left)
 				ball.xVel *= -1;
 		}
