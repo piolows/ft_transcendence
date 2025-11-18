@@ -102,8 +102,12 @@ export const tournamentHandler = (fastify, options, done) => {
         const tournamentId = req.body.tournamentId;
         if (!tournaments[tournamentId].players[req.session.user.username])
         {
-            tournaments[tournamentId].players[req.session.user.username] = req.session.user;
-            return reply.send({ success: true, msg: "Joined the tournament successfully"});
+            if (Object.keys(tournaments[tournamentId].players).length < tournaments[tournamentId].maxPlayers) {
+                tournaments[tournamentId].players[req.session.user.username] = req.session.user;
+                return reply.send({ success: true, msg: "Joined the tournament successfully"});
+            } else {
+                return reply.send({ success: false, msg: "Tournament is full" });
+            }
         }
         return reply.send({ success: false, msg: "User is already in tournament" });
     });

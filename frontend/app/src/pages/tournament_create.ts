@@ -11,10 +11,10 @@ export default class CreateTournament extends Component {
         <div id="main-container" class="container pixel-box mx-auto bg-blue-900 p-8">
             <form id="form" class="mx-auto flex flex-col justify-between gap-3">
                 <div>
-                    <label for="room-name" class="text-[30px]">Room name: </label><input class="text-black" type="text" id="room-name" name="room-name">
+                    <label for="room-name" class="text-[30px]">Room name: </label><input class="text-black" type="text" id="room-name" name="room-name" maxlength="20">
                 </div>
                 <div>
-                    <label for="player-count" class="text-[30px]">Max players: </label><input type="number" id="player-count" name="player-count" min="2" max="16">
+                    <label for="player-count" class="text-[30px]">Max players: </label><input type="number" id="player-count" name="player-count" value="4" min="2" max="16">
                 </div>
                 <div>
                     <button id="create" class="pixel-box bg-green-500 h-[60px] clicky" type="submit">Create Tournament</button>
