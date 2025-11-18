@@ -89,7 +89,7 @@ export class Bot extends Player {
 		const steps = Math.abs(intersect - ball_x) / ball_xVel;
 		const dest = Math.abs(ball_y + ball_yVel * steps);
 		const reflects = Math.floor(dest / this.cv.height);
-		if (reflects % 2 == 0)
+		if (reflects % 2 == 0 && ball_xVel > 0)
 			this.dest_y = (dest % this.cv.height) + variation;
 		else
 			this.dest_y = this.cv.height * (reflects + 1) - (dest % this.cv.height) + variation;
@@ -172,7 +172,7 @@ function hit_paddle(paddle: Paddle, ball: Ball, is_left: boolean = false)
 			const angle = normal_intersect * (Math.PI / 4);
 			ball.xVel = ball.speed * Math.cos(angle);
 			ball.yVel = ball.speed * Math.sin(angle);
-			ball.speed *= 1.05;
+			// ball.speed *= 1.05;
 			if (!is_left)
 				ball.xVel *= -1;
 		}
@@ -224,24 +224,13 @@ function drawBall(cv: HTMLCanvasElement, ball: Ball, delta: number)
 	ball.y += ball.yVel * delta;
 }
 
-function getTimePlus(timeStr: string) {
-	const time = parseInt(timeStr);
-
-	if (time < 9) {
-		return `0${time + 1}`;
-	}
-	else if (time < 59) {
-		return `${time + 1}`;
-	}
-	return "00";
-}
-
 export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Player | Bot, right_player: Player | Bot, p1_score: HTMLDivElement, p2_score: HTMLDivElement, timer: HTMLDivElement) {
 	let animationId: number;
 	const left_paddle = left_player.paddle;
 	const right_paddle = right_player.paddle;
 	const mins = timer.children[0];
 	const secs = timer.children[2];
+	let time = 0;
 	let lastTime = performance.now();
 	let lastSecond = performance.now();
 	let lastSecondBot = performance.now();
@@ -307,12 +296,11 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 		// Runs every second
 		if (currentTime - lastSecond >= 1000)
 		{
-			const seconds = parseInt(secs.innerHTML);
-			secs.innerHTML = getTimePlus(secs.innerHTML);
-			if (seconds == 59) {
-				mins.innerHTML = getTimePlus(mins.innerHTML);
-				secs.innerHTML = "00";
-			}
+			time += 1;
+			const seconds = time % 60;
+			const minutes = Math.floor(time / 60) % 60;
+			mins.innerHTML = minutes < 10 ? `0${minutes}` : `${minutes}`;
+			secs.innerHTML = seconds < 10 ? `0${seconds}` : `${seconds}`;
 			lastSecond = currentTime;
 		}
 		if (currentTime - lastSecondBot >= 1000)

@@ -26,25 +26,53 @@ export default abstract class Component {
 }
 
 class Loading extends Component {
-	private loading = true;
+	private dot_count = 0;
+	state = "loading";
+
+	private get_text() {
+		switch (this.state) {
+			case "loading":
+				return "Loading";
+			case "offline":
+				return "You are currently offline.\nCheck your internet connection bro!";
+			case "timeout":
+				return "Connection timed out sowwy\nTry refreshing pwease.";
+			default:
+				return "";
+		}
+	}
 
 	async load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML = `
-			<p id="loading_txt" class="h-full w-full">
-				Loading . .
-			</p>
-		`;
+			<div class="flex flex-box h-screen w-full justify-center items-center">
+				<p id="loading_txt" class="text-left ${this.state == "loading" ? 'w-80' : 'w-150'} mx-auto text-4xl" style="font-family: courier;">
+					${this.get_text()}
+				</p>
+			</div>`;
 	}
 
 	async init() {
 		const loading_text = document.getElementById('loading_txt');
-		while (this.loading && loading_text) {
-			loading_text.innerText += " .";
-		}
+		await new Promise(() => {
+			const check = () => {
+				if (this.state == "loading" && loading_text) {
+					if (this.dot_count >= 3) {
+						loading_text.innerText = "Loading";
+						this.dot_count = 0;
+					}
+					else {
+						loading_text.innerText += " .";
+						this.dot_count += 1;
+					}
+					setTimeout(check, 300);
+				}
+			};
+			check();
+		});
 	}
 
 	unload() {
-		this.loading = false;
+		this.state = "idle";
 	}
 }
 
@@ -98,14 +126,31 @@ export class Router {
 
 	private wait_for_google(): Promise<void> {
 		// Wait for the Google script to load
-		return new Promise((resolve) => {
+		return new Promise((resolve, reject) => {
+			const start = Date.now();
+			const timeout = 5000;
+
 			const check = () => {
 				if ((window as any).google?.accounts?.id) {
 					resolve();
-				} else {
-					setTimeout(check, 100);
+					return;
 				}
+
+				// Offline - immediate failure
+				if (!navigator.onLine) {
+					reject(new Error("offline"));
+					return;
+				}
+
+				// Timeout - failure
+				if (Date.now() - start > timeout) {
+					reject(new Error("timeout"));
+					return;
+				}
+
+				setTimeout(check, 100);
 			};
+		
 			check();
 		});
 	}
@@ -235,13 +280,14 @@ export class Router {
 
 	async route_error(path: string, code: number, err_msg?: string) {
 		this.currpage?.unload();
-		window.scrollTo(0, 0);
 		this.errpage.error_code = code;
 		this.errpage.custom_msg = err_msg;
-		this.errpage.load(this.app).then(() => this.errpage.init());
+		await this.errpage.load(this.app);
+		await this.errpage.init();
 		this.currpage = this.errpage;
 		this.errpage.error_code = 404;
 		this.errpage.custom_msg = undefined;
+		window.scrollTo(0, 0);
 		history.replaceState({ route: path }, '', path);
 	}
 
@@ -294,12 +340,22 @@ export class Router {
 	}
 
 	async start() {
-		// await this.loading();
+		this.loading();
 		if ("scrollRestoration" in history) {
 			history.scrollRestoration = "manual";
 		}
-		await this.setup_google();
-		// await this.loading(false);
+		try {
+			await this.setup_google();
+		} catch (error: any) {
+			console.warn(error);
+			if (error.message == "offline" || error.message == "timeout") {
+				this.loader.state = error.message;
+				await this.loader.load(this.app);
+				return ;
+			}
+			console.error(error.status, error.text);
+		}
+		this.loading(false);
 		this.start_presence_heartbeat();
 		this.route(location.pathname);
 	}

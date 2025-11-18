@@ -17,13 +17,11 @@
  -  Emad
 [ ] Fix login not working on Firefox (OPTIONS Request)
 [ ] Add Online/Offline status (through regular pings to the server)
-[ ] Connect leaderboard to backend
 [ ] Allow editing profile info on the frontend
 [ ] Allow file upload for profile pictures
 [ ] Test game end update history
 [ ] Fix the game room IN GENERAL
 [ ] Test server-side bot
-[ ] Test leaderboard
 [ ] Fix bots AI
 
 New issues:
