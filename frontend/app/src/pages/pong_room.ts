@@ -36,32 +36,89 @@ export default class PongRoom extends Component {
 		await this.get_info();
 		if (!this.admin)
 			return ;
-		this.navbar.load(app);
-		app.innerHTML += `
+		app.innerHTML = `
 			<div id="p1_score" hidden>0</div>
 			<div id="p2_score" hidden>0</div>
-			<div class="flex justify-center w-full" style="height: 500px;">
-				<div id="gameInfo" class="flex flex-col pl-8 justify-center space-y-8 w-120">
-					<div class="flex justify-left space-x-7"><label>Game Result: </label><label id="result"></label></div>
-					<div class="flex justify-left space-x-7"><label>Game Timer: </label><div id="timer"><label id="minutes">00</label>:<label id="seconds">00</label></div></div>
-					<div class="flex justify-left space-x-7"><label>Spectator Count: </label><label id="spectators">0</label></div>
-					<div class="flex flex-col justify-left space-y-2"><label>Game Room Code:</label><label>${ this.game_id }</label></div>
-					<div class="flex justify-left space-x-7"><label>Room Created By:</label></div>
-					<div id="admin-info">
-						<div class="flex items-center space-x-4">
-							<img id="pfp" src="${ backend_url + this.admin.avatarURL }" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
-							<div>
-								<h4 id="username" class="crt-text">${ this.admin.username }</h4>
-								<p id="email" class="text-xs font-silkscreen">${ this.admin.email }</p>
+			<div class="w-full h-screen bg-gray-900 flex flex-col overflow-hidden">
+			<!-- navbar clone -->
+			<div class="bg-blue-900 border-b-4 border-blue-700 px-4 py-3 z-10">
+				<div class="grid grid-cols-3 items-center gap-4">
+					<!-- logo + back button -->
+					<div class="flex items-center space-x-4">
+						<a href="/" router-link>
+							<h1 class="text-4xl font-bold pixel-box bg-opacity-50 p-4 hover:opacity-80 transition-opacity cursor-pointer">PONGOID</h1>
+						</a>
+						<button id="back_btn" class="pixel-box bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 font-pixelify transition-colors clicky">
+							<<
+						</button>
+					</div>
+					<!-- timer -->
+					<div class="pixel-box bg-blue-800 px-8 py-2 text-center mx-auto">
+						<p class="text-xs text-cyan-300 font-pixelify">TIMER</p>
+						<div id="timer" class="text-3xl font-bold text-white tracking-wider">
+							<span id="minutes">00</span><span>:</span><span id="seconds">00</span>
+						</div>
+					</div>
+					<!-- user info -->
+					<div class="flex items-center space-x-6 justify-end">
+						<div id="user-section"></div>
+					</div>
+				</div>
+			</div>
+			
+			<!-- main area -->
+				<div class="flex-1 flex overflow-hidden">
+					<!-- left sidebar -->
+					<div class="w-72 bg-blue-900 border-r-2 border-blue-700 p-4 flex flex-col justify-between overflow-y-auto">
+						<div>
+							<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
+								<p class="text-xs font-pixelify text-gray-300 mb-2">CONTROLS</p>
+								<p class="text-xs text-white">W/S</p>
+								<p class="text-xs text-white">to move</p>
+							</div>
+							<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
+								<p class="text-xs font-pixelify text-gray-300 mb-2">ROOM CODE</p>
+								<p class="text-sm text-white font-bold">${ this.game_id }</p>
+							</div>
+							<div class="pixel-box bg-blue-800 p-3 text-center">
+								<p class="text-xs font-pixelify text-gray-300 mb-2">CREATED BY</p>
+								<div class="flex flex-col items-center space-y-2">
+									<img src="${ backend_url + this.admin.avatarURL }" class="w-10 h-10 rounded-full pixel-box" alt="Admin">
+									<p class="text-xs text-white">${ this.admin.username }</p>
+								</div>
 							</div>
 						</div>
 					</div>
+
+					<!-- canvas -->
+					<div class="flex-1 flex items-center justify-center bg-black">
+						<div id="parent-container"></div>
+					</div>
+
+					<!-- right sidebar -->
+					<div class="w-72 bg-blue-900 border-l-2 border-blue-700 p-4 flex flex-col justify-between overflow-y-auto">
+						<div>
+							<a href="/pong/menu" router-link>
+							<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
+								<p class="text-xs font-pixelify text-gray-300 mb-2">GAME MODE</p>
+								<p class="text-white">ONLINE</p>
+							</div>
+							</a>
+							<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
+								<p class="text-xs font-pixelify text-gray-300 mb-2">SPECTATORS</p>
+								<p id="spectators" class="text-white text-lg font-bold">0</p>
+							</div>
+							<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
+								<p class="text-xs font-pixelify text-gray-300 mb-2">GAME STATUS</p>
+								<p id="result" class="text-white">WAITING</p>
+							</div>
+						</div>
+						<div id="playersInfo" class="space-y-4">
+						</div>
+					</div>
 				</div>
-				<div id="parent-container" class="flex">
-				</div>
-				<div id="playersInfo" class="flex flex-col justify-center pl-8 space-y-10 w-120">
-				</div>
-			</div>`;
+			</div>
+		`;
 	}
 
 	async get_info() {
@@ -107,7 +164,7 @@ export default class PongRoom extends Component {
 
 	setupElements() {
 		const parent = document.getElementById('parent-container')!;
-		parent.innerHTML = `<canvas id="gameCanvas" width="${this.canvas.width}" height="${this.canvas.height}"></canvas>`;
+		parent.innerHTML = `<canvas id="gameCanvas" width="${this.canvas.width}" height="${this.canvas.height}" style="background-color: black; border: 3px solid #1e40af;"></canvas>`;
 		this.elements.canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 		this.elements.p1_score = document.getElementById("p1_score")!;
 		this.elements.p2_score = document.getElementById("p2_score")!;
@@ -188,7 +245,60 @@ export default class PongRoom extends Component {
 	}
 
 	async init() {
-		this.navbar.init();
+		// back button
+		const backbtn = document.getElementById('back_btn')!;
+		backbtn.onclick = () => {
+			if (history.length > 1) {
+				history.back();
+			} else {
+				this.router.route("/pong/menu");
+			}
+		};
+
+		// user info
+		const userSection = document.getElementById('user-section')!;
+		if (this.router.loggedin) {
+			userSection.innerHTML = `
+				<div class="flex items-center space-x-6">
+					<a href="/profile" router-link class="hover:opacity-80 transition-opacity">
+						<div class="flex items-center space-x-4">
+							<img id="pfp" src="${backend_url + this.router.login_info.avatarURL}" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
+							<div>
+								<h4 id="username" class="crt-text text-white text-sm">${this.router.login_info.username}</h4>
+								<p id="email" class="text-xs font-silkscreen text-gray-300">${this.router.login_info.email}</p>
+							</div>
+						</div>
+					</a>
+					<button id="logout-button" class="pixel-box bg-red-600 px-4 py-2 text-white hover:bg-red-700 transition-colors clicky">
+						LOGOUT
+					</button>
+				</div>
+			`;
+			const logoutbtn = document.getElementById('logout-button')!;
+			logoutbtn.onclick = async () => {
+				try {
+					await fetch(sockets_url + "/pong/destroy", {
+						method: "POST",
+						body: JSON.stringify({}),
+						credentials: "include"
+					});
+				} catch (err) {
+					console.error("Failed to destroy room:", err);
+				}
+				try {
+					await fetch(backend_url + "/auth/logout", {
+						method: "POST",
+						body: JSON.stringify({}),
+						credentials: "include"
+					});
+					this.router.login_info = null;
+					this.router.route("/");
+				} catch (err) {
+					console.error("Failed to log out:", err);
+				}
+			};
+		}
+
 		this.setupSocket();
 		document.addEventListener('keyup', this.keyUpHandler, false);
 		document.addEventListener('keydown', this.keyDownHandler, false);

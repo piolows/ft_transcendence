@@ -56,14 +56,14 @@ function draw_bg(cv: HTMLCanvasElement, p1_score: HTMLDivElement, p2_score: HTML
 	context.fillRect(cv.width / 2 - middle_line_width / 2, 0, middle_line_width, cv.height);
 
 	// draw the score
-	context.font = "30px SixtyFour";
+	context.font = "30px 'Press Start 2P'";
 	context.textAlign = "center";
 	context.textBaseline = "top";
 	context.fillText(p2_score.innerHTML, cv.width / 4, 20);
 	context.fillText(p1_score.innerHTML, (cv.width / 4) * 3, 20);
 
 	// draw usernames beneath the score
-	context.font = "1em SixtyFour";
+	context.font = "20px 'Pixelify Sans'";
 	context.fillText(p1_name, cv.width / 4, 60);
 	context.fillText(p2_name, (cv.width / 4) * 3, 60);
 
