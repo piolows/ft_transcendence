@@ -81,9 +81,14 @@ export default class History extends Component {
 		const params = new URLSearchParams(window.location.search);
 		try {
 			const page = params.get("page");
-			this.page = page ? parseInt(page) : 1;
-			if (this.page < 1)
+			if (page && (page.length > 11 || !/^[0-9]+$/.test(page)))
+				this.page = 1;
+			else
+				this.page = parseInt(page ?? "1");
+			if (this.page < 1) {
 				this.router.route(`/history/${user}?page=1`);
+				return ;
+			}
 			const response = await fetch(`${backend_url}/users/${user}/history?page=${this.page}`);
 			if (!response.ok) {
 				await this.router.route_error(this.real_path, 500);
@@ -97,8 +102,10 @@ export default class History extends Component {
 			this.profile_info = data.user;
 			this.games = data.games;
 			this.max_page = Math.max(Math.floor(data.count / GAMES_PER_PAGE) + (data.count % GAMES_PER_PAGE > 0 ? 1 : 0), 1);
-			if (this.page > this.max_page)
+			if (this.page > this.max_page) {
 				this.router.route(`/history/${user}?page=${this.max_page}`);
+				return ;
+			}
 		} catch(error: any) {
 			console.error(error);
 			await this.router.route_error(this.real_path, 500, error.message);

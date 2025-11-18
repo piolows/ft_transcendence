@@ -1,4 +1,4 @@
-import Component, { Router, backend_url } from "../scripts/router";
+import Component, { Router } from "../scripts/router";
 import NavBar from "../components/nav_bar";
 import Footer from "../components/footer";
 import TopPlayers from "../components/top_players";

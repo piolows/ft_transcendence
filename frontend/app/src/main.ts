@@ -1,7 +1,6 @@
 import { Router } from "./scripts/router";
 import ErrorHandler from "./pages/error";
 import Homepage from "./pages/home";
-// import Roshambo from "./pages/roshambo";
 import SignUp from "./pages/signup";
 import Login from "./pages/login";
 import Pong from "./pages/pong";
@@ -12,11 +11,10 @@ import PongMenu from "./pages/pong_menu";
 import DifficultyMenu from "./pages/difficulty_menu";
 import Profile from "./pages/profile";
 import History from "./pages/history";
-// import Friends from "./pages/friends";
 import TournamentList from "./pages/tournaments_list";
 import TournamentRoom from "./pages/tournament_room";
 import CreateTournament from "./pages/tournament_create";
-import Leaderboards from "./pages/leaderboards";
+import Leaderboard from "./pages/leaderboard";
 import Friends from "./pages/friends";
 
 const app_div = document.querySelector<HTMLDivElement>("#app")!;
@@ -40,8 +38,7 @@ router.add_route("/tournaments/id", new TournamentRoom(router), { auth: true, ty
 router.add_route("/profile", new Profile(router), { auth: true, type: "wild" });
 router.add_route("/history", new History(router), { auth: true, type: "wild" });
 router.add_route("/friends", new Friends(router), { auth: true, type: "wild" });
-router.add_route("/leaderboards", new Leaderboards(router));
-// router.add_route("/roshambo", new Roshambo());
+router.add_route("/leaderboard", new Leaderboard(router));
 
 router.start();
 
