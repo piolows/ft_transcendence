@@ -8,5 +8,4 @@ node_modules
 *.Identifier*
 */*:Zone*
 */*.Identifier*
-*sessions.db
-*/*sessions.db
+backend/storage/*
