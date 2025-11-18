@@ -164,8 +164,4 @@ export default class TournamentList extends Component {
     async init() {
         this.navbar.init();
     }
-
-    unload() {
-        
-    }
 }

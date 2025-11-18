@@ -9,12 +9,9 @@ export default class TopPlayers extends Component {
 			<div class="py-16 text-center">
 				<h2 class="text-4xl font-bold mb-12 retro-shadow">TOP PLAYERS</h2>
 				<a href="/leaderboard" router-link class="block hover:opacity-90 transition-opacity">
-					<div class="inline-block min-w-90 pixel-box bg-opacity-80 bg-blue-900 p-8">
+					<div class="inline-block min-w-90 pixel-box scanline-effect bg-opacity-80 bg-blue-900 p-8">
 						<div id="toplist" class="flex flex-col space-y-4 font-vt323 text-xl">
-							<span class="text-3xl">Connection error!</span>
-							<button id="retrybtn" class="pixel-box bg-blue-700 py-3 hover:bg-blue-600 transition-colors clicky w-40 mx-auto font-pixelify">
-								RETRY
-							</button>
+							<span>No more players</span>
 						</div>
 					</div>
 				</a>

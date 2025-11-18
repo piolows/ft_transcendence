@@ -58,7 +58,7 @@ export default class Leaderboard extends Component {
 			${ this.navbar.get_html() }
             <main class="container mx-auto px-4 py-8">
                 <div class="text-center">
-                    <h1 class="text-5xl font-bold mb-12 retro-shadow">LEADERBOARDS</h1>
+                    <h1 class="text-5xl font-bold mb-12 retro-shadow">LEADERBOARD</h1>
 					${ this.board.get_html() }
                 </div>
             </main>

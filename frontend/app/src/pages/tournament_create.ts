@@ -58,8 +58,4 @@ export default class CreateTournament extends Component {
     async init() {
 
     };
-
-    unload() {
-
-    };
 }

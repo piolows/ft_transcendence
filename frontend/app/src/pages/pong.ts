@@ -86,7 +86,7 @@ export default class Pong extends Component {
 			if (history.length > 2) {
 				history.back();
 			} else {
-				this.router.route(this.back_url);
+				this.router.route(this.back_url, "replace");
 			}
 		};
 

@@ -77,7 +77,7 @@
 }
 @keyframes scanline {
     0% { transform: translateY(-100%); }
-    100% { transform: translateY(100%); }
+    100% { transform: translateY(200%); }
 }
 @keyframes marquee {
     0% { transform: translateX(100%); }

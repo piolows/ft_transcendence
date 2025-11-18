@@ -25,6 +25,29 @@ export default abstract class Component {
 	unload() {}
 }
 
+class Loading extends Component {
+	private loading = true;
+
+	async load(app: HTMLDivElement | HTMLElement) {
+		app.innerHTML = `
+			<p id="loading_txt" class="h-full w-full">
+				Loading . .
+			</p>
+		`;
+	}
+
+	async init() {
+		const loading_text = document.getElementById('loading_txt');
+		while (this.loading && loading_text) {
+			loading_text.innerText += " .";
+		}
+	}
+
+	unload() {
+		this.loading = false;
+	}
+}
+
 export class DefaultErrorPage extends Component {
 	error_code = 404;
 	custom_msg: any;
@@ -42,6 +65,7 @@ export class Router {
 	private routes = new Map<string, any>();
 	private currpage: Component | null = null;
 	private errpage: DefaultErrorPage;
+	private loader: Loading;
 	auth_route: boolean = false;
 	app: HTMLDivElement | HTMLElement;
 	login_info: any = null;
@@ -53,6 +77,7 @@ export class Router {
 	constructor(app: HTMLDivElement | null) {
 		this.errpage = new DefaultErrorPage(this);
 		this.app = app ?? document.body;
+		this.loader = new Loading(this);
 
 		// Handle back/forward buttons
 		window.onpopstate = (event) => {
@@ -151,10 +176,10 @@ export class Router {
 		.then(res => res.json())
 		.then(data => {
 			this.login_info = data.user;
-			if (history.length > 1)
+			if (history.length > 2)
 				history.back();
 			else
-				this.route("/");
+				this.route(window.location.pathname, "replace");
 		})
 		.catch(err => console.error("Error sending token to backend:", err));
 	}
@@ -197,6 +222,17 @@ export class Router {
 		});
 	}
 
+	async loading(state: boolean = true) {
+		if (state == true) {
+			this.currpage?.unload();
+			await this.loader.load(this.app);
+			this.loader.init();
+		}
+		else {
+			this.loader.unload();
+		}
+	}
+
 	async route_error(path: string, code: number, err_msg?: string) {
 		this.currpage?.unload();
 		window.scrollTo(0, 0);
@@ -237,26 +273,33 @@ export class Router {
 			this.auth_route = route?.auth;
 			if ((!this.currpage && push == true) || route.type == "overlay")
 				push = false;
+			this.currpage?.unload();
 			if (push == true || push == "force")
 				history.pushState({ route: real_path }, '', real_path);
 			else if (push == "replace")
 				history.replaceState({ route: real_path }, '', real_path);
-			this.currpage?.unload();
-			if (route && route.type != "overlay")
-				window.scrollTo(0, 0);
 			if (!route) {
-				this.errpage.load(this.app).then(() => this.errpage.init());
 				this.currpage = this.errpage;
+				await this.errpage.load(this.app);
+				await this.errpage.init();
 			} else {
 				this.currpage = route.page;
 				this.currpage && (this.currpage.real_path = real_path);
-				this.currpage?.load(this.app).then(() => this.currpage?.init());
+				await this.currpage?.load(this.app);
+				await this.currpage?.init();
 			}
+			if (route && route.type != "overlay")
+				window.scrollTo(0, 0);
 		});
 	}
 
 	async start() {
+		// await this.loading();
+		if ("scrollRestoration" in history) {
+			history.scrollRestoration = "manual";
+		}
 		await this.setup_google();
+		// await this.loading(false);
 		this.start_presence_heartbeat();
 		this.route(location.pathname);
 	}

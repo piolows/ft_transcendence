@@ -1,7 +1,7 @@
  -  Piolo:
 [ ] Loading Screen
 [X] Fix design of friends and history page
-[ ] Fix design of LAN and Multiplayer pong rooms
+[X] Fix design of LAN and Multiplayer pong rooms
 
  -  Pierce
 [ ] Tournaments backend: 

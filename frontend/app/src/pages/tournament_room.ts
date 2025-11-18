@@ -38,9 +38,4 @@ export default class TournamentRoom extends Component {
     async init() {
         
     }
-
-    unload() {
-
-    }
-
 }
