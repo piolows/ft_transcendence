@@ -1,7 +1,5 @@
  -  Piolo:
 [ ] Loading Screen
-[X] Fix design of friends and history page
-[X] Fix design of LAN and Multiplayer pong rooms
 
  -  Pierce
 [ ] Tournaments backend: 
@@ -22,7 +20,6 @@
 [ ] Test game end update history
 [ ] Fix the game room IN GENERAL
 [ ] Test server-side bot
-[ ] Fix bots AI
 
 New issues:
 [ ] Auto-reconnect attempt in game rooms

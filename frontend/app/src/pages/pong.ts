@@ -53,6 +53,12 @@ export default class Pong extends Component {
 							<p class="text-xs text-white">W/S</p>
 							<p class="text-xs text-white">to move</p>
 						</div>
+						<a href="/pong/menu" router-link>
+							<div class="pixel-box bg-blue-800 p-3 text-center text-xs">
+								<p class="font-pixelify text-gray-300 mb-2">LOCAL MATCH</p>
+								<p class="text-white">OFFLINE</p>
+							</div>
+						</a>
 					</div>
 
 					<!-- canvas -->
@@ -67,6 +73,10 @@ export default class Pong extends Component {
 							<p class="text-xs text-white">↑/↓</p>
 							<p class="text-xs text-white">to move</p>
 						</div>
+						<a href="/pong/difficulty" id="difficulty-box" class="pixel-box bg-blue-800 p-3 text-center">
+							<p class="text-xs font-pixelify text-gray-300 mb-2">DIFFICULTY</p>
+							<p id="difficulty" class="text-xs text-white"></p>
+						</a>
 						<a href="/pong/menu" router-link>
 							<div class="pixel-box bg-blue-800 p-3 text-center text-xs">
 								<p class="font-pixelify text-gray-300 mb-2">GAME MODE</p>
@@ -143,16 +153,19 @@ export default class Pong extends Component {
 		
 		// const gamemodeLabel = document.getElementById('gamemode')!;
 		const modeDisplay = document.getElementById('mode-display')!;
-		const rightControls = document.getElementById('right-controls')!;
+		const rcontrols = document.getElementById('right-controls')!;
+		const diffbox = document.getElementById('difficulty-box')!;
+		const difftext = document.getElementById('difficulty')!;
 		if (op === "bot") {
 			const difficultyNames = ["EASY", "HARD", "EXTREME"];
-			// gamemodeLabel.textContent = `VS BOT (${difficultyNames[difficulty]})`;
-			modeDisplay.textContent = difficultyNames[difficulty];
-			rightControls.style.display = 'none'; // Hide controls for bot mode
+			modeDisplay.textContent = 'VS BOT';
+			difftext.textContent = difficultyNames[difficulty];
+			diffbox.style.display = 'block';
+			rcontrols.style.display = 'none';
 		} else {
-			// gamemodeLabel.textContent = "VS PLAYER";
-			modeDisplay.textContent = "PLAYER";
-			rightControls.style.display = 'block'; // Show controls for vs player
+			modeDisplay.textContent = "VS PLAYER";
+			diffbox.style.display = 'none';
+			rcontrols.style.display = 'block';
 		}
 
 		const cv = document.getElementById("gameCanvas") as HTMLCanvasElement;

@@ -64,6 +64,7 @@ class Loading extends Component {
 						loading_text.innerText += " .";
 						this.dot_count += 1;
 					}
+					console.warn("WAITING");
 					setTimeout(check, 300);
 				}
 			};
