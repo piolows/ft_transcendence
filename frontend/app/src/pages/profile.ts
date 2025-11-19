@@ -24,11 +24,27 @@ export default class Profile extends Component {
 					<div class="pixel-box bg-blue-900 p-8 w-auto">
 						<div class="flex flex-col md:flex-row justify-between">
 							<div class="flex items-center space-x-8">
-								<img src="${backend_url + this.profile_info.avatarURL}" 
-									class="w-32 h-32 rounded-full pixel-box" alt="Profile Picture">
+								<div class="relative ${this.profile_info.id == this.router.login_info.id ? 'group cursor-pointer' : ''}" id="avatar-container">
+									<img src="${backend_url + this.profile_info.avatarURL}" 
+										class="w-32 h-32 rounded-full pixel-box" alt="Profile Picture">
+								${this.profile_info.id == this.router.login_info.id ? `
+								<div class="absolute inset-0 bg-black bg-opacity-60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+									<span class="text-5xl">✎</span>
+								</div>` : ''}
+								</div>
 								<div class="pr-16">
-									<h1 class="text-3xl font-bold rainbow mb-2">${this.profile_info.username}</h1>
+									<div class="flex items-center space-x-2 mb-2">
+										<h1 class="text-3xl font-bold rainbow">${this.profile_info.username}</h1>
+										${this.profile_info.id == this.router.login_info.id ? `
+										<button id="edit-username-btn" class="text-gray-400 hover:text-white transition-colors text-xl">
+											✎
+										</button>` : ''}
+									</div>
 									<p class="text-gray-400 font-silkscreen">${this.profile_info.email}</p>
+									${this.profile_info.id == this.router.login_info.id ? `
+									<button id="change-password-btn" class="mt-3 pixel-box bg-red-600 px-4 py-2 text-sm hover:bg-red-700 transition-colors clicky font-pixelify">
+										CHANGE PASSWORD
+									</button>` : ''}
 								</div>
 							</div>
 							<div ${
@@ -93,6 +109,97 @@ export default class Profile extends Component {
 					</div>
 				</div>
 			</main>
+
+			<!-- username modal -->
+			<div id="edit-username-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+				<div class="absolute inset-0 bg-black opacity-80"></div>
+				<div class="relative pixel-box bg-blue-900 p-8 w-96 text-white">
+					<h2 class="text-2xl font-pixelify mb-6 rainbow text-center">EDIT USERNAME</h2>
+					<form id="edit-username-form" class="space-y-6">
+						<div>
+							<label class="block font-silkscreen mb-2">NEW USERNAME</label>
+							<input name="username" type="text" 
+								class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323"
+								placeholder="${this.profile_info.username}"
+								required>
+						</div>
+						<button type="submit" 
+							class="w-full bg-blue-500 text-white py-3 pixel-box font-pixelify hover:bg-blue-600 clicky">
+							UPDATE USERNAME
+						</button>
+					</form>
+					<button id="close-username-modal" 
+						class="absolute top-2 right-2 text-white hover:text-red-500 font-bold text-xl">
+						×
+					</button>
+				</div>
+			</div>
+
+			<!-- pfp modal -->
+			<div id="edit-avatar-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+				<div class="absolute inset-0 bg-black opacity-80"></div>
+				<div class="relative pixel-box bg-blue-900 p-8 w-96 text-white">
+					<h2 class="text-2xl font-pixelify mb-6 rainbow text-center">CHANGE PROFILE PICTURE</h2>
+					<form id="edit-avatar-form" class="space-y-6">
+						<div>
+							<label class="block font-silkscreen mb-2">IMAGE URL</label>
+							<input name="avatarURL" type="url" 
+								class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323"
+								placeholder="https://example.com/image.jpg">
+						</div>
+						<div class="text-center font-silkscreen text-sm text-gray-300">OR</div>
+						<div>
+							<label class="block font-silkscreen mb-2">UPLOAD FILE</label>
+							<input name="avatarFile" type="file" accept="image/*"
+								class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323">
+						</div>
+						<button type="submit" 
+							class="w-full bg-blue-500 text-white py-3 pixel-box font-pixelify hover:bg-blue-600 clicky">
+							UPDATE PICTURE
+						</button>
+					</form>
+					<button id="close-avatar-modal" 
+						class="absolute top-2 right-2 text-white hover:text-red-500 font-bold text-xl">
+						×
+					</button>
+				</div>
+			</div>
+
+			<!-- password modal -->
+			<div id="change-password-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+				<div class="absolute inset-0 bg-black opacity-80"></div>
+				<div class="relative pixel-box bg-blue-900 p-8 w-96 text-white">
+					<h2 class="text-2xl font-pixelify mb-6 rainbow text-center">CHANGE PASSWORD</h2>
+					<form id="change-password-form" class="space-y-6">
+						<div>
+							<label class="block font-silkscreen mb-2">CURRENT PASSWORD</label>
+							<input name="currentPassword" type="password" 
+								class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323"
+								required>
+						</div>
+						<div>
+							<label class="block font-silkscreen mb-2">NEW PASSWORD</label>
+							<input name="newPassword" type="password" 
+								class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323"
+								required>
+						</div>
+						<div>
+							<label class="block font-silkscreen mb-2">CONFIRM NEW PASSWORD</label>
+							<input name="confirmPassword" type="password" 
+								class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323"
+								required>
+						</div>
+						<button type="submit" 
+							class="w-full bg-blue-500 text-white py-3 pixel-box font-pixelify hover:bg-blue-600 clicky">
+							UPDATE PASSWORD
+						</button>
+					</form>
+					<button id="close-password-modal" 
+						class="absolute top-2 right-2 text-white hover:text-red-500 font-bold text-xl">
+						×
+					</button>
+				</div>
+			</div>
 		`;
 		app.innerHTML += this.footer.get_html();
 	}
@@ -144,6 +251,90 @@ export default class Profile extends Component {
 		if (!this.profile_info)
 			return ;
 		this.navbar.init();
+
+		//  username modal
+		if (this.profile_info.id == this.router.login_info.id) {
+			const editUsernameBtn = document.getElementById('edit-username-btn');
+			const editUsernameModal = document.getElementById('edit-username-modal')!;
+			const closeUsernameModal = document.getElementById('close-username-modal')!;
+			const editUsernameForm = document.getElementById('edit-username-form') as HTMLFormElement;
+
+			if (editUsernameBtn) {
+				editUsernameBtn.onclick = () => {
+					editUsernameModal.classList.remove('hidden');
+				};
+			}
+
+			closeUsernameModal.onclick = () => {
+				editUsernameModal.classList.add('hidden');
+			};
+
+			editUsernameForm.onsubmit = (e) => {
+				// emad do stuff
+				editUsernameModal.classList.add('hidden');
+			};
+
+			// pfp modal
+			const avatarContainer = document.getElementById('avatar-container');
+			const editAvatarModal = document.getElementById('edit-avatar-modal')!;
+			const closeAvatarModal = document.getElementById('close-avatar-modal')!;
+			const editAvatarForm = document.getElementById('edit-avatar-form') as HTMLFormElement;
+
+			if (avatarContainer) {
+				avatarContainer.onclick = () => {
+					editAvatarModal.classList.remove('hidden');
+				};
+			}
+
+			closeAvatarModal.onclick = () => {
+				editAvatarModal.classList.add('hidden');
+			};
+
+			editAvatarForm.onsubmit = (e) => {
+				// emad do stuff
+				editAvatarModal.classList.add('hidden');
+			};
+
+			// password modal
+			const changePasswordBtn = document.getElementById('change-password-btn');
+			const changePasswordModal = document.getElementById('change-password-modal')!;
+			const closePasswordModal = document.getElementById('close-password-modal')!;
+			const changePasswordForm = document.getElementById('change-password-form') as HTMLFormElement;
+
+			if (changePasswordBtn) {
+				changePasswordBtn.onclick = () => {
+					changePasswordModal.classList.remove('hidden');
+				};
+			}
+
+			closePasswordModal.onclick = () => {
+				changePasswordModal.classList.add('hidden');
+			};
+
+			changePasswordForm.onsubmit = (e) => {
+				// emad do stuff
+				changePasswordModal.classList.add('hidden');
+			};
+
+			// close modals when clicking on background
+			// editUsernameModal.onclick = (e) => {
+			// 	if (e.target === editUsernameModal) {
+			// 		editUsernameModal.classList.add('hidden');
+			// 	}
+			// };
+
+			// editAvatarModal.onclick = (e) => {
+			// 	if (e.target === editAvatarModal) {
+			// 		editAvatarModal.classList.add('hidden');
+			// 	}
+			// };
+
+			// changePasswordModal.onclick = (e) => {
+			// 	if (e.target === changePasswordModal) {
+			// 		changePasswordModal.classList.add('hidden');
+			// 	}
+			// };
+		}
 
 		const fa = document.getElementById('follow_area')!;
 		if (this.is_friends == false) {

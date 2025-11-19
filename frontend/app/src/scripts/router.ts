@@ -36,7 +36,7 @@ class Loading extends Component {
 			case "offline":
 				return "You are currently offline.\nCheck your internet connection bro!";
 			case "timeout":
-				return "Connection timed out sowwy\nTry refreshing pwease.";
+				return "Connection timed out... sowwy >_<\nTry refreshing pwease.";
 			default:
 				return "";
 		}
@@ -45,7 +45,7 @@ class Loading extends Component {
 	async load(app: HTMLDivElement | HTMLElement) {
 		app.innerHTML = `
 			<div class="flex flex-box h-screen w-full justify-center items-center">
-				<p id="loading_txt" class="text-left ${this.state == "loading" ? 'w-80' : 'w-150'} mx-auto text-4xl" style="font-family: courier;">
+				<p id="loading_txt" class="text-left ${this.state == "loading" ? 'w-120' : 'w-150'} mx-auto text-4xl"">
 					${this.get_text()}
 				</p>
 			</div>`;
