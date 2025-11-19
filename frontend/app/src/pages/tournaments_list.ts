@@ -7,7 +7,7 @@ export default class TournamentList extends Component {
     private windowHeight = window.innerHeight;
     private windowWidth = window.innerWidth;
     private userInTournament: Boolean = false;
-    private tournamentId: string | null = null;
+    private userTournament: string | null = null;
 
     private tournamentItem(tournamentId: string, roomName: String, playerCount: Number, maxPlayers: Number, tournamentStatus: String) {
         const color = playerCount < maxPlayers ? "text-green-300" : "text-red-500";
@@ -15,6 +15,7 @@ export default class TournamentList extends Component {
         <div class="tournament-item flex justify-between h-[120px]" data-tournament-id="${tournamentId}">
             <div class="crt-text flex flex-col">
                 <p class="inline sm:text-[1em] md:text-[1.5em]">${roomName}</p>
+                <p>${tournamentId}</p>
                 <p class="player-count ${color} inline">${playerCount}/${maxPlayers} players</p>
             </div>
         `;
@@ -24,8 +25,15 @@ export default class TournamentList extends Component {
         } else if (tournamentStatus === "full") {
             item += `<p class="sm:text-[1em] md:text-[1.5em]">Full</p>`;
         } else if (this.userInTournament) {
-            if (tournamentId === this.tournamentId) {
-                item += `<button id="leave-button" class="flex items-center mx-auto justify-center pixel-box h-[60px] sm:w-sm md:w-[200px] lg:w-sm bg-red-500 px-4 py-2 hover:bg-red-600 clicky">Leave</button>`;
+            if (tournamentId === this.userTournament) {
+                item += `<div class="flex">
+                        <button id="leave-button" class="flex items-center mx-auto justify-center pixel-box h-[60px] sm:w-[120px] md:w-[200px] lg:w-sm bg-red-500 hover:bg-red-600 clicky">
+                            <p>Leave</p>
+                        </button>
+                        <button id="room-button" class="pixel-box clicky flex justify-center items-center mx-auto bg-green-500 h-[60px] sm:w-[120px] md:w-[200px] lg:w-sm hover:bg-green-600">
+                            <p>View</p>
+                        </button>
+                        </div>`;
             } else {
                 item += `<p class="sm:text-[1em] md:text-[1.5em]">Already in tournament</p>`;
             }
@@ -99,7 +107,7 @@ export default class TournamentList extends Component {
             for (const player in players) {
                 if (players[player].username === this.router.login_info?.username) {
                     this.userInTournament = true;
-                    this.tournamentId = uuid;
+                    this.userTournament = uuid;
                     break;
                 }
             }
@@ -158,7 +166,34 @@ export default class TournamentList extends Component {
                     }
                 }
             });
-        })
+        });
+        document.querySelector('#leave-button')?.addEventListener('click', async (event) => {
+            // send a fetch request with the tournament id as the body to leave the tournament
+            const tournamentItem = (event.currentTarget as HTMLElement).closest('.tournament-item');
+            let id = null;
+            if (tournamentItem) {
+                id = tournamentItem.getAttribute('data-tournament-id');
+            }
+            const response = await fetch(`${backend_url}/tournaments/leave`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-type': 'application/json' },
+                body: JSON.stringify({
+                    tournamentId: this.userTournament
+                })
+            });
+            const data = await response.json();
+            if (!data.success) {
+                console.error('Failed to leave tournament:', data.message);
+                return;
+            }
+            window.location.reload();
+        });
+        document.querySelector('#room-button')?.addEventListener('click', async () => {
+            if (this.userTournament) {
+                this.router.route(`/tournaments/id/${this.userTournament}`);
+            }
+        });
     }
 
     async init() {
