@@ -63,7 +63,7 @@ export default class Pong extends Component {
 
 					<!-- canvas -->
 					<div class="flex-1 flex items-center justify-center bg-black">
-						<canvas id="gameCanvas" width="700" height="520" style="background-color: black; border: 3px solid #1e40af;"></canvas>
+						<canvas id="gameCanvas" width="800" height="600" style="background-color: black; border: 3px solid #1e40af;"></canvas>
 					</div>
 
 					<!-- right sidebar -->
