@@ -11,40 +11,43 @@ export default class TournamentList extends Component {
 
     private tournamentItem(tournamentId: string, roomName: String, playerCount: Number, maxPlayers: Number, tournamentStatus: String) {
         const color = playerCount < maxPlayers ? "text-green-300" : "text-red-500";
-        let item = `
-        <div class="tournament-item flex justify-between h-[120px]" data-tournament-id="${tournamentId}">
-            <div class="crt-text flex flex-col">
-                <p class="inline sm:text-[1em] md:text-[1.5em]">${roomName}</p>
-                <p>${tournamentId}</p>
-                <p class="player-count ${color} inline">${playerCount}/${maxPlayers} players</p>
-            </div>
-        `;
-        console.log(`tournamentStatus: ${tournamentStatus}`);
+        let rightSide = "";
+
         if (tournamentStatus === "ongoing") {
-            item += `<p class="sm:text-[1em] md:text-[1.5em]">Ongoing</p>`;
+            rightSide = `<p class="sm:text-[1em] md:text-[1.5em]">Ongoing</p>`;
         } else if (tournamentStatus === "full") {
-            item += `<p class="sm:text-[1em] md:text-[1.5em]">Full</p>`;
+            rightSide = `<p class="sm:text-[1em] md:text-[1.5em]">Full</p>`;
         } else if (this.userInTournament) {
             if (tournamentId === this.userTournament) {
-                item += `<div class="flex">
-                        <button id="leave-button" class="flex items-center mx-auto justify-center pixel-box h-[60px] sm:w-[120px] md:w-[200px] lg:w-sm bg-red-500 hover:bg-red-600 clicky">
+                rightSide = `
+                    <div class="flex gap-2">
+                        <button id="leave-button" class="pixel-box bg-red-500 hover:bg-red-600 clicky h-[60px] sm:w-[120px] md:w-[200px] lg:w-sm">
                             <p>Leave</p>
                         </button>
-                        <button id="room-button" class="pixel-box clicky flex justify-center items-center mx-auto bg-green-500 h-[60px] sm:w-[120px] md:w-[200px] lg:w-sm hover:bg-green-600">
+                        <button id="room-button" class="pixel-box bg-green-500 hover:bg-green-600 clicky h-[60px] sm:w-[120px] md:w-[200px] lg:w-sm">
                             <p>View</p>
                         </button>
-                        </div>`;
+                    </div>`;
             } else {
-                item += `<p class="sm:text-[1em] md:text-[1.5em]">Already in tournament</p>`;
+                rightSide = `<p class="sm:text-[1em] md:text-[1.5em]">Already in tournament</p>`;
             }
         } else {
-            item += `
-                 <button class="join-button flex items-center mx-auto justify-center pixel-box h-[60px] sm:w-sm md:w-[200px] lg:w-sm bg-green-500 px-4 py-2 hover:bg-green-600 clicky">
-                     JOIN
-                 </button>`
+            rightSide = `
+                <button class="join-button pixel-box bg-green-500 hover:bg-green-600 clicky h-[60px] sm:w-sm md:w-[200px] lg:w-sm flex items-center justify-center">
+                    JOIN
+                </button>`;
         }
-        item += `</div>`;
-        return item;
+
+        return `
+        <div class="tournament-item flex justify-between items-start h-[120px]" data-tournament-id="${tournamentId}">
+            <div class="crt-text flex flex-col">
+                <p class="inline sm:text-[1em] md:text-[1.5em]">${roomName}</p>
+                <p class="player-count ${color} inline">${playerCount}/${maxPlayers} players</p>
+            </div>
+            <div class="flex items-center">
+                ${rightSide}
+            </div>
+        </div>`;
     }
 
     // needs a rework
@@ -61,7 +64,6 @@ export default class TournamentList extends Component {
     }
 
     private async joinTournament(tournamentId: String) {
-        console.log('joinTournament function was called');
         try {
             let result = await fetch(backend_url + "/tournaments/join", {
                 method: "POST",
@@ -95,12 +97,10 @@ export default class TournamentList extends Component {
     }
 
     private async renderTournaments(tournaments: any) {
-        // let displayCount = this.getDisplayCount();
         let displayCount = tournaments.length;
         const tournamentContainer = document.getElementById('tournament-list');
         if (!tournamentContainer) return;
 
-        // tournamentContainer.innerHTML = '';
 
         for (let i = 0; i < displayCount; i++) {
             const { uuid, roomName, players, maxPlayers, status } = tournaments[i] as any;
@@ -120,7 +120,6 @@ export default class TournamentList extends Component {
         await this.navbar.load(app);
         const data = await this.getTournamentData();
         const tournaments = Object.values(data.tournaments);
-        console.log(`login info: ${Object.keys(this.router.login_info)}`);
         const navButtons = `<div class="mt-8 flex justify-center items-center space-x-8 font-pixelify">
                                 <button class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky">
                                     ◄ PREV
