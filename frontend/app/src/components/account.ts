@@ -61,7 +61,6 @@ export default class AuthSection extends Component {
 				try {
 					await fetch(sockets_url + "/pong/destroy", {
 						method: "POST",
-						body: JSON.stringify({}),
 						credentials: "include"
 					});
 				} catch (err) {
@@ -70,7 +69,6 @@ export default class AuthSection extends Component {
 				try {
 					await fetch(backend_url + "/auth/logout", {
 						method: "POST",
-						body: JSON.stringify({}),
 						credentials: "include"
 					});
 					this.router.login_info = null;

@@ -19,9 +19,9 @@ async function startServer() {
     await fastify.register(fastifySession, {
         secret: process.env.SESSION_SECRET,
         cookie: {
-            secure: process.env.NODE_ENV == "production",
+            secure: true,
             httpOnly: true,
-            sameSite: "lax",
+            sameSite: "none",
             maxAge: ONEDAY
         },
         store: new SqliteStore({

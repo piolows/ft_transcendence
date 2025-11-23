@@ -22,28 +22,28 @@ async function startSever() {
 	const ONEDAY = 1000 * 60 * 60 * 24;
 	const SqliteStore = createSqliteStore(fastifySession);
 
-	// Enable CORS
-	await fastify.register(fastifyCors, {
-		origin: [process.env.FRONTEND_URL],
-		credentials: true,
-		methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-		allowedHeaders: ['Content-Type', 'Authorization'],
-	});
-
 	await fastify.register(fastifyCookie);
 
 	await fastify.register(fastifySession, {
 		secret: process.env.SESSION_SECRET,
 		cookie: {
-			secure: process.env.NODE_ENV == "production",
+			secure: true,
 			httpOnly: true,
-			sameSite: "lax",
+			sameSite: "none",
 			maxAge: ONEDAY
 		},
 		store: new SqliteStore({
 			client: new Database(process.env.SESSIONS_DB),
 			table: "sessions"
 		})
+	});
+
+	// Enable CORS
+	await fastify.register(fastifyCors, {
+		origin: [process.env.FRONTEND_URL],
+		credentials: true,
+		methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+		// allowedHeaders: ['Content-Type', 'Authorization'],
 	});
 	
 	await fastify.register(websocketPlugin, {

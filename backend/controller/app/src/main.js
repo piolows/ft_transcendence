@@ -21,7 +21,7 @@ async function startSever() {
 		origin: [process.env.FRONTEND_URL],
 		credentials: true,
 		methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-		allowedHeaders: ['Content-Type', 'Authorization'],
+		// allowedHeaders: ['Content-Type', 'Authorization'],
 	});
 
 	await fastify.register(endpointHandler);

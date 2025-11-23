@@ -40,5 +40,9 @@ router.add_route("/history", new History(router), { auth: true, type: "wild" });
 router.add_route("/friends", new Friends(router), { auth: true, type: "wild" });
 router.add_route("/leaderboard", new Leaderboard(router));
 
-router.start();
+window.onload = () => {
+	console.log("Page loaded. Starting router...");
+	router.start();
+	console.log("Router started")
+};
 

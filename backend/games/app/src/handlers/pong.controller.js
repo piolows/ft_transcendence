@@ -76,8 +76,6 @@ const pongHandler = (fastify, options, done) => {
 	});
 
 	fastify.post("/destroy", (req, resp) => {
-		if (Object.keys(games).length > 1024)
-			return resp.send({ success: false, code: 501, error: "Maximum game limit reached" });
 		if (!req.session || !req.session.user)
 			return resp.send({ success: false, code: 403, error: "Must be signed in to create a game" });
 		if (admins[req.session.user.username]) {

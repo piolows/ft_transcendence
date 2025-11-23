@@ -23,8 +23,6 @@ services:
       - front_end:/app
     build: ./frontend
     restart: on-failure
-    environment:
-      - NODE_ENV=development
     ports:
       - "443:443"
     networks:
@@ -37,7 +35,6 @@ services:
     build: ./backend/controller
     restart: on-failure
     environment:
-      - NODE_ENV=development
       - PORT=4161
       - FRONTEND_URL=https://localhost
       - AUTH_URL=http://backend_auth:41610
@@ -58,7 +55,6 @@ services:
     build: ./backend/auth
     restart: on-failure
     environment:
-      - NODE_ENV=development
       - DEFAULT_PIC=/cdn/avatars/kermit.webp
       - DB_FILE=/app/src/database/auth.db
       - USERS_TABLE=users
@@ -78,7 +74,6 @@ services:
     build: ./backend/users
     restart: on-failure
     environment:
-      - NODE_ENV=development
       - PORT=41611
       - DB_FILE=/app/src/database/users.db
       - USERS_TABLE=users
@@ -96,7 +91,6 @@ services:
     build: ./backend/games
     restart: on-failure
     environment:
-      - NODE_ENV=development
       - SESSIONS_DB=/app/src/database/sessions.db
       - SESSION_SECRET=${SESSION_SECRET}
       - FRONTEND_URL=https://localhost
@@ -107,6 +101,7 @@ services:
       - "4116:4116"
     networks:
       - micro-services
+      - transcendence
 
   backend_cdn:
     container_name: backend_cdn
@@ -116,7 +111,6 @@ services:
       - uploads:/app/public/uploads
     restart: on-failure
     environment:
-    - NODE_ENV=development
     - PORT=41612
     - FRONTEND_URL=https://localhost
     networks:
@@ -130,7 +124,6 @@ services:
       - db_storage:/app/src/database
     restart: on-failure
     environment:
-      - NODE_ENV=development
       - SESSIONS_DB=/app/src/database/sessions.db
       - SESSION_SECRET=${SESSION_SECRET}
       - PORT=41613

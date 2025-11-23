@@ -64,7 +64,6 @@ class Loading extends Component {
 						loading_text.innerText += " .";
 						this.dot_count += 1;
 					}
-					console.warn("WAITING");
 					setTimeout(check, 300);
 				}
 			};
@@ -348,7 +347,6 @@ export class Router {
 		try {
 			await this.setup_google();
 		} catch (error: any) {
-			console.warn(error);
 			if (error.message == "offline" || error.message == "timeout") {
 				this.loader.state = error.message;
 				await this.loader.load(this.app);

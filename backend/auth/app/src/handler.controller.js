@@ -31,6 +31,7 @@ const endpointHandler = (fastify, options, done) => {
 				return reply.send({ success: false, code: 403, error: "Wrong password" });
 			}
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: user['avatarURL'] };
+			req.session.save();
 			fetch(process.env.USERS_URL + "/users", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -46,9 +47,6 @@ const endpointHandler = (fastify, options, done) => {
 		try {
 			if (!req.session) {
 				req.session.init();
-			}
-			if (req.session.user) {
-				req.session.user = null;
 			}
 
 			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`).get(req.body.username);
@@ -79,6 +77,7 @@ const endpointHandler = (fastify, options, done) => {
 				}
 			});
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: avatarURI };
+			req.session.save();
 			fetch(process.env.USERS_URL + "/users", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -114,6 +113,7 @@ const endpointHandler = (fastify, options, done) => {
 			await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(username, req.body.email, password, avatarURI, req.body.email);
 			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: avatarURI };
+			req.session.save();
 			fetch(process.env.USERS_URL + "/users", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -129,9 +129,6 @@ const endpointHandler = (fastify, options, done) => {
 		try {
 			if (!req.session) {
 				req.session.init();
-			}
-			if (req.session.user) {
-				req.session.user = null;
 			}
 			const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 	
@@ -155,6 +152,7 @@ const endpointHandler = (fastify, options, done) => {
 			}
 
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: user['avatarURL'] };
+			req.session.save();
 			fetch(process.env.USERS_URL + "/users", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
