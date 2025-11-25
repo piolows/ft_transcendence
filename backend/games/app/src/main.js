@@ -4,7 +4,6 @@ import pongHandler from  "./handlers/pong.controller.js";
 // import roshamboHandler from "./handlers/roshambo.controller.js";
 import fastifyCookie from "@fastify/cookie";
 import fastifySession from "@fastify/session";
-import createSqliteStore from "better-sqlite3-session-store";
 import Database from 'better-sqlite3';
 import fastifyCors from "@fastify/cors";
 import fs from "fs";
@@ -19,9 +18,6 @@ async function startSever() {
 		}
 	});
 
-	const ONEDAY = 1000 * 60 * 60 * 24;
-	const SqliteStore = createSqliteStore(fastifySession);
-
 	await fastify.register(fastifyCookie);
 
 	await fastify.register(fastifySession, {
@@ -30,12 +26,9 @@ async function startSever() {
 			secure: true,
 			httpOnly: true,
 			sameSite: "none",
-			maxAge: ONEDAY
 		},
-		store: new SqliteStore({
-			client: new Database(process.env.SESSIONS_DB),
-			table: "sessions"
-		})
+		saveUninitialized: false,	// prevents client from receiving new session cookie
+		rolling: false				// prevents refreshing or affecting the session cookie
 	});
 
 	// Enable CORS
@@ -43,7 +36,7 @@ async function startSever() {
 		origin: [process.env.FRONTEND_URL],
 		credentials: true,
 		methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-		// allowedHeaders: ['Content-Type', 'Authorization'],
+		allowedHeaders: ['Content-Type', 'Authorization'],
 	});
 	
 	await fastify.register(websocketPlugin, {

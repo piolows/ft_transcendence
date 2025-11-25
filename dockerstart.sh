@@ -1,4 +1,4 @@
-#/usr/bin/env bash
+#!/usr/bin/env bash
 
 if pgrep -f "Docker" > /dev/null; then
 	echo "Stopping Docker gracefully..."

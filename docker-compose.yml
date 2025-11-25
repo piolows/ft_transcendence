@@ -32,6 +32,7 @@ services:
     container_name: backend
     volumes:
       - backend_controller:/app
+      - certificates:/app/certs
     build: ./backend/controller
     restart: on-failure
     environment:
@@ -87,6 +88,7 @@ services:
     container_name: backend_games
     volumes:
       - backend_games:/app
+      - certificates:/app/certs
       - db_storage:/app/src/database
     build: ./backend/games
     restart: on-failure
@@ -138,6 +140,13 @@ volumes:
     driver_opts:
       type: none
       device: ${PWD}/frontend/app
+      o: bind
+  certificates:
+    name: certificates
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/frontend/app/certs
       o: bind
   db_storage:
     name: db_storage
