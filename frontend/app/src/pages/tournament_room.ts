@@ -56,15 +56,8 @@ export default class TournamentRoom extends Component {
 
     async init() {
         const tournament = await this.get_info();
+        const players = Object.keys(tournament.players);
         this.playerCount = tournament.maxPlayers;
-        for (let i = 0; i < tournament.players.length; i++) {
-            console.log(tournament.players[i]);
-            // this.players.push(tournament.players[i].username);
-            // this.playerCount--;
-        }
-        for (let player in this.players) {
-            console.log(`player ${player}`);
-        }
         const main_container = document.getElementById("main-container") as HTMLDivElement;
         for (let i = 0; i < tournament.maxPlayers; i++) {
             // prompt an input box with the user's name
@@ -85,7 +78,7 @@ export default class TournamentRoom extends Component {
                     const response = await fetch(`${backend_url}/tournaments/join`, {
                         method: "POST",
                         headers: {"Content-type": "application/json"},
-                        body: JSON.stringify({username: playerName}),
+                        body: JSON.stringify({username: playerName, isLocal: true, tournamentId: tournament.uuid}),
                     });
                     const data = await response.json();
                     console.log(data);
@@ -110,6 +103,24 @@ export default class TournamentRoom extends Component {
                     const start = document.getElementById("start") as HTMLButtonElement;
                     start.addEventListener("click", async () => {
                         // reroute to pong game
+                        // call start tournament endpoint
+                        // once it starts, reroute to the first match
+                        try {
+                            const response = await fetch(`${backend_url}/tournaments/start`, {
+                                method: "POST",
+                                headers: {"Content-type": "application/json"},
+                                credentials: "include",
+                                body: JSON.stringify({tournamentId: tournament.uuid, isLocal: true}),
+                            })
+                            const data = await response.json();
+                            if (!data.success) {
+                                alert(`Failed to start tournament: ${data.error}`);
+                                return ;
+                            }
+                        } catch (error) {
+                            alert(`Failed to start tournament`);
+                            return ;
+                        }
                         this.router.route(`/pong/game?op=player&tournamentId=${tournament.uuid}`);
                     });
                 }

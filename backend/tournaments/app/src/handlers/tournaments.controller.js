@@ -7,6 +7,7 @@
 // it contains the players of the tournament, the spectators 
 import { tournaments, tournament_admins } from '../modules/tournaments_classes.js';
 import { Tournament } from '../modules/tournaments_classes.js'; 
+import { createBracket } from '../utils/utilities.js';
 
 // tournament routes
 export const tournamentHandler = (fastify, options, done) => {
@@ -60,26 +61,49 @@ export const tournamentHandler = (fastify, options, done) => {
     });
 
     // start the tournament. the tournament id will be passed in the body
+    // receive a boolean that will say whether the tournament is local or remote
+    // if the tournament is local, randomly pair players and start matches
     fastify.post('/start', async(req, reply) => {
         if (!req.session || !req.session.user)
-            return reply.send({ success: false, code: 403, error: "Must be signed in to create a tournament" });
+            return reply.send({ success: false, code: 403, error: "Must be an admin to start a tournament" });
         // loop through every match and send a request to make them start the match
         const tournamentId = req.body.tournamentId;
+        const isLocal = typeof req.body.isLocal !== undefined ? req.body.isLocal : false;
         if (!tournaments[tournamentId])
             return reply.send({ success: false, code: 404, error: "Tournament not found" });
         const players = Object.values(tournaments[tournamentId].players);
-        for (let i = 0; i < players.length; i += 2) {
-            const player_1 = players[i];
-            const player_2 = players[i + 1];
-
-            const res = await fetch(process.env('GAMES_URL') + '/games/new', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    tournament_id: tournamentId           
-                })
-            }); 
+        /* 
+            create a match object for each matchup
+            when created, it will randomly pair each player against each other
+            each match object will consist of:
+                - player 1
+                - player 2
+                - winner
+                -(only if not local)match id
+                - status (waiting, in-progress, completed)
+            create different rounds of matches
+         */
+        // get the amount of rounds this tournament will have based on the number of players
+        const rounds = Math.ceil(Math.log2(players.length));
+        // for every round, push an empty object into the rounds array
+        for (let i = 0; i < rounds; i++) {
+            // each round will have an array of matches
         }
+
+
+
+        // for (let i = 0; i < players.length; i += 2) {
+        //     const player_1 = players[i];
+        //     const player_2 = players[i + 1];
+
+        //     const res = await fetch(process.env('GAMES_URL') + '/games/new', {
+        //         method: 'POST',
+        //         headers: { 'Content-Type': 'application/json'},
+        //         body: JSON.stringify({
+        //             tournament_id: tournamentId           
+        //         })
+        //     }); 
+        // }
         return reply.send({ success: true });
     });
 
@@ -96,14 +120,20 @@ export const tournamentHandler = (fastify, options, done) => {
 
 
     fastify.post("/join", async (req, reply) => {
-        if (!req.session || !req.session.user)
-            return reply.send({ success: false, code: 403, error: "Must be signed in to join a tournament" });
         const tournamentId = req.body.tournamentId;
         const isLocal = typeof req.body.isLocal !== undefined ? req.body.isLocal : false;
+        fastify.log.info(req.body);
+        console.log(req.body);
+        if (!isLocal && (!req.session || !req.session.user))
+            return reply.send({ success: false, code: 403, error: "Must be signed in to join a tournament" });
+        fastify.log.info(tournaments);
+        console.log(tournaments);
+        fastify.log.info(tournaments[tournamentId]);
+        console.log(tournaments[tournamentId]);
         if (isLocal) {
             if (!tournaments[tournamentId].players[req.body.username]) {
                 if (Object.keys(tournaments[tournamentId].players).length < tournaments[tournamentId].maxPlayers) {
-                    tournaments[tournamentId].players[req.body.player] = req.body.username;
+                    tournaments[tournamentId].players[req.body.username] = {"username": req.body.username};
                     return reply.send({ success: true, msg: "Joined the tournament successfully"});
                 } else {
                     return reply.send({ success: false, msg: "Tournament is full" });

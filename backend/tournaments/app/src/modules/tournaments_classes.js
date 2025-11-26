@@ -17,6 +17,7 @@ export class Tournament {
     status;
     players = {};
     matches = {};   // match uuid : game JSON object
+    rounds = [];  // array of arrays of match uuids/match objects
     winner = null; // stores winner info which is: user_info object containing id/username/email/pfp
     constructor(roomName, adminInfo, maxPlayers = 8, status="waiting") {
         this.uuid = shortUUID();
