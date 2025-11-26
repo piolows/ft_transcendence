@@ -149,13 +149,20 @@ export default class Pong extends Component {
 		const paddle_speed = 8;
 		const params = new URLSearchParams(window.location.search);
 		const op = params.get("op");
+		const tournamentId = params.get("tournamentId");
 		const difficulty = parseInt(params.get("difficulty") ?? "1");
+		let tournament: Promise<any> | undefined
 		
 		// const gamemodeLabel = document.getElementById('gamemode')!;
 		const modeDisplay = document.getElementById('mode-display')!;
 		const rcontrols = document.getElementById('right-controls')!;
 		const diffbox = document.getElementById('difficulty-box')!;
 		const difftext = document.getElementById('difficulty')!;
+		if (tournamentId !== undefined) {
+			tournament = fetch(`${backend_url}/tournaments/${tournamentId}`);
+		} else {
+			console.log('there is no tournament');
+		}
 		if (op === "bot") {
 			const difficultyNames = ["EASY", "HARD", "EXTREME"];
 			modeDisplay.textContent = 'VS BOT';
@@ -179,6 +186,7 @@ export default class Pong extends Component {
 		const left_paddle = new Paddle(90, 20, 20, (cv.height - 90) / 2, paddle_speed, 'orange');
 		const right_paddle = new Paddle(90, 20, cv.width - (20 * 2), (cv.height - 90) / 2, paddle_speed, 'red');
 		const player1 = new Player("Player 1", left_paddle);
+		// const player1 = tournament !== undefined ? new Player("Player 1", left_paddle) : new Player(tournament.);
 		const player2 = (op == "bot") ? new Bot("AI Bot", right_paddle, cv, difficulty) : new Player("Player 2", right_paddle);
 
 		this.end_game = start_game(cv, ball, player1, player2, p1_score, p2_score, timer);

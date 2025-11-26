@@ -33,7 +33,7 @@ router.add_route("/pong/difficulty", new DifficultyMenu(router));
 router.add_route("/register", new SignUp(router), { auth: false, back_url: "/", type: "overlay" });
 router.add_route("/login", new Login(router), { auth: false, back_url: "/", type: "overlay" });
 router.add_route("/tournaments/list", new TournamentList(router), { auth: true });
-router.add_route("/tournaments/create", new CreateTournament(router), { auth: true });
+router.add_route("/tournaments/create", new CreateTournament(router), { auth: true, back_url: "/", type: "overlay" });
 router.add_route("/tournaments/id", new TournamentRoom(router), { auth: true, type: "strict_wild" });
 router.add_route("/profile", new Profile(router), { auth: true, type: "wild" });
 router.add_route("/history", new History(router), { auth: true, type: "wild" });

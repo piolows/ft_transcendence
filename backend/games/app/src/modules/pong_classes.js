@@ -16,6 +16,7 @@ export class Member {
 	game = null;
 	is_player = false;
 	is_left = true;
+	tournamentId = null;
 
 	constructor(socket, user_info) {
 		this.socket = socket;

@@ -4,7 +4,7 @@ services:
     image: alpine:latest
     command: |
       sh -c "
-        chmod -R 777 /front_end /db_storage /uploads /backend_controller /backend_auth /backend_users /backend_games /backend_cdn
+        chmod -R 777 /front_end /db_storage /uploads /backend_controller /backend_auth /backend_users /backend_games /backend_cdn /backend_tournaments
       "
     volumes:
       - front_end:/front_end

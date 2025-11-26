@@ -8,6 +8,11 @@ export default class TournamentList extends Component {
     private windowWidth = window.innerWidth;
     private userInTournament: Boolean = false;
     private userTournament: string | null = null;
+    private pageCount: number = 1;
+    private itemCount: number = 0;
+    private pages = [[]];
+    private currentPage: number = 0;
+
 
     private tournamentItem(tournamentId: string, roomName: String, playerCount: Number, maxPlayers: Number, tournamentStatus: String) {
         const color = playerCount < maxPlayers ? "text-green-300" : "text-red-500";
@@ -21,10 +26,10 @@ export default class TournamentList extends Component {
             if (tournamentId === this.userTournament) {
                 rightSide = `
                     <div class="flex gap-2">
-                        <button id="leave-button" class="pixel-box bg-red-500 hover:bg-red-600 clicky h-[60px] sm:w-[120px] md:w-[200px] lg:w-sm">
+                        <button id="leave-button" class="pixel-box bg-red-500 hover:bg-red-600 clicky h-[60px] sm:w-[80px] md:w-[100px] lg:w-[185px]">
                             <p>Leave</p>
                         </button>
-                        <button id="room-button" class="pixel-box bg-green-500 hover:bg-green-600 clicky h-[60px] sm:w-[120px] md:w-[200px] lg:w-sm">
+                        <button id="room-button" class="pixel-box bg-green-500 hover:bg-green-600 clicky h-[60px] sm:w-[80px] md:w-[100px] lg:w-[185px]">
                             <p>View</p>
                         </button>
                     </div>`;
@@ -40,7 +45,7 @@ export default class TournamentList extends Component {
 
         return `
         <div class="tournament-item flex justify-between items-start h-[120px]" data-tournament-id="${tournamentId}">
-            <div class="crt-text flex flex-col">
+            <div class="container crt-text flex flex-col w-full">
                 <p class="inline sm:text-[1em] md:text-[1.5em]">${roomName}</p>
                 <p class="player-count ${color} inline">${playerCount}/${maxPlayers} players</p>
             </div>
@@ -50,20 +55,8 @@ export default class TournamentList extends Component {
         </div>`;
     }
 
-    // needs a rework
-    private getDisplayCount() {
-        // based on size of container
-        const tournamentContainer = document.getElementById('tournament-list');
-        let count = 6;
-        if (this.windowHeight < 700) {
-            count = 3;
-        } else if (this.windowHeight < 900) {
-            count = 5;
-        }
-        return count;
-    }
-
     private async joinTournament(tournamentId: String) {
+        console.log("join tournament was called");
         try {
             let result = await fetch(backend_url + "/tournaments/join", {
                 method: "POST",
@@ -96,12 +89,13 @@ export default class TournamentList extends Component {
         return data;
     }
 
-    private async renderTournaments(tournaments: any) {
-        let displayCount = tournaments.length;
+    private async fillPages(tournaments: any, pages: any, currentPage: number) {
+        let displayCount: number = tournaments.length;
         const tournamentContainer = document.getElementById('tournament-list');
+        const containerBox = tournamentContainer?.getBoundingClientRect();
         if (!tournamentContainer) return;
 
-
+        let lastItem = null;
         for (let i = 0; i < displayCount; i++) {
             const { uuid, roomName, players, maxPlayers, status } = tournaments[i] as any;
             for (const player in players) {
@@ -111,8 +105,61 @@ export default class TournamentList extends Component {
                     break;
                 }
             }
+            // populate other pages with the same count 
             const playerCount = Object.keys(players).length;
+            const allTournaments = document.querySelectorAll(".tournament-item");
+            lastItem = allTournaments[allTournaments.length - 1];
+            if (lastItem) {
+                const rect = lastItem.getBoundingClientRect();
+                // if the y position is greater than the container's height, dont display
+                if (containerBox) {
+                    if (rect.y > containerBox.height) {
+                        let page = currentPage + 1;
+                        pages[page] = [];
+                        let k = 0;
+                        for (let j = i; j < displayCount; j++) {
+                            // for every page, add an item up until itemCount
+                            // while (k < this.itemCount) {
+                            if (k < this.itemCount) {
+                                pages[page].push(this.tournamentItem(uuid, roomName, playerCount, maxPlayers, status));
+                                k++;
+                            }
+                            if (k == this.itemCount) {
+                                page++;
+                                k = 0;
+                                pages[page] = [];
+                            }
+                        }
+                        this.pageCount = page;
+                        break ;
+                    }
+                    
+                }
+            }
+            if (!pages[currentPage]) {
+                pages[currentPage] = [];
+            }
+            pages[currentPage].push(this.tournamentItem(uuid, roomName, playerCount, maxPlayers, status));
+            this.itemCount += 1;
             tournamentContainer.innerHTML += this.tournamentItem(uuid, roomName, playerCount, maxPlayers, status);
+        }
+    }
+
+    private async displayTournaments(page: number) {
+        const tournamentContainer = document.getElementById('tournament-list');
+        if (tournamentContainer?.innerHTML)
+            tournamentContainer.innerHTML = "";
+        if (tournamentContainer) {
+            console.log(this.pages);
+            if (!this.pages[page])
+                console.log('there is no page');
+            else {
+                console.log('there is a page for page ', page);
+                console.log('length: ', this.pages[page].length);
+                for (let i = 0; i < this.pages[page].length; i++) {
+                    tournamentContainer.innerHTML += this.pages[page][i];
+                }
+            }
         }
     }
 
@@ -120,21 +167,15 @@ export default class TournamentList extends Component {
         await this.navbar.load(app);
         const data = await this.getTournamentData();
         const tournaments = Object.values(data.tournaments);
-        const navButtons = `<div class="mt-8 flex justify-center items-center space-x-8 font-pixelify">
-                                <button class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky">
-                                    ◄ PREV
-                                </button>
-                                <span class="text-xl font-vt323">Page 1 / 5</span>
-                                <button class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky">
-                                    NEXT ►
-                                </button>
-                            </div>`;
+        let pages: any = [[]];
+        let currentPage: number = 1;
+        // add the tournament items to each page up until the tournament list boundary
         if (tournaments.length === 0) {
             app.innerHTML += `
             <div class="container mx-auto px-4">
 
                 <div class="py-16 h-[400px]" id="main-container">
-                    <h2 class="text-4xl font-bold text-center mb-12 retro-shadow">Tournaments</h2>
+                    <h2 class="text-4xl font-bold text-center mb-12 retro-shadow">TOURNAMENTS</h2>
 
                     <div class="pixel-box h-[400px] bg-opacity-80 bg-blue-900 p-8 grid gap-y-5" id="tournament-list">
                         <p class="text-center crt-text text-2xl">No tournaments available at the moment.</p>
@@ -143,26 +184,32 @@ export default class TournamentList extends Component {
             </div>`;
             return;
         }
-            // <div class="container sm:w-[2px] md:w-[3px] lg:w-[4px] mx-auto px-4">
         let html = `
-            <div class="container md:w[50%] mx-auto px-4">
+            <div id="main-container" class="flex flex-col justify-center items-center container md:w[50%] mx-auto px-4">
 
-                <h2 class="pt-16 sm:text-3xl md:text-md lg:text-4xl font-bold text-center mb-12 retro-shadow">Tournaments</h2>
+                <h2 class="pt-16 sm:text-[30px] md:text-[50px] lg:text-4xl font-bold text-center mb-12 retro-shadow">TOURNAMENTS</h2>
 
-                <div class="pixel-box h-[60dvh] bg-opacity-80 bg-blue-900 p-8 grid overflow-hidden content-start" id="tournament-list">
+                <div class="pixel-box h-[110dvh] md:w-[80dvw] bg-opacity-80 bg-blue-900 p-8 pb-0 grid content-start" id="tournament-list">
                 </div>
             </div>
         `
         app.innerHTML += html;
-        await this.renderTournaments(tournaments);
+        
+        const container = document.getElementById("main-container") as HTMLDivElement;
+        console.log(`container height ${container.getBoundingClientRect().height}, container y ${container.getBoundingClientRect().y}`);
+        await this.fillPages(tournaments, this.pages, this.currentPage);
+        console.log(this.pages);
         document.querySelectorAll('.join-button',).forEach((button) => {
             button.addEventListener('click', async (event) => {
+                console.log('join button was clicked')
                 const tournamentItem = (event.currentTarget as HTMLElement).closest('.tournament-item');
                 if (tournamentItem) {
                     const id = tournamentItem.getAttribute('data-tournament-id');
                     if (id) {
                         await this.joinTournament(id);
                     }
+                } else {
+                    console.log('there is no tournament item');
                 }
             });
         });
@@ -193,9 +240,37 @@ export default class TournamentList extends Component {
                 this.router.route(`/tournaments/id/${this.userTournament}`);
             }
         });
+        // this.displayTournaments(0);
+
+        // to add the navigation buttons
+        const main_container = document.getElementById("tournament-list") as HTMLDivElement;
+        main_container.innerHTML += `<div class="mt-8 relative flex justify-center items-center space-x-8 font-pixelify">
+                                <button id="prev" class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky">
+                                    ◄ PREV
+                                </button>
+                                <span class="text-xl font-vt323">Page ${currentPage} / ${this.pageCount}</span>
+                                <button id="next" class="pixel-box bg-blue-700 px-6 py-3 hover:bg-blue-600 transition-colors clicky">
+                                    NEXT ►
+                                </button>
+                            </div>`;
     }
 
     async init() {
         this.navbar.init();
+        const prev = document.getElementById("prev") as HTMLButtonElement;
+        const next = document.getElementById("next") as HTMLButtonElement;
+        if (prev && next) {
+            // if next button is pressed, display the next items 
+            next.addEventListener('click', async (event) => {
+                console.log('next was clicked');
+                // re-render items from the pages
+                this.currentPage += 1;
+                if (this.currentPage > this.pageCount)
+                    this.displayTournaments(this.currentPage);
+            });
+            prev.addEventListener('click', async (event) => {
+
+            });
+        }
     }
 }

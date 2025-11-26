@@ -98,15 +98,27 @@ export const tournamentHandler = (fastify, options, done) => {
     fastify.post("/join", async (req, reply) => {
         if (!req.session || !req.session.user)
             return reply.send({ success: false, code: 403, error: "Must be signed in to join a tournament" });
-        // body would contain as player: true, false
         const tournamentId = req.body.tournamentId;
-        if (!tournaments[tournamentId].players[req.session.user.username])
-        {
-            if (Object.keys(tournaments[tournamentId].players).length < tournaments[tournamentId].maxPlayers) {
-                tournaments[tournamentId].players[req.session.user.username] = req.session.user;
-                return reply.send({ success: true, msg: "Joined the tournament successfully"});
+        const isLocal = typeof req.body.isLocal !== undefined ? req.body.isLocal : false;
+        if (isLocal) {
+            if (!tournaments[tournamentId].players[req.body.username]) {
+                if (Object.keys(tournaments[tournamentId].players).length < tournaments[tournamentId].maxPlayers) {
+                    tournaments[tournamentId].players[req.body.player] = req.body.username;
+                    return reply.send({ success: true, msg: "Joined the tournament successfully"});
+                } else {
+                    return reply.send({ success: false, msg: "Tournament is full" });
+                }
             } else {
-                return reply.send({ success: false, msg: "Tournament is full" });
+                return reply.send( {success: false, msg: "User is already in tournament"});
+            }
+        } else {
+            if (!tournaments[tournamentId].players[req.session.user.username]) {
+                if (Object.keys(tournaments[tournamentId].players).length < tournaments[tournamentId].maxPlayers) {
+                    tournaments[tournamentId].players[req.session.user.username] = req.session.user;
+                    return reply.send({ success: true, msg: "Joined the tournament successfully"});
+                } else {
+                    return reply.send({ success: false, msg: "Tournament is full" });
+                }
             }
         }
         return reply.send({ success: false, msg: "User is already in tournament" });
