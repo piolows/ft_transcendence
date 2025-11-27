@@ -8,6 +8,7 @@ const endpointHandler = (fastify, options, done) => {
 	const FRIENDS_PER_PAGE = 8;
 	const GAMES_PER_PAGE = 10;
 	const PLAYERS_PER_PAGE = 10;
+	const THRESHOLD_MS = 6 * 1000;
 	
 	function sqliteNow() {
 		return new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
@@ -108,7 +109,16 @@ const endpointHandler = (fastify, options, done) => {
 				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.winner_id, ${HT}.game, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
 				FROM ${HT} JOIN ${UT} ON ${HT}.op_id = ${UT}.id WHERE ${HT}.user_id=? AND ${HT}.created_at > datetime('now', '-24 hour')
 				ORDER BY ${HT}.created_at DESC LIMIT 3 OFFSET 0`).all(user['id']);
-			return resp.send({ success: true, user, friend_cnt, stats, game_cnt, games, is_friend });
+			let online = false;
+			const last_seen = user.last_seen;
+
+			if (last_seen) {
+				const last = new Date(last_seen.replace(' ', 'T') + 'Z');
+				const now = new Date();
+				const diffMs = now - last;
+				online = (diffMs < THRESHOLD_MS);
+			}
+			return resp.send({ success: true, user, friend_cnt, stats, game_cnt, games, is_friend, online, last_seen });
 		} catch (error) {
 			return resp.send({ success: false, code: 500, error: error.message });
 		}
@@ -188,7 +198,7 @@ const endpointHandler = (fastify, options, done) => {
 				return resp.send({ success: false, code: 404, error: "User not found" });
 
 			const now = sqliteNow();
-			await fastify.sqlite.prepare(`UPDATE ${UT} SET last_seen=? WHERE id=?`).run(now,req.body.id);
+			await fastify.sqlite.prepare(`UPDATE ${UT} SET last_seen=? WHERE id=?`).run(now, req.body.id);
 
 			return resp.send({ success: true, last_seen: now });
 		} catch (error) {
@@ -207,16 +217,15 @@ const endpointHandler = (fastify, options, done) => {
 				return resp.send({ success: false, code: 404, error: "User not found" });
 
 			let online = false;
-			let lastSeen = user.last_seen;
+			let last_seen = user.last_seen;
 
-			if (lastSeen) {
-				const last = new Date(lastSeen.replace(' ', 'T') + 'Z');
+			if (last_seen) {
+				const last = new Date(last_seen.replace(' ', 'T') + 'Z');
 				const now = new Date();
 				const diffMs = now - last;
-				const THRESHOLD_MS = 60 * 1000;
-				online = diffMs <= THRESHOLD_MS;
+				online = (diffMs < THRESHOLD_MS);
 			}
-			return resp.send({ success: true, username: user.username, online, last_seen: lastSeen });
+			return resp.send({ success: true, online, last_seen });
 		} catch (error) {
 			return resp.send({ success: false, code: 500, error: error.message });
 		}

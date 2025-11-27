@@ -135,6 +135,7 @@ export default class Pong extends Component {
 						credentials: "include"
 					});
 					this.router.login_info = null;
+					this.router.stop_presence_heartbeat();
 					this.router.route("/");
 				} catch (err) {
 					console.error("Failed to log out:", err);

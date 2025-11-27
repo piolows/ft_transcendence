@@ -94,13 +94,12 @@ export class Router {
 	private currpage: Component | null = null;
 	private errpage: DefaultErrorPage;
 	private loader: Loading;
+	private presence_interval_id: number | null = null;
 	auth_route: boolean = false;
 	app: HTMLDivElement | HTMLElement;
 	login_info: any = null;
 	loggedin = false;
 	google_client: any;
-	
-	private presence_interval_id: number | null = null;
 
 	constructor(app: HTMLDivElement | null) {
 		this.errpage = new DefaultErrorPage(this);
@@ -183,11 +182,22 @@ export class Router {
 	}
 
 	// Sends heartbeat of user (online status) every 30 seconds
-	private start_presence_heartbeat() {
+	start_presence_heartbeat() {
 		if (this.presence_interval_id !== null) {
 			return;
 		}
+		if (!this.loggedin || !this.login_info || !this.login_info.id) {
+			return ;
+		}
 
+		fetch(backend_url + "/users/status", {
+			method: "POST",
+			credentials: "include",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ id: this.login_info.id }),
+		}).catch((err) => {
+			console.error("Failed to send presence heartbeat:", err);
+		});
 		this.presence_interval_id = window.setInterval(() => {
 			if (!this.loggedin || !this.login_info || !this.login_info.id) {
 				return ;
@@ -200,11 +210,11 @@ export class Router {
 			}).catch((err) => {
 				console.error("Failed to send presence heartbeat:", err);
 			});
-		}, 30_000);
+		}, 5_000);
 	}
 
 	// To be called where we log out / session expires
-	private stop_presence_heartbeat() {
+	stop_presence_heartbeat() {
 		if (this.presence_interval_id !== null) {
 			clearInterval(this.presence_interval_id);
 			this.presence_interval_id = null;
@@ -354,8 +364,8 @@ export class Router {
 			}
 			console.error(error.status, error.text);
 		}
-		this.loading(false);
 		this.start_presence_heartbeat();
+		this.loading(false);
 		this.route(location.pathname);
 	}
 }

@@ -6,6 +6,8 @@ export default class Profile extends Component {
 	private navbar = new NavBar(this.router);
 	private footer = new Footer(this.router);
 	private profile_info: any;
+	private online: any;
+	private last_seen: any;
 	private last_matches: any;
 	private friend_count: any;
 	private game_count: any;
@@ -28,19 +30,20 @@ export default class Profile extends Component {
 									<img src="${backend_url + this.profile_info.avatarURL}" 
 										class="w-32 h-32 rounded-full pixel-box" alt="Profile Picture">
 								${this.profile_info.id == this.router.login_info.id ? `
-								<div class="absolute inset-0 bg-black bg-opacity-60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+								<div class="absolute inset-0 bg-black/0 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:bg-black/30 transition-opacity">
 									<span class="text-5xl">✎</span>
 								</div>` : ''}
 								</div>
 								<div class="pr-16">
-									<div class="flex items-center space-x-2 mb-2">
+									<a id="edit-username-btn" class="flex items-center space-x-2 mb-2">
 										<h1 class="text-3xl font-bold rainbow">${this.profile_info.username}</h1>
 										${this.profile_info.id == this.router.login_info.id ? `
-										<button id="edit-username-btn" class="text-gray-400 hover:text-white transition-colors text-xl">
+										<button class="text-gray-400 hover:text-white transition-colors text-xl" style="cursor: pointer;">
 											✎
-										</button>` : ''}
-									</div>
+										</button>` : `<div class="rounded-full ml-2 ${this.online ? `bg-green-500` : `bg-gray-400`} w-3 h-3"></div>`}
+									</a>
 									<p class="text-gray-400 font-silkscreen">${this.profile_info.email}</p>
+									${this.online ? '' : `<p class="text-gray-400 font-silkscreen">Last seen: ${this.last_seen}</p>`}
 									${this.profile_info.id == this.router.login_info.id ? `
 									<button id="change-password-btn" class="mt-3 pixel-box bg-red-600 px-4 py-2 text-sm hover:bg-red-700 transition-colors clicky font-pixelify">
 										CHANGE PASSWORD
@@ -242,6 +245,8 @@ export default class Profile extends Component {
 			this.game_count = data.game_cnt;
 			this.user_stats = data.stats;
 			this.is_friends = data.is_friend;
+			this.online = data.online;
+			this.last_seen = data.last_seen;
 		} catch(error: any) {
 			await this.router.route_error(this.real_path, 500, error.message);
 		};

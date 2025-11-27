@@ -72,6 +72,7 @@ export default class AuthSection extends Component {
 						credentials: "include"
 					});
 					this.router.login_info = null;
+					this.router.stop_presence_heartbeat();
 					logoutbtn.parentElement?.parentElement && (logoutbtn.parentElement.parentElement.innerHTML = this.logged_out_block());
 				} catch (err) {
 					console.error("Failed to log out:", err);
