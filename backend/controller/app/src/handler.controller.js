@@ -98,45 +98,6 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	});
 
-	fastify.all('/tournaments/*', async (req, reply) => {
-		try {
-			const subPath = req.params["*"] ?? "";
-			const queryString = req.raw.url.includes("?") ? "?" + req.raw.url.split("?")[1] : "";
-			const serviceURI = process.env.TOURNAMENTS_URL + (process.env.TOURNAMENTS_URL.endsWith("/") ? "" : "/");
-			const URL = `${serviceURI}${subPath}${queryString}`;
-			let body = undefined;
-			let response = undefined;
-			const contentType = req.headers['content-type'] ?? '';
-			// if (!req.body) {
-			if (contentType.includes('application/json')) {
-				body = JSON.stringify(req.body);
-			} else if (contentType.includes('application/x-www-form-urlencoded')) {
-				body = new URLSearchParams(req.body).toString();
-			} else {
-				body = req.body;
-			}
-			response = await fetch(URL, {
-				method: req.method,
-				headers: {
-					...req.headers,
-					'content-length': body ? Buffer.byteLength(body).toString() : 0
-				},
-				body: body
-			});
-
-			// Set response status & headers before streaming
-			reply.status(response.status);
-			for (const [key, value] of response.headers.entries()) {
-				reply.header(key, value);
-			}
-
-			// Stream response body directly (doesn't assume JSON)
-			return reply.send(response.body);
-		} catch (error) {
-			return reply.code(500).send(error);
-		}
-	});
-
 	fastify.all('/users/*', async (req, reply) => {
 		try {
 			const URL = `${process.env.USERS_URL}${req.url.substring(process.env.USERS_URL.endsWith('/') ? 1 : 0)}`;

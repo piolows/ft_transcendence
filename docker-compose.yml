@@ -4,18 +4,15 @@ services:
     image: alpine:latest
     command: |
       sh -c "
-        chmod -R 777 /front_end /db_storage /uploads /backend_controller /backend_auth /backend_users /backend_games /backend_cdn
+        chmod -R 777 /front_end /backend_controller /backend_auth /backend_users /backend_games /backend_cdn
       "
     volumes:
       - front_end:/front_end
-      - db_storage:/db_storage
-      - uploads:/uploads
       - backend_controller:/backend_controller
       - backend_auth:/backend_auth
       - backend_users:/backend_users
       - backend_games:/backend_games
       - backend_cdn:/backend_cdn
-      - backend_tournaments:/backend_tournaments
 
   frontend:
     container_name: frontend
@@ -41,7 +38,6 @@ services:
       - AUTH_URL=http://backend_auth:41610
       - USERS_URL=http://backend_users:41611
       - CDN_URL=http://backend_cdn:41612
-      - TOURNAMENTS_URL=http://backend_tournaments:41613
     ports:
       - "4161:4161"
     networks:
@@ -52,14 +48,13 @@ services:
     container_name: backend_auth
     volumes:
       - backend_auth:/app
-      - db_storage:/app/src/database
     build: ./backend/auth
     restart: on-failure
     environment:
       - DEFAULT_PIC=/cdn/avatars/kermit.webp
-      - DB_FILE=/app/src/database/auth.db
+      - DB_FILE=/app/src/databases/auth.db
       - USERS_TABLE=users
-      - SESSIONS_DB=/app/src/database/sessions.db
+      - SESSIONS_DB=/app/src/databases/sessions.db
       - SESSION_SECRET=${SESSION_SECRET}
       - CDN_URL=http://backend_cdn:41612
       - USERS_URL=http://backend_users:41611
@@ -71,12 +66,11 @@ services:
     container_name: backend_users
     volumes:
       - backend_users:/app
-      - db_storage:/app/src/database
     build: ./backend/users
     restart: on-failure
     environment:
       - PORT=41611
-      - DB_FILE=/app/src/database/users.db
+      - DB_FILE=/app/src/databases/users.db
       - USERS_TABLE=users
       - STATS_TABLE=stats
       - HISTORY_TABLE=history
@@ -89,14 +83,12 @@ services:
     volumes:
       - backend_games:/app
       - certificates:/app/certs
-      - db_storage:/app/src/database
     build: ./backend/games
     restart: on-failure
     environment:
-      - SESSIONS_DB=/app/src/database/sessions.db
+      - SESSIONS_DB=/app/src/databases/sessions.db
       - SESSION_SECRET=${SESSION_SECRET}
       - FRONTEND_URL=https://localhost
-      - TOURNAMENT_URL=http://backend_tournaments:41613
       - USERS_URL=http://backend_users:41613
       - PORT=4116
     ports:
@@ -110,26 +102,10 @@ services:
     build: ./backend/cdn
     volumes:
       - backend_cdn:/app
-      - uploads:/app/public/uploads
     restart: on-failure
     environment:
     - PORT=41612
     - FRONTEND_URL=https://localhost
-    networks:
-      - micro-services
-
-  backend_tournaments:
-    container_name: backend_tournaments
-    build: ./backend/tournaments
-    volumes:
-      - backend_tournaments:/app
-      - db_storage:/app/src/database
-    restart: on-failure
-    environment:
-      - SESSIONS_DB=/app/src/database/sessions.db
-      - SESSION_SECRET=${SESSION_SECRET}
-      - PORT=41613
-      - GAMES_URL=http://backend_games:4116
     networks:
       - micro-services
 
@@ -147,20 +123,6 @@ volumes:
     driver_opts:
       type: none
       device: ${PWD}/frontend/app/certs
-      o: bind
-  db_storage:
-    name: db_storage
-    driver: local
-    driver_opts:
-      type: none
-      device: ${PWD}/backend/storage/databases
-      o: bind
-  uploads: 
-    name: uploads
-    driver: local
-    driver_opts:
-      type: none
-      device: ${PWD}/backend/storage/uploads
       o: bind
   backend_users:
     name: backend_users
@@ -196,13 +158,6 @@ volumes:
     driver_opts:
       type: none
       device: ${PWD}/backend/cdn/app
-      o: bind
-  backend_tournaments:
-    name: tournaments
-    driver: local
-    driver_opts:
-      type: none
-      device: ${PWD}/backend/tournaments/app
       o: bind
 
 networks:

@@ -5,9 +5,25 @@ const pongHandler = (fastify, options, done) => {
 	let games = {};		//game.uuid -> game
 	let admins = {};	//username -> game
 
+	const authenticate = async (req, resp) => {
+		const URL = process.env.AUTH_URL + "/auth/me";
+		const response = await fetch(URL, {
+			method: "POST",
+			headers: req.headers
+		});
+		if (!response.ok)
+			return resp.send({ success: false, code: response.status, error: "Authentication failed" });
+		const data = await response.json();
+		if (!data || !data.success)
+			return resp.send({ success: false, code: data.code, error: data.error });
+		if (!data.loggedIn)
+			return resp.send({ success: false, code: 403, error: "Must be signed in" });
+		console.log("EMAD", data);
+		return data;
+	}
+
 	fastify.get("/room/:room_id", (req, resp) => {
-		if (!req.session || !req.session.user)
-			return resp.send({ success: false, code: 403, error: "Must be signed" });
+		const login_data = authenticate(req, resp);
 		const room_code = (req.params.room_id ?? "").toUpperCase();
 		const room_code_regex = /^[A-Z0-9]{5}$/;
 		if (!room_code_regex.test(room_code)) {
@@ -50,9 +66,8 @@ const pongHandler = (fastify, options, done) => {
 	fastify.post("/new", async (req, resp) => {
 		if (Object.keys(games).length > 1024)
 			return resp.send({ success: false, code: 501, error: "Maximum game limit reached" });
-		if (!req.session || !req.session.user)
-			return resp.send({ success: false, code: 403, error: "Must be signed in to create a game" });
-		if (admins[req.session.user.username])
+		const login_data = authenticate(req, resp);
+		if (admins[login_data.user.username])
 			return resp.send({ success: false, code: 403, error: "User already has an open room" });
 		let id = -1;
 		if (typeof req.body !== 'undefined' && typeof req.body.tournament_id !== "undefined") {
@@ -67,20 +82,19 @@ const pongHandler = (fastify, options, done) => {
 				return resp.send({ success: false, code: 500, error: error.message });
 			}
 		}
-		// const game = new Game(req.session.user, req.body.tournament_id);
-		const game = new Game(req.session.user, id);
+		// const game = new Game(login_data.user, req.body.tournament_id);
+		const game = new Game(login_data.user, id);
 		games[game.uuid] = game;
-		admins[req.session.user.username] = game;
-		console.log(`${req.session.user.username} created room ${game.uuid}`);
+		admins[login_data.user.username] = game;
+		console.log(`${login_data.user.username} created room ${game.uuid}`);
 		return resp.send({ success: true, game_id: game.uuid});
 	});
 
 	fastify.post("/destroy", (req, resp) => {
-		if (!req.session || !req.session.user)
-			return resp.send({ success: false, code: 403, error: "Must be signed in to create a game" });
-		if (admins[req.session.user.username]) {
-			console.log(`Destroyed room ${admins[req.session.user.username].uuid}`);
-			destroy_game(admins, games, admins[req.session.user.username].uuid);
+		const login_data = authenticate(req, resp);
+		if (admins[login_data.user.username]) {
+			console.log(`Destroyed room ${admins[login_data.user.username].uuid}`);
+			destroy_game(admins, games, admins[login_data.user.username].uuid);
 		}
 		return resp.send({ success: true });
 	});
@@ -88,14 +102,11 @@ const pongHandler = (fastify, options, done) => {
 	fastify.get("/", {
 		websocket: true,
 		preValidation: (req, reply, done) => {
-				if (!req.session || !req.session.user) {
-					reply.send({ success: false, code: 403, error: "Must be signed in to join a game" });
-					return;
-				}
+				authenticate(req, reply);
 				done();
 			}
 		}, (socket, req) => {
-			const member = new Member(socket, req.session.user);
+			const member = new Member(socket, login_data.user);
 
 			console.log(`New user connected to socket: ${member.uuid} - ${member.user_info.username} - ${member.user_info.email}`);
 
