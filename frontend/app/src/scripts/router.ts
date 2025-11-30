@@ -174,6 +174,7 @@ export class Router {
 				this.login_info = data.user;
 				this.loggedin = true;
 			} else {
+				this.login_info = null;
 				this.loggedin = false;
 			}
 		} catch (err) {
