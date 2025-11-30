@@ -3,7 +3,7 @@ import Component, { backend_url, backend_websocket, Router, sockets_url } from "
 import { Ball, Paddle, draw_frame } from "../scripts/server_game";
 
 export default class PongRoom extends Component {
-	private navbar = new NavBar(this.router);
+	// private navbar = new NavBar(this.router);
 	private game_id: string = "";
 	private game_over: boolean = false;
 	private socket: WebSocket | null = null;
@@ -29,7 +29,7 @@ export default class PongRoom extends Component {
 	constructor(router: Router) {
 		super(router);
 		this.back_url = "/pong/menu";
-		this.navbar.back_url = "/pong/menu";
+		// this.navbar.back_url = "/pong/menu";
 	}
 
 	async load(app: HTMLDivElement | HTMLElement) {
@@ -246,7 +246,7 @@ export default class PongRoom extends Component {
 	}
 
 	async init() {
-		this.navbar.init();
+		// this.navbar.init();
 		// back button
 		const backbtn = document.getElementById('back_btn')!;
 		backbtn.onclick = () => {

@@ -477,6 +477,7 @@ export function repeated_updates(games) {
 }
 
 export function destroy_game(admins, games, id) {
+	console.log(`Destroyed room #${games[id].uuid}`);
 	for (const member of Object.values(games[id].all)) {
 		member.socket.send(JSON.stringify({ game_over: true, exit: true }));
 		member.game = null;

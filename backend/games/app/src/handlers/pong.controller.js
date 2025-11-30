@@ -8,8 +8,9 @@ const pongHandler = (fastify, options, done) => {
 	const authenticate = async (req) => {
 		try {
 			const URL = process.env.AUTH_URL + "/me";
+			const headers = {'cookie': req.headers['cookie']};
 			const response = await fetch(URL, {
-				headers: req.headers
+				headers: headers
 			});
 			if (!response.ok)
 				return { success: false, code: response.status, error: "Authentication failed" };
@@ -23,8 +24,22 @@ const pongHandler = (fastify, options, done) => {
 		}
 	}
 
+	const delayed_closure = (id) => {
+		if (Object.keys(games[id].all).length == 0 && !games[id].setup.game_over) {
+			const func = () => {
+				if (Object.keys(games[id].all).length == 0) {
+					destroy_game(admins, games, id);
+				}
+			};
+			setTimeout(func, 10000);
+		}
+		else {
+			destroy_game(admins, games, id);
+		}
+	}
+
 	fastify.get("/room/:room_id", async (req, resp) => {
-		const login_data = await authenticate(req, resp);
+		const login_data = await authenticate(req);
 		if (!login_data.success)
 			return resp.send(login_data);
 		const room_code = (req.params.room_id ?? "").toUpperCase();
@@ -69,7 +84,7 @@ const pongHandler = (fastify, options, done) => {
 	fastify.post("/new", async (req, resp) => {
 		if (Object.keys(games).length > 1024)
 			return resp.send({ success: false, code: 501, error: "Maximum game limit reached" });
-		const login_data = await authenticate(req, resp);
+		const login_data = await authenticate(req);
 		if (!login_data.success)
 			return resp.send(login_data);
 		if (admins[login_data.user.username])
@@ -96,11 +111,10 @@ const pongHandler = (fastify, options, done) => {
 	});
 
 	fastify.post("/destroy", async (req, resp) => {
-		const login_data = await authenticate(req, resp);
+		const login_data = await authenticate(req);
 		if (!login_data.success)
 			return resp.send(login_data);
 		if (admins[login_data.user.username]) {
-			console.log(`Destroyed room ${admins[login_data.user.username].uuid}`);
 			destroy_game(admins, games, admins[login_data.user.username].uuid);
 		}
 		return resp.send({ success: true });
@@ -109,13 +123,13 @@ const pongHandler = (fastify, options, done) => {
 	fastify.get("/", {
 		websocket: true,
 		preValidation: async (req, reply, done) => {
-				const login_data = await authenticate(req, reply);
+				const login_data = await authenticate(req);
 				if (!login_data.success)
 					return reply.send(login_data);
 				done();
 			}
 		}, async (socket, req) => {
-			const login_data = await authenticate(req, reply);
+			const login_data = await authenticate(req);
 			if (!login_data.success)
 				return reply.send(login_data);
 			const member = new Member(socket, login_data.user);
@@ -140,7 +154,7 @@ const pongHandler = (fastify, options, done) => {
 				const getinfos = (guys) => {if (!guys) return ''; let ret = ""; for (const guy of guys) ret += getinfo(guy.user_info) + "  "; return ret;}
 				if (action == "INFO") {
 					for (const game of Object.values(games)) {
-						// socket.send(`Game #${game.uuid} has admin ${getinfo(game.admin_info)}.\nSpectators:\n${getinfos(Object.values(game.specs))}\nPlayers:\n${getinfos(Object.values(game.players))}`);
+						socket.send(`Game #${game.uuid} has admin ${getinfo(game.admin_info)}.\nSpectators:\n${getinfos(Object.values(game.specs))}\nPlayers:\n${getinfos(Object.values(game.players))}`);
 						console.log(`Game #${game.uuid} has admin ${getinfo(game.admin_info)}.\nSpectators:\n${getinfos(Object.values(game.specs))}\nPlayers:\n${getinfos(Object.values(game.players))}`);
 					};
 					return;
@@ -263,11 +277,6 @@ const pongHandler = (fastify, options, done) => {
 							}
 							member.leave();
 							console.log(`User ${member.user_info.username} - ${member.user_info.email} left game #${gid}`);
-							// if (games[gid].player_count() == 0 && (Object.keys(games[gid].all).length == 0 || games[gid].setup.game_over)) {
-							// 	destroy_game(admins, games, gid);
-							// 	console.log(`Destroyed room ${gid}`);
-							// }
-							// socket.send("Left game #" + gid);
 							socket.send(JSON.stringify({ success: true }));
 							break;
 						case "MOVE_UP":
@@ -325,22 +334,9 @@ const pongHandler = (fastify, options, done) => {
 				try {
 					if (member.game) {
 						const id = member.game.uuid;
-						member.leave();
-						console.log(`User ${member.user_info.username} - ${member.user_info.email} left game #${id}`);
+						console.log(`~User ${member.user_info.username} - ${member.user_info.email} left game #${id}`);
 						if (games[id].player_count() == 0 && (Object.keys(games[id].all).length == 0 || games[id].setup.game_over)) {
-							// if (Object.keys(games[id].all).length == 0 && !games[id].setup.game_over) {
-							// 	const func = () => {
-							// 		if (Object.keys(games[id].all).length == 0) {
-							// 			destroy_game(admins, games, id);
-							// 			console.log(`Destroyed room ${id}`);
-							// 		}
-							// 	};
-							// 	setTimeout(func, 20000);
-							// }
-							// else {
-								destroy_game(admins, games, id);
-								console.log(`Destroyed room ${id}`);
-							// }
+							delayed_closure(id);
 						}
 						else {
 							broadcast_game(games[id], false, null);
