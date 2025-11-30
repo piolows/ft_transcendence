@@ -36,10 +36,10 @@ export default class PongMenu extends Component {
 				this.router.route("/login");
 				return ;
 			}
-			// await fetch(`${sockets_url}/pong/destroy`, {
-			// 	method: "POST",
-			// 	credentials: "include"
-			// });
+			await fetch(`${sockets_url}/pong/destroy`, {
+				method: "POST",
+				credentials: "include"
+			});
 			fetch(`${sockets_url}/pong/new`, {
 				method: "POST",
 				credentials: "include"

@@ -5,25 +5,28 @@ const pongHandler = (fastify, options, done) => {
 	let games = {};		//game.uuid -> game
 	let admins = {};	//username -> game
 
-	const authenticate = async (req, resp) => {
-		const URL = process.env.AUTH_URL + "/auth/me";
-		const response = await fetch(URL, {
-			method: "POST",
-			headers: req.headers
-		});
-		if (!response.ok)
-			return resp.send({ success: false, code: response.status, error: "Authentication failed" });
-		const data = await response.json();
-		if (!data || !data.success)
-			return resp.send({ success: false, code: data.code, error: data.error });
-		if (!data.loggedIn)
-			return resp.send({ success: false, code: 403, error: "Must be signed in" });
-		console.log("EMAD", data);
-		return data;
+	const authenticate = async (req) => {
+		try {
+			const URL = process.env.AUTH_URL + "/me";
+			const response = await fetch(URL, {
+				headers: req.headers
+			});
+			if (!response.ok)
+				return { success: false, code: response.status, error: "Authentication failed" };
+			const data = await response.json();
+			if (data && !data.loggedIn)
+				return { success: false, code: 403, error: "Must be signed in" };
+			return data;
+		} catch (error) {
+			console.log("COULD NOT AUTHENTICATE:", error);
+				return { success: false, code: 500, error: "Authentication Error. Check logs." };
+		}
 	}
 
-	fastify.get("/room/:room_id", (req, resp) => {
-		const login_data = authenticate(req, resp);
+	fastify.get("/room/:room_id", async (req, resp) => {
+		const login_data = await authenticate(req, resp);
+		if (!login_data.success)
+			return resp.send(login_data);
 		const room_code = (req.params.room_id ?? "").toUpperCase();
 		const room_code_regex = /^[A-Z0-9]{5}$/;
 		if (!room_code_regex.test(room_code)) {
@@ -66,7 +69,9 @@ const pongHandler = (fastify, options, done) => {
 	fastify.post("/new", async (req, resp) => {
 		if (Object.keys(games).length > 1024)
 			return resp.send({ success: false, code: 501, error: "Maximum game limit reached" });
-		const login_data = authenticate(req, resp);
+		const login_data = await authenticate(req, resp);
+		if (!login_data.success)
+			return resp.send(login_data);
 		if (admins[login_data.user.username])
 			return resp.send({ success: false, code: 403, error: "User already has an open room" });
 		let id = -1;
@@ -90,8 +95,10 @@ const pongHandler = (fastify, options, done) => {
 		return resp.send({ success: true, game_id: game.uuid});
 	});
 
-	fastify.post("/destroy", (req, resp) => {
-		const login_data = authenticate(req, resp);
+	fastify.post("/destroy", async (req, resp) => {
+		const login_data = await authenticate(req, resp);
+		if (!login_data.success)
+			return resp.send(login_data);
 		if (admins[login_data.user.username]) {
 			console.log(`Destroyed room ${admins[login_data.user.username].uuid}`);
 			destroy_game(admins, games, admins[login_data.user.username].uuid);
@@ -101,11 +108,16 @@ const pongHandler = (fastify, options, done) => {
 
 	fastify.get("/", {
 		websocket: true,
-		preValidation: (req, reply, done) => {
-				authenticate(req, reply);
+		preValidation: async (req, reply, done) => {
+				const login_data = await authenticate(req, reply);
+				if (!login_data.success)
+					return reply.send(login_data);
 				done();
 			}
-		}, (socket, req) => {
+		}, async (socket, req) => {
+			const login_data = await authenticate(req, reply);
+			if (!login_data.success)
+				return reply.send(login_data);
 			const member = new Member(socket, login_data.user);
 
 			console.log(`New user connected to socket: ${member.uuid} - ${member.user_info.username} - ${member.user_info.email}`);

@@ -6,9 +6,9 @@ import { hash, validate_registration, save_pfp } from './utils.js';
 const endpointHandler = (fastify, options, done) => {
 	fastify.get("/me", async (req, reply) => {
 		if (req.session && req.session.user) {
-			return reply.send({ loggedIn: true, user: req.session.user });
+			return reply.send({ success: true, loggedIn: true, user: req.session.user });
 		}
-		return reply.send({ loggedIn: false });
+		return reply.send({ success: true, loggedIn: false });
 	});
 
 	fastify.post("/login", loginSchema, async (req, reply) => {
