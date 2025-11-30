@@ -262,8 +262,16 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 	document.addEventListener('keydown', keyDownHandler, false);
 	document.addEventListener('keyup', keyUpHandler, false);
 
+	const end_game = () => {
+            cancelAnimationFrame(animationId);
+            document.removeEventListener('keydown', keyDownHandler);
+            document.removeEventListener('keyup', keyUpHandler);
+        };
+
 	function draw(currentTime: number)
 	{
+		if (time >= 300 || parseInt(p1_score.textContent) >= 10 || parseInt(p2_score.textContent) >= 10)
+			end_game();
 		const delta = (currentTime - lastTime) / 15;
 		lastTime = currentTime;
 		if (ball.starting === true)
@@ -320,9 +328,5 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 	animationId = requestAnimationFrame(draw);
 
 	// Return a controller to stop the game
-    return () => {
-            cancelAnimationFrame(animationId);
-            document.removeEventListener('keydown', keyDownHandler);
-            document.removeEventListener('keyup', keyUpHandler);
-        };
+    return end_game;
 }
