@@ -70,7 +70,7 @@ export default class PongRoom extends Component {
 				<div class="flex-1 flex overflow-hidden">
 					<!-- left sidebar -->
 					<div class="w-72 bg-blue-900 border-r-2 border-blue-700 p-4 flex flex-col justify-between overflow-y-auto">
-						<div>
+						<div class="space-y-4">
 							<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
 								<p class="text-xs font-pixelify text-gray-300 mb-2">CONTROLS</p>
 								<p class="text-xs text-white">W/S</p>
@@ -85,6 +85,24 @@ export default class PongRoom extends Component {
 								<div class="flex flex-col items-center space-y-2">
 									<img src="${ backend_url + this.admin.avatarURL }" class="w-10 h-10 rounded-full pixel-box" alt="Admin">
 									<p class="text-xs text-white">${ this.admin.username }</p>
+								</div>
+							</div>
+							<div class="pixel-box p-4 bg-blue-800">
+								<div class="relative mb-4">
+									<p class="text-xs font-pixelify text-gray-300 mb-2 text-center">BALL SPEED</p>
+									<input id="slider-name" type="range" min="0" max="10" value="5" step="1" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer">
+									<span class="text-sm absolute start-0 -bottom-6">0</span>
+									<span class="text-sm absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 -bottom-6">5</span>
+									<span class="text-sm absolute end-0 -bottom-6">10</span>
+								</div>
+							</div>
+							<div class="pixel-box p-4 bg-blue-800">
+								<div class="relative mb-4">
+									<p class="text-xs font-pixelify text-gray-300 mb-2 text-center">PADDLE SIZE</p>
+									<input id="slider-name" type="range" min="0" max="10" value="5" step="1" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer">
+									<span class="text-sm absolute start-0 -bottom-6">0</span>
+									<span class="text-sm absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 -bottom-6">5</span>
+									<span class="text-sm absolute end-0 -bottom-6">10</span>
 								</div>
 							</div>
 						</div>

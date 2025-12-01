@@ -47,12 +47,34 @@ export default class Pong extends Component {
 			<!-- main area -->
 				<div class="flex-1 flex overflow-hidden">
 					<!-- left sidebar -->
-					<div class="w-48 bg-blue-900 border-r-2 border-blue-700 p-4 flex flex-col justify-between overflow-y-auto">
+					<div class="w-72 bg-blue-900 border-r-2 border-blue-700 p-4 flex flex-col justify-between overflow-y-auto">
+
+					<div class="space-y-4">
 						<div class="pixel-box bg-blue-800 p-3 text-center">
 							<p class="text-xs font-pixelify text-gray-300 mb-2">CONTROLS</p>
 							<p class="text-xs text-white">W/S</p>
 							<p class="text-xs text-white">to move</p>
 						</div>
+						<div class="pixel-box p-4 bg-blue-800">
+							<div class="relative mb-4">
+								<p class="text-xs font-pixelify text-gray-300 mb-2 text-center">BALL SPEED</p>
+								<input id="slider-name" type="range" min="0" max="10" value="5" step="1" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer">
+								<span class="text-sm absolute start-0 -bottom-6">0</span>
+								<span class="text-sm absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 -bottom-6">5</span>
+								<span class="text-sm absolute end-0 -bottom-6">10</span>
+							</div>
+						</div>
+						<div class="pixel-box p-4 bg-blue-800">
+							<div class="relative mb-4">
+								<p class="text-xs font-pixelify text-gray-300 mb-2 text-center">PADDLE SIZE</p>
+								<input id="slider-name" type="range" min="0" max="10" value="5" step="1" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer">
+								<span class="text-sm absolute start-0 -bottom-6">0</span>
+								<span class="text-sm absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 -bottom-6">5</span>
+								<span class="text-sm absolute end-0 -bottom-6">10</span>
+							</div>
+						</div>
+					</div>
+
 						<a href="/pong/menu" router-link>
 							<div class="pixel-box bg-blue-800 p-3 text-center text-xs">
 								<p class="font-pixelify text-gray-300 mb-2">LOCAL MATCH</p>
@@ -67,7 +89,7 @@ export default class Pong extends Component {
 					</div>
 
 					<!-- right sidebar -->
-					<div class="w-48 bg-blue-900 border-l-2 border-blue-700 p-4 flex flex-col justify-between overflow-y-auto">
+					<div class="w-72 bg-blue-900 border-l-2 border-blue-700 p-4 flex flex-col justify-between overflow-y-auto">
 						<div id="right-controls" class="pixel-box bg-blue-800 p-3 text-center">
 							<p class="text-xs font-pixelify text-gray-300 mb-2">CONTROLS</p>
 							<p class="text-xs text-white">↑/↓</p>
