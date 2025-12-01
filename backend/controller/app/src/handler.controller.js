@@ -57,10 +57,13 @@ const endpointHandler = (fastify, options, done) => {
 	fastify.all('/cdn/*', async (req, reply) => {
 		try {
 			const URL = `${process.env.CDN_URL}${req.url.substring(process.env.CDN_URL.endsWith('/') ? 1 : 0)}`;
-
 			let response = undefined;
 			const contentType = req.headers["content-type"] ?? "";
 			let body = undefined;
+			if (contentType.startsWith('multipart/form-data')) {
+				body = req.body;
+				console.log("JSH8er");
+			}
 			if (req.body && Object.keys(req.body).length > 0) {
 				if (contentType.includes("application/json")) {
 					body = JSON.stringify(req.body);

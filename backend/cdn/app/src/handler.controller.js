@@ -21,18 +21,26 @@ export function extType(contentType) {
 
 export default async function endpointHandler(fastify) {
   // if /cdn/new is called, create a new folder within the public folder using the body parameter "folder"
-	// fastify.post("/new", async (req, reply) => {
-	// 	const { folder } = req.body;
-	// 	if (!folder) return reply.code(400).send({ error: 'Missing folder parameter'});
-	// 	const new_dir = path.join(process.cwd(), 'public', folder);
-	// 	try {
-	// 		await fs.mkdir(new_dir, { recursive: true });
-	// 		return reply.send({ message: `Folder ${folder} created successfully` });
-	// 	} catch (err) {
-	// 		fastify.log.error(err);
-	// 		return reply.code(500).send({ error: 'Failed to create folder' });
-	// 	}
-	// });
+	fastify.post("/new", async (req, reply) => {
+		const { folder } = req.body;
+		if (!folder)
+			return reply.code(400).send({ error: 'Missing folder parameter'});
+		const new_dir = path.join(process.cwd(), 'public', folder);
+		try {
+			await fs.mkdir(new_dir, { recursive: true });
+			return reply.send({ message: `Folder ${folder} created successfully` });
+		} catch (err) {
+			fastify.log.error(err);
+			return reply.code(500).send({ error: 'Failed to create folder' });
+		}
+	});
+	fastify.post("/upload-image", async (req, reply) => {
+		console.log(req.body);
+		// const { file } = await req.file();
+		// if (!file)
+			return reply.send({ success: true, code: 400, error: 'No file uploaded'})
+
+	});
 	// fastify.get('/avatars/*', async (req, reply) => {
 	// 	const avatarFile = req.url.slice('/avatars/'.length);
 	// 	const CDN_ROOT = path.join(process.cwd(), 'public');
