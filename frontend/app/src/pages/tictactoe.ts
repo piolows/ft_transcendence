@@ -18,6 +18,7 @@ export default class TicTacToePage extends Component {
     private currentMove: Cell = "X";
     private largeBoard: LargeBoard = [];
     private trueLargeBoard: Cell[][] = [];
+    private lastMove: HTMLDivElement | null = null;
 
     private createSmallBoard(): SmallBoard {
         return Array.from({ length: 3}, () => 
@@ -50,12 +51,25 @@ export default class TicTacToePage extends Component {
     }
 
     // get the lrow and lcol to lock to
-    private lockBoards(lrow: number, lcol: number) {
+    private lockBoards(lrow: number, lcol: number, largeBoardCell: HTMLDivElement) {
         // if the board is already won, do nothing
         if (this.trueLargeBoard[lrow][lcol] !== "") {
             return ;
         }
-        
+        const boards = document.querySelectorAll(".small-board") as NodeListOf<HTMLDivElement>;
+        boards.forEach((board) => {
+            // this means that this is the only board that can move
+            if (board.dataset.lrow === lrow.toString() && board.dataset.lcol === lcol.toString()) {
+                const large_board_cell = board.parentElement as HTMLDivElement;
+                large_board_cell.classList.add("bg-purple-800");    // add the purple background to indicate that the board is active
+                if (this.lastMove === null) {
+                    this.lastMove = large_board_cell;
+                } else {
+                    if (this.lastMove !== large_board_cell) this.lastMove.classList.remove("bg-purple-800");
+                    this.lastMove = large_board_cell;
+                }
+            }
+        });
     }
 
     private makeMove(lrow: number, lcol: number, srow: number, scol: number, current_move: HTMLParagraphElement, cell: HTMLDivElement) {
@@ -64,10 +78,8 @@ export default class TicTacToePage extends Component {
             return ;
         }
         this.largeBoard[lrow][lcol][srow][scol] = this.currentMove;
-        const move = document.createElement("p");
-        move.innerText = this.currentMove;
-        move.className = "p-0 m-0 relative";
-        cell.appendChild(move);
+        const moveText = cell.querySelector(".move-name") as HTMLParagraphElement;
+        moveText.innerText = this.currentMove;
         if (this.checkBoardWin(this.largeBoard[lrow][lcol])) {
             // mark the large board cell as won
             const largeCell = document.querySelector(`div.cell[data-lrow='${lrow}'][data-lcol='${lcol}']`) as HTMLDivElement;
@@ -86,11 +98,7 @@ export default class TicTacToePage extends Component {
         }
         this.currentMove = this.currentMove === "X" ? "O" : "X";
         current_move.innerText = `${this.currentMove} to move`;
-        this.lockBoards(srow, scol);
-        /*
-            tthe next move can only move in the same [lrow][lcol] as the previous move's [srow][scol] unless that board is already won (or filled)
-            this can be highlighted by the background color of the small board changing to another color
-         */
+        this.lockBoards(srow, scol, cell);
     }
 
     async load(app: HTMLDivElement | HTMLElement) {
@@ -108,16 +116,18 @@ export default class TicTacToePage extends Component {
         for (let i = 0; i < 3; i++) {
             // for each row, create 3 divs which represents each element
             for (let j = 0; j < 3; j++) {
-                const element = document.createElement("div");
-                element.className = "cell flex justify-center items-center p-6";
-                element.dataset.lrow = i.toString();
-                element.dataset.lcol = j.toString();
-                board.appendChild(element);
-                if (i > 0 && i < 3) element.style.borderTop = "5px solid black";
-                if (j > 0 && j < 3) element.style.borderLeft = "5px solid black";
-                const cell = document.createElement("div");
-                cell.className = "small-board grid grid-cols-3 w-[75%] h-full";
-                element.appendChild(cell);
+                const large_board_cell = document.createElement("div");
+                large_board_cell.className = "cell flex justify-center items-center p-6";
+                large_board_cell.dataset.lrow = i.toString();
+                large_board_cell.dataset.lcol = j.toString();
+                board.appendChild(large_board_cell);
+                if (i > 0 && i < 3) large_board_cell.style.borderTop = "5px solid black";
+                if (j > 0 && j < 3) large_board_cell.style.borderLeft = "5px solid black";
+                const small_board_container = document.createElement("div");
+                small_board_container.className = "small-board grid grid-cols-3 w-[75%] h-full";
+                large_board_cell.appendChild(small_board_container);
+                small_board_container.dataset.lrow = i.toString();
+                small_board_container.dataset.lcol = j.toString();
                 for (let sr = 0; sr < 3; sr++) {
                     for (let sc = 0; sc < 3; sc++) {
                         const small_board = document.createElement("button");
@@ -128,7 +138,10 @@ export default class TicTacToePage extends Component {
                         small_board.dataset.scol = sc.toString();
                         if (sr > 0 && sr < 3) small_board.style.borderTop = "2px solid black";
                         if (sc > 0 && sc < 3) small_board.style.borderLeft = "2px solid black";
-                        cell.appendChild(small_board);
+                        const p_element = document.createElement("p");
+                        p_element.className = "move-name h-[20%]";
+                        small_board.appendChild(p_element);
+                        small_board_container.appendChild(small_board);
                     }
                 }
             }
@@ -139,6 +152,7 @@ export default class TicTacToePage extends Component {
         this.trueLargeBoard = this.createSmallBoard();
         const move = document.getElementById("current-move") as HTMLParagraphElement;
         const small_board_cells = document.querySelectorAll(".small-board-cell");
+        let lastMove: HTMLDivElement | null = null;
         small_board_cells.forEach((cell) => {
             cell.addEventListener("click", (event) => {
                 const lrow = parseInt((event.currentTarget as HTMLDivElement).dataset.lrow!);
@@ -146,7 +160,6 @@ export default class TicTacToePage extends Component {
                 const srow = parseInt((event.currentTarget as HTMLDivElement).dataset.srow!);
                 const scol = parseInt((event.currentTarget as HTMLDivElement).dataset.scol!);
                 this.makeMove(lrow, lcol, srow, scol, move, cell as HTMLDivElement);
-                console.log(this.largeBoard);
             })
         });
     }
