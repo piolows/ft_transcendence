@@ -1,6 +1,7 @@
 import Component, { backend_url } from "../scripts/router";
 import NavBar from "../components/nav_bar";
 import Footer from "../components/footer";
+import { formatDiagnosticsWithColorAndContext } from "typescript";
 
 export default class Profile extends Component {
 	private navbar = new NavBar(this.router);
@@ -295,8 +296,32 @@ export default class Profile extends Component {
 				editAvatarModal.classList.add('hidden');
 			};
 
-			editAvatarForm.onsubmit = (e) => {
-				// emad do stuff
+			editAvatarForm.onsubmit = async (e) => {
+				e.preventDefault();
+				const formData = new FormData(editAvatarForm);
+				for (const [key, value] of formData.entries()) {
+					console.log('key:', key, 'value:', value, 'isFile:', value instanceof File);
+				}
+				try {
+					const resp = await fetch(`${backend_url}/cdn/upload-image`, {
+						method: 'POST',
+						body: formData
+					});
+					if (!resp.ok) {
+						console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
+						return ;
+					}
+					const data = await resp.json();
+					if (!data) {
+						console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
+					}
+					if (!data.success) {
+						console.error(`Error while sending request: ${data.code} - ${data.error}`);
+						return ;
+					}
+				} catch (error: any) {
+					console.error(error.message);
+				}
 				editAvatarModal.classList.add('hidden');
 			};
 
