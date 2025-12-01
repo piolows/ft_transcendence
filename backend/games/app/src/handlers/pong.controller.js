@@ -17,7 +17,7 @@ const pongHandler = (fastify, options, done) => {
 			const data = await response.json();
 			if (data && !data.loggedIn)
 				return { success: false, code: 403, error: "Must be signed in" };
-			return data;
+			return { success: data.success, loggedIn: data.loggedIn, user: data.user };
 		} catch (error) {
 			console.log("COULD NOT AUTHENTICATE:", error);
 				return { success: false, code: 500, error: "Authentication Error. Check logs." };
@@ -25,7 +25,7 @@ const pongHandler = (fastify, options, done) => {
 	}
 
 	const delayed_closure = (id) => {
-		if (Object.keys(games[id].all).length == 0 && !games[id].setup.game_over) {
+		if (games[id] && Object.keys(games[id].all).length == 0 && !games[id].setup.game_over) {
 			const func = () => {
 				if (Object.keys(games[id].all).length == 0) {
 					destroy_game(admins, games, id);
