@@ -1,24 +1,6 @@
- -  Piolo:
-[ ] Loading Screen
-
- -  Pierce
-[ ] Tournaments backend: 
-	[ ] Create 
-	[ ] Destroy 
-	[ ] Start 
-	[ ] Matchmaking 
-	[ ] Join 
-	[ ] Leave 
-	[ ] Get paginated list
-[ ] Tournaments testing FULL (Frontend / Backend)
-
- -  Emad
-[ ] Fix login not working on Firefox (OPTIONS Request)
-[ ] Add Online/Offline status (through regular pings to the server)
-[ ] Allow editing profile info on the frontend
+[-] Allow editing profile info on the frontend
 [ ] Allow file upload for profile pictures
-[ ] Test game end update history
-[ ] Fix the game room IN GENERAL
+[-] Test game end update history
 [ ] Test server-side bot
 
 New issues:

@@ -115,7 +115,7 @@ export default class Profile extends Component {
 
 			<!-- username modal -->
 			<div id="edit-username-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-				<div class="absolute inset-0 bg-black opacity-80"></div>
+				<div class="absolute inset-0 bg-black opacity-80 faded_bg"></div>
 				<div class="relative pixel-box bg-blue-900 p-8 w-96 text-white">
 					<h2 class="text-2xl font-pixelify mb-6 rainbow text-center">EDIT USERNAME</h2>
 					<form id="edit-username-form" class="space-y-6">
@@ -140,7 +140,7 @@ export default class Profile extends Component {
 
 			<!-- pfp modal -->
 			<div id="edit-avatar-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-				<div class="absolute inset-0 bg-black opacity-80"></div>
+				<div class="absolute inset-0 bg-black opacity-80 faded_bg"></div>
 				<div class="relative pixel-box bg-blue-900 p-8 w-96 text-white">
 					<h2 class="text-2xl font-pixelify mb-6 rainbow text-center">CHANGE PROFILE PICTURE</h2>
 					<form id="edit-avatar-form" class="space-y-6">
@@ -170,7 +170,7 @@ export default class Profile extends Component {
 
 			<!-- password modal -->
 			<div id="change-password-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-				<div class="absolute inset-0 bg-black opacity-80"></div>
+				<div class="absolute inset-0 bg-black opacity-80 faded_bg"></div>
 				<div class="relative pixel-box bg-blue-900 p-8 w-96 text-white">
 					<h2 class="text-2xl font-pixelify mb-6 rainbow text-center">CHANGE PASSWORD</h2>
 					<form id="change-password-form" class="space-y-6">
@@ -408,6 +408,13 @@ export default class Profile extends Component {
 					console.error(error.message);
 				}
 			};
+		}
+
+		const backgrounds = document.getElementsByClassName("faded_bg");
+		for (const background of backgrounds) {
+			(background as HTMLButtonElement).onclick = () => {
+				background.parentElement?.classList.add('hidden');
+			}
 		}
 
 		const totalGames = document.getElementById('total-games')!;

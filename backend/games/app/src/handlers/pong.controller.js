@@ -10,7 +10,7 @@ const pongHandler = (fastify, options, done) => {
 			const URL = process.env.AUTH_URL + "/me";
 			const headers = {'cookie': req.headers['cookie']};
 			const response = await fetch(URL, {
-				headers: headers
+				headers
 			});
 			if (!response.ok)
 				return { success: false, code: response.status, error: "Authentication failed" };
