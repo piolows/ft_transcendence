@@ -31,6 +31,7 @@ export default class TicTacToePage extends Component {
     }
 
     private checkBoardWin(board: SmallBoard): boolean {
+        // check if the board is fully filled
         for (let i = 0; i < 3; i++) {
             if (board[i][0] !== "" && board[i][0] === board[i][1] && board[i][1] === board[i][2]) {
                 return true;
@@ -54,6 +55,8 @@ export default class TicTacToePage extends Component {
     private lockBoards(lrow: number, lcol: number, largeBoardCell: HTMLDivElement) {
         // if the board is already won, do nothing
         if (this.trueLargeBoard[lrow][lcol] !== "") {
+            if (this.lastMove) this.lastMove.classList.remove("bg-purple-800");
+            this.lastMove = null;
             return ;
         }
         const boards = document.querySelectorAll(".small-board") as NodeListOf<HTMLDivElement>;
@@ -77,24 +80,32 @@ export default class TicTacToePage extends Component {
             console.log("Cell is already filled");
             return ;
         }
+        if (this.lastMove !== null) {
+            const parentCell = cell.parentElement?.parentElement;
+            if (parentCell !== this.lastMove) {
+                console.log("this board cannot move");
+                return ;
+            }
+        }
         this.largeBoard[lrow][lcol][srow][scol] = this.currentMove;
-        const moveText = cell.querySelector(".move-name") as HTMLParagraphElement;
-        moveText.innerText = this.currentMove;
+        cell.innerText = this.currentMove;
         if (this.checkBoardWin(this.largeBoard[lrow][lcol])) {
             // mark the large board cell as won
             const largeCell = document.querySelector(`div.cell[data-lrow='${lrow}'][data-lcol='${lcol}']`) as HTMLDivElement;
             const winner = document.createElement("div");
-            winner.className = "large-board-winner flex justify-center items-center";
+            winner.className = "large-board-winner flex justify-center items-center aspect-square";
             const winnerText = document.createElement("p");
             winnerText.innerText = this.currentMove;
-            winnerText.className = "text-[5rem]";
+            winnerText.className = "text-[2rem]";
             winner.appendChild(winnerText);
             largeCell.removeChild(largeCell.firstChild!);
             largeCell.appendChild(winner);
+            largeCell.classList.remove("bg-purple-800");
             this.trueLargeBoard[lrow][lcol] = this.currentMove;
         }
         if (this.checkBoardWin(this.trueLargeBoard)) {
             alert(`${this.currentMove} wins the game!`);
+            // create a modal that contains the results and will be displayed
         }
         this.currentMove = this.currentMove === "X" ? "O" : "X";
         current_move.innerText = `${this.currentMove} to move`;
@@ -105,11 +116,11 @@ export default class TicTacToePage extends Component {
         await this.navbar.load(app);
         this.largeBoard = this.createlargeBoard();
         app.innerHTML += `
-        <div id="main-container" class="flex flex-col justify-center items-center pt-8 h-screen">
+        <div id="main-container" class="flex flex-col justify-center items-center pt-8 h-[80%]">
             <div id="game-info" class="flex justify-center items-center pixel-box w-[50%] h-20">
                 <p id="current-move">${this.currentMove} to move</p>
             </div>
-            <div id="tictactoe-board" class="grid grid-cols-3 mt-4 pixel-box p-4 border-5 border-red-500 w-[50%] h-screen mx-auto bg-blue-900"></div>
+            <div id="tictactoe-board" class="grid grid-cols-3 mt-4 pixel-box p-4 border-5 border-red-500 w-[45%] h-screen mx-auto bg-blue-900"></div>
         </div>`;
         // for each row, create 3 divs
         const board = document.getElementById("tictactoe-board")!;
@@ -117,30 +128,28 @@ export default class TicTacToePage extends Component {
             // for each row, create 3 divs which represents each element
             for (let j = 0; j < 3; j++) {
                 const large_board_cell = document.createElement("div");
-                large_board_cell.className = "cell flex justify-center items-center p-6";
+                large_board_cell.className = "cell flex justify-center items-center p-6 aspect-square";
                 large_board_cell.dataset.lrow = i.toString();
                 large_board_cell.dataset.lcol = j.toString();
                 board.appendChild(large_board_cell);
                 if (i > 0 && i < 3) large_board_cell.style.borderTop = "5px solid black";
                 if (j > 0 && j < 3) large_board_cell.style.borderLeft = "5px solid black";
                 const small_board_container = document.createElement("div");
-                small_board_container.className = "small-board grid grid-cols-3 w-[75%] h-full";
+                small_board_container.className = "small-board grid grid-cols-3 w-[100%] h-full";
                 large_board_cell.appendChild(small_board_container);
                 small_board_container.dataset.lrow = i.toString();
                 small_board_container.dataset.lcol = j.toString();
                 for (let sr = 0; sr < 3; sr++) {
                     for (let sc = 0; sc < 3; sc++) {
                         const small_board = document.createElement("button");
-                        small_board.className = "small-board-cell flex justify-center items-center hover:bg-blue-300 hover:cursor-pointer";
+                        small_board.className = "\
+                        small-board-cell flex justify-center items-center h-[100%] aspect-square hover:bg-blue-300 hover:cursor-pointer";
                         small_board.dataset.lrow = i.toString();
                         small_board.dataset.lcol = j.toString();
                         small_board.dataset.srow = sr.toString();
                         small_board.dataset.scol = sc.toString();
                         if (sr > 0 && sr < 3) small_board.style.borderTop = "2px solid black";
                         if (sc > 0 && sc < 3) small_board.style.borderLeft = "2px solid black";
-                        const p_element = document.createElement("p");
-                        p_element.className = "move-name h-[20%]";
-                        small_board.appendChild(p_element);
                         small_board_container.appendChild(small_board);
                     }
                 }
@@ -149,10 +158,10 @@ export default class TicTacToePage extends Component {
     }
 
     async init() {
+        this.navbar.init();
         this.trueLargeBoard = this.createSmallBoard();
         const move = document.getElementById("current-move") as HTMLParagraphElement;
         const small_board_cells = document.querySelectorAll(".small-board-cell");
-        let lastMove: HTMLDivElement | null = null;
         small_board_cells.forEach((cell) => {
             cell.addEventListener("click", (event) => {
                 const lrow = parseInt((event.currentTarget as HTMLDivElement).dataset.lrow!);
