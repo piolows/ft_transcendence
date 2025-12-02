@@ -319,6 +319,7 @@ export default class Profile extends Component {
 						console.error(`Error while sending request: ${data.code} - ${data.error}`);
 						return ;
 					}
+					const newUrl = data.public_url;
 				} catch (error: any) {
 					console.error(error.message);
 				}

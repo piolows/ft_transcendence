@@ -1,6 +1,6 @@
 import Fastify from "fastify";
 import formBody from '@fastify/formbody';
-import fastifyMultipart from '@fastify/multipart';
+// import fastifyMultipart from '@fastify/multipart';
 import endpointHandler from "./handler.controller.js";
 import fastifyCors from "@fastify/cors";
 import 'dotenv/config';
@@ -17,12 +17,12 @@ async function startSever() {
 
 	await fastify.register(formBody);
 
-	await fastify.register(fastifyMultipart, {
-		limits: {
-			fileSize: 5 * 1024 * 1024,
-			files: 1
-		}
-	});
+	// await fastify.register(fastifyMultipart, {
+	// 	limits: {
+	// 		fileSize: 5 * 1024 * 1024,
+	// 		files: 1
+	// 	}
+	// });
 
 	// Enable CORS
 	await fastify.register(fastifyCors, {
