@@ -55,22 +55,30 @@ export default class Pong extends Component {
 							<p class="text-xs text-white">W/S</p>
 							<p class="text-xs text-white">to move</p>
 						</div>
-						<div class="pixel-box p-4 bg-blue-800">
-							<div class="relative mb-4">
-								<p class="text-xs font-pixelify text-gray-300 mb-2 text-center">BALL SPEED</p>
-								<input id="slider-name" type="range" min="0" max="10" value="5" step="1" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer">
-								<span class="text-sm absolute start-0 -bottom-6">0</span>
-								<span class="text-sm absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 -bottom-6">5</span>
-								<span class="text-sm absolute end-0 -bottom-6">10</span>
-							</div>
-						</div>
-						<div class="pixel-box p-4 bg-blue-800">
-							<div class="relative mb-4">
-								<p class="text-xs font-pixelify text-gray-300 mb-2 text-center">PADDLE SIZE</p>
-								<input id="slider-name" type="range" min="0" max="10" value="5" step="1" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer">
-								<span class="text-sm absolute start-0 -bottom-6">0</span>
-								<span class="text-sm absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 -bottom-6">5</span>
-								<span class="text-sm absolute end-0 -bottom-6">10</span>
+						<div class="pixel-box bg-blue-800">
+							<button id="settings-dropdown" class="w-full p-3 text-center transition-colors cursor-pointer">
+
+								<p class="text-xs font-pixelify text-gray-300">GAME SETTINGS</p>
+								<span id="toggle-icon" class="text-white text-sm">▼</span>
+
+							</button>
+							<div id="game-settings" class="hidden px-4 pb-4 space-y-4">
+								<div class="retro-border p-3 bg-blue-900">
+									<div class="relative mb-8">
+										<p class="text-xs font-pixelify text-gray-300 mb-2 text-center">BALL SPEED</p>
+										<input id="slider-name" type="range" min="0" max="10" value="5" step="1" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer">
+										<span class="text-sm absolute start-0 -bottom-6">0</span>
+										<span class="text-sm absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 -bottom-6">5</span>
+										<span class="text-sm absolute end-0 -bottom-6">10</span>
+									</div>
+									<div class="relative mb-4">
+										<p class="text-xs font-pixelify text-gray-300 mb-2 text-center">PADDLE SIZE</p>
+										<input id="slider-name" type="range" min="0" max="10" value="5" step="1" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer">
+										<span class="text-sm absolute start-0 -bottom-6">0</span>
+										<span class="text-sm absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 -bottom-6">5</span>
+										<span class="text-sm absolute end-0 -bottom-6">10</span>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -136,7 +144,7 @@ export default class Pong extends Component {
 							</div>
 						</div>
 					</a>
-					<button id="logout-button" class="pixel-box bg-red-600 px-4 py-2 text-white hover:bg-red-700 transition-colors clicky">
+					<button id="logout-button" class="pixel-box bg-red-600 px-4 py-2 text-white hover:bg-red-700 transition-colors clicky glitch">
 						LOGOUT
 					</button>
 				</div>
@@ -163,6 +171,24 @@ export default class Pong extends Component {
 					console.error("Failed to log out:", err);
 				}
 			};
+
+			// game settings dropdown
+			const toggleButton = document.getElementById('settings-dropdown');
+			const content = document.getElementById('game-settings');
+			const icon = document.getElementById('toggle-icon');
+			
+			if (toggleButton && content && icon) {
+				toggleButton.addEventListener('click', () => {
+					const isHidden = content.classList.contains('hidden');
+					if (isHidden) {
+						content.classList.remove('hidden');
+						icon.textContent = '▲';
+					} else {
+						content.classList.add('hidden');
+						icon.textContent = '▼';
+					}
+				});
+			}
 		}
 
 		const ball_speed = 8;

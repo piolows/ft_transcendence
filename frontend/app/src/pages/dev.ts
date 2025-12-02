@@ -12,27 +12,6 @@ export default class Dev extends Component {
 			<main class="container mx-auto mt-8 px-4">
 
 				<section class="mb-16">
-					<h2 class="text-5xl font-bold mb-10 text-center">Sliders</h3>
-					<div class="pixel-box p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-						<div class="relative">
-							<label for="slider-name" class="block mb-2.5 text-sm">Default slider</label>
-							<input id="slider-name" type="range" value="50" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer">
-						</div>
-						<div class="relative">
-							<label for="slider-name" class="block mb-2.5 text-sm">Slider w steps and labels</label>
-							<input id="slider-name" type="range" min="0" max="10" value="5" step="1" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer">
-							<span class="text-sm absolute start-0 -bottom-6">0</span>
-							<span class="text-sm absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 -bottom-6">5</span>
-							<span class="text-sm absolute end-0 -bottom-6">10</span>
-						</div>
-						<div class="relative">
-							<label for="slider-name" class="block mb-2.5 text-sm">Slider disabled</label>
-							<input id="slider-name" type="range" value="50" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer" disabled>
-						</div>
-					<div>
-				</section>
-
-				<section class="mb-16">
 					<h2 class="text-5xl font-bold mb-10 text-center">Effects Showcase</h3>
 					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 						<button class="bg-green-500 text-white py-2 px-4 rounded clicky">Clicky effect</button>
@@ -75,6 +54,28 @@ export default class Dev extends Component {
 							<p>Scanline Effect</p> <!-- not really working -->
 						</div>
 					</div>
+				</section>
+
+				<!-- sliders -->
+				<section class="mb-16">
+					<h2 class="text-2xl select-none font-bold mb-6 retro-shadow">Sliders</h2>
+					<div class="pixel-box p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+						<div class="relative">
+							<label for="slider-name" class="block mb-2.5 text-sm">Default slider</label>
+							<input id="slider-name" type="range" value="50" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer">
+						</div>
+						<div class="relative">
+							<label for="slider-name" class="block mb-2.5 text-sm">Slider w steps and labels</label>
+							<input id="slider-name" type="range" min="0" max="10" value="5" step="1" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer">
+							<span class="text-sm absolute start-0 -bottom-6">0</span>
+							<span class="text-sm absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 -bottom-6">5</span>
+							<span class="text-sm absolute end-0 -bottom-6">10</span>
+						</div>
+						<div class="relative">
+							<label for="slider-name" class="block mb-2.5 text-sm">Slider disabled</label>
+							<input id="slider-name" type="range" value="50" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer" disabled>
+						</div>
+					<div>
 				</section>
 
 				<!-- combination demos -->

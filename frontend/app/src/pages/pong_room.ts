@@ -289,7 +289,7 @@ export default class PongRoom extends Component {
 							</div>
 						</div>
 					</a>
-					<button id="logout-button" class="pixel-box bg-red-600 px-4 py-2 text-white hover:bg-red-700 transition-colors clicky">
+					<button id="logout-button" class="pixel-box bg-red-600 px-4 py-2 text-white hover:bg-red-700 transition-colors clicky glitch">
 						LOGOUT
 					</button>
 				</div>

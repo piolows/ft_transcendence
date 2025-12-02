@@ -36,7 +36,7 @@ export default class Friends extends Component {
 				+ FOLLOW
 			</button></div>`;
 		const unfollow = (id: number) => `
-			<div class="flex"><button id="follow-${id}" class="bg-red-600 text-white pixel-box font-pixelify hover:bg-red-700 clicky h-10 w-40">
+			<div class="flex"><button id="follow-${id}" class="bg-red-600 text-white pixel-box font-pixelify hover:bg-red-700 clicky h-10 w-40 glitch">
 				- UNFOLLOW
 			</button></div>`;
 		for (const [idx, friend] of this.friends.entries()) {

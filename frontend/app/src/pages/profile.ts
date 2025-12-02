@@ -45,7 +45,7 @@ export default class Profile extends Component {
 									<p class="text-gray-400 font-silkscreen">${this.profile_info.email}</p>
 									${this.online ? '' : `<p class="text-gray-400 font-silkscreen">Last seen: ${this.last_seen}</p>`}
 									${this.profile_info.id == this.router.login_info.id ? `
-									<button id="change-password-btn" class="mt-3 pixel-box bg-red-600 px-4 py-2 text-sm hover:bg-red-700 transition-colors clicky font-pixelify">
+									<button id="change-password-btn" class="mt-3 pixel-box bg-red-600 px-4 py-2 text-sm hover:bg-red-700 transition-colors clicky font-pixelify glitch">
 										CHANGE PASSWORD
 									</button>` : ''}
 								</div>
