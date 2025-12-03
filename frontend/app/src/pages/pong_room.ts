@@ -70,22 +70,24 @@ export default class PongRoom extends Component {
 			<!-- main area -->
 				<div class="flex-1 flex overflow-hidden">
 					<!-- left sidebar -->
-					<div class="w-72 bg-blue-900 border-r-2 border-blue-700 p-4 flex flex-col overflow-hidden">
+					<div class="w-72 bg-blue-900 border-r-2 border-blue-700 p-4 flex flex-col justify-between overflow-hidden">
 						<div class="flex flex-col h-full justify-between">
-							<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
-								<p class="text-xs font-pixelify text-gray-300 mb-2">CONTROLS</p>
-								<p class="text-xs text-white">W/S</p>
-								<p class="text-xs text-white">to move</p>
-							</div>
-							<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
-								<p class="text-xs font-pixelify text-gray-300 mb-2">GAME STATUS</p>
-								<p id="result" class="text-white">WAITING</p>
-								<button id="startGame" class="text-white py-1 mt-2 mb-5 pixel-box font-pixelify ${this.router.login_info.id == this.admin.id || this.game_over ? 'bg-blue-500 hover:bg-blue-600 clicky' : 'bg-gray-500 hover:bg-gray-600'}" style="width: 120px;">START GAME</button>
-								<p class="text-xs text-white">${this.router.login_info.id == this.admin.id ? 'Bots will replace the empty seats' : `Only the admin can start the game`}</p>
-							</div>
-							<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
-								<p class="text-xs font-pixelify text-gray-300 mb-2">ROOM CODE</p>
-								<p class="text-sm text-white font-bold">${ this.game_id }</p>
+							<div>
+								<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
+									<p class="text-xs font-pixelify text-gray-300 mb-2">CONTROLS</p>
+									<p class="text-xs text-white">W/S</p>
+									<p class="text-xs text-white">to move</p>
+								</div>
+								<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
+									<p class="text-xs font-pixelify text-gray-300 mb-2">GAME STATUS</p>
+									<p id="result" class="text-white">WAITING</p>
+									<button id="startGame" class="text-white py-1 mt-2 mb-5 pixel-box font-pixelify ${this.router.login_info.id == this.admin.id || this.game_over ? 'bg-blue-500 hover:bg-blue-600 clicky' : 'bg-gray-500 hover:bg-gray-600'}" style="width: 120px;">START GAME</button>
+									<p class="text-xs text-white">${this.router.login_info.id == this.admin.id ? 'Bots will replace the empty seats' : `Only the admin can start the game`}</p>
+								</div>
+								<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
+									<p class="text-xs font-pixelify text-gray-300 mb-2">ROOM CODE</p>
+									<p class="text-sm text-white font-bold">${ this.game_id }</p>
+								</div>
 							</div>
 							<div class="pixel-box bg-blue-800 p-3 text-center">
 								<p class="text-xs font-pixelify text-gray-300 mb-2">CREATED BY</p>
@@ -104,19 +106,19 @@ export default class PongRoom extends Component {
 
 					<!-- right sidebar -->
 					<div class="w-72 bg-blue-900 border-l-2 border-blue-700 p-4 flex flex-col justify-between overflow-hidden">
-						<div id="playersInfo" class="flex flex-col h-full justify-between">
+						<div id="playersInfo" class="flex flex-col">
 							<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
 								<p class="text-xs font-pixelify text-gray-300 mb-2">SPECTATORS</p>
 								<p id="spectators" class="text-white text-lg font-bold">0</p>
 							</div>
-							<div>
-								<a href="/pong/menu" router-link>
-								<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
-									<p class="text-xs font-pixelify text-gray-300 mb-2">GAME MODE</p>
-									<p class="text-white">ONLINE</p>
-								</div>
-								</a>
+						</div>
+						<div>
+							<a href="/pong/menu" router-link>
+							<div class="pixel-box bg-blue-800 p-3 text-center">
+								<p class="text-xs font-pixelify text-gray-300 mb-2">GAME MODE</p>
+								<p class="text-white">ONLINE</p>
 							</div>
+							</a>
 						</div>
 					</div>
 				</div>
