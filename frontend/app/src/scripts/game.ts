@@ -273,8 +273,10 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 	function draw(currentTime: number)
 	{
 		// GAME HAS ENDED PIOLO LOOK
-		if (time >= 300 || parseInt(p1_score.textContent) >= 10 || parseInt(p2_score.textContent) >= 10)
+		if (time >= 300 || parseInt(p1_score.textContent) >= 10 || parseInt(p2_score.textContent) >= 10) {
 			end_game();
+			return ;
+		}
 		const delta = (currentTime - lastTime) / 15;
 		lastTime = currentTime;
 		if (ball.starting === true)
@@ -325,7 +327,8 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 		drawPaddle(cv, left_paddle, delta);
 		drawPaddle(cv, right_paddle, delta);
 		drawBall(cv, ball, delta);
-		animationId = requestAnimationFrame(draw);
+		if (!game_over)
+			animationId = requestAnimationFrame(draw);
 	}
 
 	if (!game_over)
