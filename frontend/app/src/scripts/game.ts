@@ -226,6 +226,7 @@ function drawBall(cv: HTMLCanvasElement, ball: Ball, delta: number)
 
 export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Player | Bot, right_player: Player | Bot, p1_score: HTMLDivElement, p2_score: HTMLDivElement, timer: HTMLDivElement) {
 	let animationId: number;
+	let game_over: boolean = false;
 	const left_paddle = left_player.paddle;
 	const right_paddle = right_player.paddle;
 	const mins = timer.children[0];
@@ -263,6 +264,7 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 	document.addEventListener('keyup', keyUpHandler, false);
 
 	const end_game = () => {
+			game_over = true;
             cancelAnimationFrame(animationId);
             document.removeEventListener('keydown', keyDownHandler);
             document.removeEventListener('keyup', keyUpHandler);
@@ -270,6 +272,7 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 
 	function draw(currentTime: number)
 	{
+		// GAME HAS ENDED PIOLO LOOK
 		if (time >= 300 || parseInt(p1_score.textContent) >= 10 || parseInt(p2_score.textContent) >= 10)
 			end_game();
 		const delta = (currentTime - lastTime) / 15;
@@ -325,7 +328,8 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 		animationId = requestAnimationFrame(draw);
 	}
 
-	animationId = requestAnimationFrame(draw);
+	if (!game_over)
+		animationId = requestAnimationFrame(draw);
 
 	// Return a controller to stop the game
     return end_game;

@@ -29,8 +29,7 @@ PEAP:
 Game/Backend - User stats (AI-Algo 2) (m)                           (DONE)
 Game/Backend - Remote Players (M)									(DONE)
 Backend/Game/Frontend - Server-Side Pong (Server-Side Pong 1) (M)	(DONE)
-Frontend - Expand Browser Compatibilitiy (Accessibility 1) (m)      (DONE)
-Frontend - Support on all devices (Accessibility 1) (m)         
+Frontend - Expand Browser Compatibilitiy (Accessibility 1) (m)      (DONE)         
 
 Alex & ej:
 Backend - User Auth & Info (M) (User management 1)					(DONE)
