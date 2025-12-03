@@ -17,7 +17,7 @@ const pongHandler = (fastify, options, done) => {
 			const data = await response.json();
 			if (data && !data.loggedIn)
 				return { success: false, code: 403, error: "Must be signed in" };
-			return { success: data.success, loggedIn: data.loggedIn, user: data.user };
+			return data;
 		} catch (error) {
 			console.log("COULD NOT AUTHENTICATE:", error);
 				return { success: false, code: 500, error: "Authentication Error. Check logs." };
@@ -27,7 +27,7 @@ const pongHandler = (fastify, options, done) => {
 	const delayed_closure = (id) => {
 		if (games[id] && Object.keys(games[id].all).length == 0 && !games[id].setup.game_over) {
 			const func = () => {
-				if (Object.keys(games[id].all).length == 0) {
+				if (games[id] && Object.keys(games[id].all).length == 0) {
 					destroy_game(admins, games, id);
 				}
 			};
@@ -125,7 +125,7 @@ const pongHandler = (fastify, options, done) => {
 		preValidation: async (req, reply, done) => {
 				const login_data = await authenticate(req);
 				if (!login_data.success)
-					return reply.send(login_data);
+					return reply.send(JSON.stringify(login_data));
 				done();
 			}
 		}, async (socket, req) => {
@@ -178,19 +178,10 @@ const pongHandler = (fastify, options, done) => {
 				try {
 					switch (action) {
 						case "JOIN":
-							if (param && param != "PLAY" && param != "SPEC" && param != "EITHER") {
+							if (param && param != "SPEC" && param != "EITHER") {
 								socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid message param: JOIN only takes PLAY/SPEC as optional params." }));
 								console.log(JSON.stringify({ success: false, code: 400, error: "Invalid message param: JOIN only takes PLAY/SPEC as optional params." }));
 								break;
-							}
-							if (param && param == "PLAY") {
-								const ret = member.play(games[game_id]);
-								// socket.send(`Joined game #${game_id} as ${ret == true ? "the left player!" : "the right player!"}`);
-								console.log(`User ${member.user_info.username} - ${member.user_info.email} Joined game #${game_id}`);
-								if (ret == true)
-									socket.send(JSON.stringify({ success: true, role: "left_player" }));
-								else
-									socket.send(JSON.stringify({ success: true, role: "right_player" }));
 							}
 							else if (param && param == "SPEC") {
 								member.spec(games[game_id]);
@@ -221,26 +212,32 @@ const pongHandler = (fastify, options, done) => {
 								console.log(`Game #${game_id} started!`);
 							}
 							break;
-						case "JOIN":
-							if (param && param != "PLAY" && param != "SPEC" && param != "EITHER") {
-								socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid message param: JOIN only takes PLAY/SPEC as optional params." }));
-								console.log(JSON.stringify({ success: false, code: 400, error: "Invalid message param: JOIN only takes PLAY/SPEC as optional params." }));
+						case "PLAY":
+							if (param && param != "LEFT" && param != "RIGHT") {
+								socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid message param: PLAY only takes LEFT/RIGHT as optional params." }));
+								console.log(JSON.stringify({ success: false, code: 400, error: "Invalid message param: PLAY only takes LEFT/RIGHT as optional params." }));
 								break;
 							}
-							if (param && param == "PLAY") {
-								const ret = member.play(games[game_id]);
-								// socket.send(`Joined game #${game_id} as ${ret == true ? "the left player!" : "the right player!"}`);
-								console.log(`User ${member.user_info.username} - ${member.user_info.email} Joined game #${game_id}`);
-								if (ret == true)
-									socket.send(JSON.stringify({ success: true, role: "left_player" }));
-								else
-									socket.send(JSON.stringify({ success: true, role: "right_player" }));
+							const players = Object.values(games[game_id].players);
+							if (players.length >= 2)
+								socket.send(JSON.stringify({ success: false, code: 403, error: "Game room is full" }));
+							if (param && param == "LEFT") {
+								if (players.length == 1 && players[0].is_left) {
+									socket.send(JSON.stringify({ success: false, code: 403, error: "Seat 1 is already taken" }));
+									return ;
+								}
+								member.join(games[game_id], "left");
+								socket.send(JSON.stringify({ success: true, role: "left_player" }));
+								console.log(`User ${member.user_info.username} - ${member.user_info.email} Joined game #${game_id} as the left player`);
 							}
-							else if (param && param == "SPEC") {
-								member.spec(games[game_id]);
-								// socket.send(`Joined game #${game_id} as a spectator!`);
-								console.log(`User ${member.user_info.username} - ${member.user_info.email} Joined game #${game_id} as a spectator!`);
-								socket.send(JSON.stringify({ success: true, role: "spectator" }));
+							else if (param && param == "LEFT") {
+								if (players.length == 1 && !players[0].is_left) {
+									socket.send(JSON.stringify({ success: false, code: 403, error: "Seat 2 is already taken" }));
+									return ;
+								}
+								member.join(games[game_id], "right");
+								socket.send(JSON.stringify({ success: true, role: "right_player" }));
+								console.log(`User ${member.user_info.username} - ${member.user_info.email} Joined game #${game_id} as the right player`);
 							}
 							else {
 								const ret = member.join(games[game_id]);
@@ -253,11 +250,6 @@ const pongHandler = (fastify, options, done) => {
 									socket.send(JSON.stringify({ success: true, role: "right_player" }));
 									// socket.send(`Joined game #${game_id} as the right player!`);
 									console.log(`User ${member.user_info.username} - ${member.user_info.email} joined game #${game_id} as the right player`);
-								}
-								else {
-									socket.send(JSON.stringify({ success: true, role: "spectator" }));
-									// socket.send(`Joined game #${game_id} as a spectator!`);
-									console.log(`User ${member.user_info.username} - ${member.user_info.email} joined game #${game_id} as a player`);
 								}
 							}
 							if (!games[game_id].started && games[game_id].player_count() == 2) {

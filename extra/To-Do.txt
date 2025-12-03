@@ -1,7 +1,12 @@
 [-] Allow editing profile info on the frontend
-[ ] Allow file upload for profile pictures
 [-] Test game end update history
+[-] Allow file upload for profile pictures
 [ ] Test server-side bot
+[ ] Redesign the game rooms
+[ ] Make local games update user history
+[ ] Add start button to game rooms
+
+[ ] Improve AI Bot algorithm
 
 New issues:
 [ ] Auto-reconnect attempt in game rooms
