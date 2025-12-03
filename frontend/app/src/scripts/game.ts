@@ -224,7 +224,7 @@ function drawBall(cv: HTMLCanvasElement, ball: Ball, delta: number)
 	ball.y += ball.yVel * delta;
 }
 
-export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Player | Bot, right_player: Player | Bot, p1_score: HTMLDivElement, p2_score: HTMLDivElement, timer: HTMLDivElement) {
+export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Player | Bot, right_player: Player | Bot, p1_score: HTMLDivElement, p2_score: HTMLDivElement, timer: HTMLDivElement, endOverlay?: (winner: string, p1Score: number, p2Score: number) => void) {
 	let animationId: number;
 	let game_over: boolean = false;
 	const left_paddle = left_player.paddle;
@@ -273,8 +273,23 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 	function draw(currentTime: number)
 	{
 		// GAME HAS ENDED PIOLO LOOK
-		if (time >= 300 || parseInt(p1_score.textContent) >= 10 || parseInt(p2_score.textContent) >= 10) {
+		if (time >= 300 || parseInt(p1_score.textContent) >= 1 || parseInt(p2_score.textContent) >= 1) {
 			end_game();
+			// check winner
+			const p1Final = parseInt(p1_score.textContent || '0');
+			const p2Final = parseInt(p2_score.textContent || '0');
+			let winner = 'draw';
+			if (p1Final > p2Final) {
+				winner = left_player.name;
+			} else if (p2Final > p1Final) {
+				winner = right_player.name;
+			}
+			// dk what this is
+			if (endOverlay) {
+				endOverlay(winner, p1Final, p2Final);
+			}
+
+			// update history will implement idk when
 			// try {
 			// 	await fetch(`${process.env.USERS_URL}/users/${this.router._info.username}/history`, {
 			// 		method: "POST",
@@ -290,8 +305,9 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 			// } catch (error) {
 			// 	console.log(error);
 			// }
-			return ;
+			// return ;
 		}
+
 		const delta = (currentTime - lastTime) / 15;
 		lastTime = currentTime;
 		if (ball.starting === true)

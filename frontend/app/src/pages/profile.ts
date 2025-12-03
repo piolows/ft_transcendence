@@ -377,7 +377,7 @@ export default class Profile extends Component {
 			};
 		} else if (this.is_friends == true) {
 			fa.innerHTML = `
-				<button id="followbtn" class="bg-red-600 text-white py-3 pixel-box font-pixelify hover:bg-red-700 clicky w-50">
+				<button id="followbtn" class="bg-red-600 text-white py-3 pixel-box font-pixelify hover:bg-red-700 clicky w-50 glitch">
 					- UNFOLLOW
 				</button>`;
 			const fb = document.getElementById('followbtn')!;

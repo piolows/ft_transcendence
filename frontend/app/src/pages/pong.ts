@@ -64,8 +64,18 @@ export default class Pong extends Component {
 					</div>
 
 					<!-- canvas -->
-					<div class="flex-1 flex items-center justify-center bg-black">
+					<div class="flex-1 flex items-center justify-center bg-black relative">
 						<canvas id="gameCanvas" width="800" height="600" style="background-color: black; border: 3px solid #1e40af;"></canvas>
+						<!-- game overlay -->
+						<div id="game-overlay" class="absolute flex items-center justify-center" style="width: 800px; height: 600px; background-color: rgba(0, 0, 0, 0.85); backdrop-filter: blur(4px);">
+							<div class="pixel-box bg-blue-900 p-8 text-center">
+								<h2 id="overlay-title" class="text-3xl font-pixelify mb-6">READY TO PLAY?</h2>
+								<p id="overlay-message" class="font-silkscreen text-lg mb-8 text-white"></p>
+								<button id="overlay-button" class="pixel-box bg-green-500 px-8 py-4 text-white hover:bg-green-600 font-pixelify text-xl clicky">
+									START GAME
+								</button>
+							</div>
+						</div>
 					</div>
 
 					<!-- right sidebar -->
@@ -148,6 +158,8 @@ export default class Pong extends Component {
 		const ball_speed = 8;
 		const ball_radius = 16;
 		const paddle_speed = 8;
+		const paddle_height = 90;
+		const paddle_width = 20;
 		const params = new URLSearchParams(window.location.search);
 		const op = params.get("op");
 		const difficulty = parseInt(params.get("difficulty") ?? "1");
@@ -171,18 +183,69 @@ export default class Pong extends Component {
 
 		const cv = document.getElementById("gameCanvas") as HTMLCanvasElement;
 		const context = cv.getContext('2d')!;
-		context.fillStyle = 'black';
-		context.fillRect(0, 0, cv.width, cv.height);
 		const p1_score = document.getElementById("p1_score")! as HTMLDivElement;
 		const p2_score = document.getElementById("p2_score")! as HTMLDivElement;
 		const timer = document.getElementById('timer')! as HTMLDivElement;
 		const ball = new Ball(cv.width / 2, cv.height / 2, ball_speed, ball_radius, 'white');
-		const left_paddle = new Paddle(90, 20, 20, (cv.height - 90) / 2, paddle_speed, 'orange');
-		const right_paddle = new Paddle(90, 20, cv.width - (20 * 2), (cv.height - 90) / 2, paddle_speed, 'red');
+		const left_paddle = new Paddle(paddle_height, paddle_width, paddle_width, (cv.height - paddle_height) / 2, paddle_speed, 'orange');
+		const right_paddle = new Paddle(paddle_height, paddle_width, cv.width - (paddle_width * 2), (cv.height - paddle_height) / 2, paddle_speed, 'red');
 		const player1 = new Player("Player 1", left_paddle);
 		const player2 = (op == "bot") ? new Bot("AI Bot", right_paddle, cv, difficulty) : new Player("Player 2", right_paddle);
 
-		this.end_game = start_game(cv, ball, player1, player2, p1_score, p2_score, timer);
+		// initial overlay
+		const overlay = document.getElementById('game-overlay')!;
+		const overlayTitle = document.getElementById('overlay-title')!;
+		const overlayMessage = document.getElementById('overlay-message')!;
+		const overlayButton = document.getElementById('overlay-button')!;
+
+		//  reset game state to initial values
+		const resetGameState = () => {
+			// reset scores and timer
+			p1_score.textContent = '0';
+			p2_score.textContent = '0';
+			(timer.children[0] as HTMLElement).textContent = '00';
+			(timer.children[2] as HTMLElement).textContent = '00';
+			
+			// reset positions
+			ball.x = cv.width / 2;
+			ball.y = cv.height / 2;
+			ball.xVel = ball.speed;
+			ball.yVel = ball.speed;
+			ball.starting = true;
+			ball.moving = false;
+			ball.first_collision = false;
+			
+			left_paddle.yPos = (cv.height - paddle_height) / 2;
+			left_paddle.up = false;
+			left_paddle.down = false;
+			right_paddle.yPos = (cv.height - paddle_height) / 2;
+			right_paddle.up = false;
+			right_paddle.down = false;
+			
+			// redraw canvas
+			context.fillStyle = 'black';
+			context.fillRect(0, 0, cv.width, cv.height);
+		};
+
+		// function to start/restart game
+		const startNewGame = () => {
+			resetGameState();
+			overlay.style.display = 'none';
+			this.end_game = start_game(cv, ball, player1, player2, p1_score, p2_score, timer, endOverlay);
+		};
+
+		// game end callback
+		const endOverlay = (winner: string, p1Score: number, p2Score: number) => {
+			overlay.style.display = 'flex';
+			overlayTitle.textContent = winner === 'draw' ? 'DRAW!' : `${winner} WINS!`;
+			overlayMessage.textContent = `Final Score: ${p1Score} - ${p2Score}`;
+			overlayButton.textContent = 'REMATCH';
+			overlayButton.onclick = startNewGame;
+		};
+
+		// start
+		resetGameState();
+		overlayButton.onclick = startNewGame;
 	}
 
 	unload() {
