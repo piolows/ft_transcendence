@@ -88,7 +88,11 @@ export default class TicTacToePage extends Component {
             }
         }
         this.largeBoard[lrow][lcol][srow][scol] = this.currentMove;
-        cell.innerText = this.currentMove;
+        // cell.innerText = this.currentMove;
+        const move = document.createElement("p");
+        move.classList = "text-[0.5rem] md:text-[1rem]";
+        move.innerText = this.currentMove;
+        cell.appendChild(move);
         if (this.checkBoardWin(this.largeBoard[lrow][lcol])) {
             // mark the large board cell as won
             const largeCell = document.querySelector(`div.cell[data-lrow='${lrow}'][data-lcol='${lcol}']`) as HTMLDivElement;
@@ -115,12 +119,19 @@ export default class TicTacToePage extends Component {
     async load(app: HTMLDivElement | HTMLElement) {
         await this.navbar.load(app);
         this.largeBoard = this.createlargeBoard();
+        // app.innerHTML += `
+        // <div id="main-container" class="flex flex-col justify-center items-center pt-8 h-screen">
+        //     <div id="game-info" class="flex justify-center items-center pixel-box h-[100%] w-[50%] md:h-15">
+        //         <p id="current-move" class="text-[15px] lg:text-[1rem]">${this.currentMove}'s turn</p>
+        //     </div>
+        //     <div id="tictactoe-board" class="grid grid-cols-3 mt-4 pixel-box p-4 border-5 border-red-500 w-[90%] md:w-[75%] lg:w-[50%] lg:h-[70%] mx-auto bg-blue-900"></div>
+        // </div>`;
         app.innerHTML += `
-        <div id="main-container" class="flex flex-col justify-center items-center pt-8 h-[80%]">
-            <div id="game-info" class="flex justify-center items-center pixel-box w-[50%] h-20">
-                <p id="current-move">${this.currentMove} to move</p>
+        <div id="main-container" class="flex flex-col justify-center items-center pt-8 h-screen">
+            <div id="game-info" class="flex justify-center items-center pixel-box w-[50%] md:h-15">
+                <p id="current-move" class="text-[15px] lg:text-[1rem]">${this.currentMove}'s turn</p>
             </div>
-            <div id="tictactoe-board" class="grid grid-cols-3 mt-4 pixel-box p-4 border-5 border-red-500 w-[45%] h-screen mx-auto bg-blue-900"></div>
+            <div id="tictactoe-board" class="overflow-hidden mt-6 grid grid-cols-3 pixel-box border-5 border-red-500 w-full max-w-[80vh] h-full max-h-[80vh] bg-blue-900"></div>
         </div>`;
         // for each row, create 3 divs
         const board = document.getElementById("tictactoe-board")!;
@@ -128,12 +139,17 @@ export default class TicTacToePage extends Component {
             // for each row, create 3 divs which represents each element
             for (let j = 0; j < 3; j++) {
                 const large_board_cell = document.createElement("div");
-                large_board_cell.className = "cell flex justify-center items-center p-6 aspect-square";
+                large_board_cell.className = "cell flex justify-center items-center p-1 md:p-3 h-full w-full aspect-square";
                 large_board_cell.dataset.lrow = i.toString();
                 large_board_cell.dataset.lcol = j.toString();
                 board.appendChild(large_board_cell);
-                if (i > 0 && i < 3) large_board_cell.style.borderTop = "5px solid black";
-                if (j > 0 && j < 3) large_board_cell.style.borderLeft = "5px solid black";
+                if (i > 0 && i < 3) {
+                    large_board_cell.style.borderTop = "5px solid black";
+                    large_board_cell.style.marginBottom = "5px";
+                }
+                if (j > 0 && j < 3) {
+                    large_board_cell.style.borderLeft = "5px solid black";
+                }
                 const small_board_container = document.createElement("div");
                 small_board_container.className = "small-board grid grid-cols-3 w-[100%] h-full";
                 large_board_cell.appendChild(small_board_container);
