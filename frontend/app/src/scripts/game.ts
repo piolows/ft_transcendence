@@ -275,6 +275,21 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 		// GAME HAS ENDED PIOLO LOOK
 		if (time >= 300 || parseInt(p1_score.textContent) >= 10 || parseInt(p2_score.textContent) >= 10) {
 			end_game();
+			// try {
+			// 	await fetch(`${process.env.USERS_URL}/users/${this.router._info.username}/history`, {
+			// 		method: "POST",
+			// 		body: {
+			// 			game: "pong",
+			// 			op_id: players[1].user_info.id,
+			// 			winner_id: this.winner == 0 ? -1 : (this.winner == -1 ? this.getPlayer('left') : this.getPlayer('right')),
+			// 			time: this.setup.time,
+			// 			p1_score: this.setup.p1_score,
+			// 			p2_score: this.setup.p2_score,
+			// 		}
+			// 	});
+			// } catch (error) {
+			// 	console.log(error);
+			// }
 			return ;
 		}
 		const delta = (currentTime - lastTime) / 15;
