@@ -121,6 +121,7 @@ class Setup {
 export class Game {
 	uuid;
 	setup;
+	game_name;
 	admin_info;
 	tournament_id;
 	winner = 0;
@@ -129,10 +130,12 @@ export class Game {
 	specs = {};			// username -> Member
 	all = {};			// username -> Member
 
-	constructor(admin_info, tournament_id = undefined) {
+	constructor(admin_info, game_name = "pong", tournament_id = undefined) {
 		this.uuid = shortUUID();
 		this.admin_info = admin_info;
-		this.setup = new Setup();
+		this.game_name = game_name;
+		if (game_name == "pong")
+			this.setup = new Setup();
 		this.tournament_id = tournament_id;
 	}
 
