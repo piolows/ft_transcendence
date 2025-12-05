@@ -192,47 +192,11 @@ export default class Pong extends Component {
 		const player1 = new Player("Player 1", left_paddle);
 		const player2 = (op == "bot") ? new Bot("AI Bot", right_paddle, cv, difficulty) : new Player("Player 2", right_paddle);
 
-		// initial overlay
+		// overlay
 		const overlay = document.getElementById('game-overlay')!;
 		const overlayTitle = document.getElementById('overlay-title')!;
 		const overlayMessage = document.getElementById('overlay-message')!;
 		const overlayButton = document.getElementById('overlay-button')!;
-
-		//  reset game state to initial values
-		const resetGameState = () => {
-			// reset scores and timer
-			p1_score.textContent = '0';
-			p2_score.textContent = '0';
-			(timer.children[0] as HTMLElement).textContent = '00';
-			(timer.children[2] as HTMLElement).textContent = '00';
-			
-			// reset positions
-			ball.x = cv.width / 2;
-			ball.y = cv.height / 2;
-			ball.xVel = ball.speed;
-			ball.yVel = ball.speed;
-			ball.starting = true;
-			ball.moving = false;
-			ball.first_collision = false;
-			
-			left_paddle.yPos = (cv.height - paddle_height) / 2;
-			left_paddle.up = false;
-			left_paddle.down = false;
-			right_paddle.yPos = (cv.height - paddle_height) / 2;
-			right_paddle.up = false;
-			right_paddle.down = false;
-			
-			// redraw canvas
-			context.fillStyle = 'black';
-			context.fillRect(0, 0, cv.width, cv.height);
-		};
-
-		// function to start/restart game
-		const startNewGame = () => {
-			resetGameState();
-			overlay.style.display = 'none';
-			this.end_game = start_game(cv, ball, player1, player2, p1_score, p2_score, timer, endOverlay);
-		};
 
 		// game end callback
 		const endOverlay = (winner: string, p1Score: number, p2Score: number) => {
@@ -240,12 +204,14 @@ export default class Pong extends Component {
 			overlayTitle.textContent = winner === 'draw' ? 'DRAW!' : `${winner} WINS!`;
 			overlayMessage.textContent = `Final Score: ${p1Score} - ${p2Score}`;
 			overlayButton.textContent = 'REMATCH';
-			overlayButton.onclick = startNewGame;
+			overlayButton.onclick = () => window.location.reload();
 		};
 
-		// start
-		resetGameState();
-		overlayButton.onclick = startNewGame;
+		// start game button
+		overlayButton.onclick = () => {
+			overlay.style.display = 'none';
+			this.end_game = start_game(cv, ball, player1, player2, p1_score, p2_score, timer, endOverlay);
+		};
 	}
 
 	unload() {

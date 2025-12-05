@@ -284,7 +284,7 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 			} else if (p2Final > p1Final) {
 				winner = right_player.name;
 			}
-			// dk what this is
+
 			if (endOverlay) {
 				endOverlay(winner, p1Final, p2Final);
 			}
