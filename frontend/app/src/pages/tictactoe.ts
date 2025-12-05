@@ -2,13 +2,6 @@ import Component from "../scripts/router";
 import NavBar from "../components/nav_bar";
 import Router from "../scripts/router";
 
-/*
-    the board is currently created with a loop that goes per column and per row
-    a cell is added in the loop
-    best way to figure out who the winner is 
-    add a toggle for which player is currently moving
-    save the large board as an array of smallboards
-*/
 type Cell = "" | "X" | "O";
 type SmallBoard = Cell[][];
 type LargeBoard = SmallBoard[][]; 
@@ -19,6 +12,7 @@ export default class TicTacToePage extends Component {
     private largeBoard: LargeBoard = [];
     private trueLargeBoard: Cell[][] = [];
     private lastMove: HTMLDivElement | null = null;
+    private app: HTMLDivElement | HTMLElement | null = null;
 
     private createSmallBoard(): SmallBoard {
         return Array.from({ length: 3}, () => 
@@ -75,65 +69,14 @@ export default class TicTacToePage extends Component {
         });
     }
 
-    private makeMove(lrow: number, lcol: number, srow: number, scol: number, current_move: HTMLParagraphElement, cell: HTMLDivElement) {
-        if (this.largeBoard[lrow][lcol][srow][scol] !== "") {
-            console.log("Cell is already filled");
-            return ;
-        }
-        if (this.lastMove !== null) {
-            const parentCell = cell.parentElement?.parentElement;
-            if (parentCell !== this.lastMove) {
-                console.log("this board cannot move");
-                return ;
-            }
-        }
-        this.largeBoard[lrow][lcol][srow][scol] = this.currentMove;
-        // cell.innerText = this.currentMove;
-        const move = document.createElement("p");
-        move.classList = "text-[0.5rem] md:text-[1rem]";
-        move.innerText = this.currentMove;
-        cell.appendChild(move);
-        if (this.checkBoardWin(this.largeBoard[lrow][lcol])) {
-            // mark the large board cell as won
-            const largeCell = document.querySelector(`div.cell[data-lrow='${lrow}'][data-lcol='${lcol}']`) as HTMLDivElement;
-            const winner = document.createElement("div");
-            winner.className = "large-board-winner flex justify-center items-center aspect-square";
-            const winnerText = document.createElement("p");
-            winnerText.innerText = this.currentMove;
-            winnerText.className = "text-[2rem]";
-            winner.appendChild(winnerText);
-            largeCell.removeChild(largeCell.firstChild!);
-            largeCell.appendChild(winner);
-            largeCell.classList.remove("bg-purple-800");
-            this.trueLargeBoard[lrow][lcol] = this.currentMove;
-        }
-        if (this.checkBoardWin(this.trueLargeBoard)) {
-            alert(`${this.currentMove} wins the game!`);
-            // create a modal that contains the results and will be displayed
-        }
-        this.currentMove = this.currentMove === "X" ? "O" : "X";
-        current_move.innerText = `${this.currentMove} to move`;
-        this.lockBoards(srow, scol, cell);
-    }
-
-    async load(app: HTMLDivElement | HTMLElement) {
-        await this.navbar.load(app);
-        this.largeBoard = this.createlargeBoard();
-        // app.innerHTML += `
-        // <div id="main-container" class="flex flex-col justify-center items-center pt-8 h-screen">
-        //     <div id="game-info" class="flex justify-center items-center pixel-box h-[100%] w-[50%] md:h-15">
-        //         <p id="current-move" class="text-[15px] lg:text-[1rem]">${this.currentMove}'s turn</p>
-        //     </div>
-        //     <div id="tictactoe-board" class="grid grid-cols-3 mt-4 pixel-box p-4 border-5 border-red-500 w-[90%] md:w-[75%] lg:w-[50%] lg:h-[70%] mx-auto bg-blue-900"></div>
-        // </div>`;
+    private buildBoard(app: HTMLDivElement | HTMLElement) {
         app.innerHTML += `
-        <div id="main-container" class="flex flex-col justify-center items-center pt-8 h-screen">
-            <div id="game-info" class="flex justify-center items-center pixel-box w-[50%] md:h-15">
+        <div id="main-container" class="flex flex-col items-center pt-8 h-screen">
+            <div id="game-info" class="flex justify-center items-center pixel-box w-[30vh] max-w-[40vh] h-15 md:h-20">
                 <p id="current-move" class="text-[15px] lg:text-[1rem]">${this.currentMove}'s turn</p>
             </div>
-            <div id="tictactoe-board" class="overflow-hidden mt-6 grid grid-cols-3 pixel-box border-5 border-red-500 w-full max-w-[80vh] h-full max-h-[80vh] bg-blue-900"></div>
+        <div id="tictactoe-board" class="overflow-hidden mt-6 grid grid-cols-3 pixel-box border-5 border-red-500 w-[70%] max-w-[100%] md:w-full md:max-w-[70vh] bg-blue-900"></div>
         </div>`;
-        // for each row, create 3 divs
         const board = document.getElementById("tictactoe-board")!;
         for (let i = 0; i < 3; i++) {
             // for each row, create 3 divs which represents each element
@@ -173,19 +116,127 @@ export default class TicTacToePage extends Component {
         }
     }
 
-    async init() {
-        this.navbar.init();
-        this.trueLargeBoard = this.createSmallBoard();
-        const move = document.getElementById("current-move") as HTMLParagraphElement;
-        const small_board_cells = document.querySelectorAll(".small-board-cell");
-        small_board_cells.forEach((cell) => {
-            cell.addEventListener("click", (event) => {
+    private initializeBoard(status: string) {
+        const small_board_cells = document.querySelectorAll(".small-board-cell") as NodeListOf<HTMLDivElement>;
+        this.currentMove = "X";
+        if (status === "disable") {
+            small_board_cells.forEach((cell) => {
+                cell.onclick = null;
+            });
+        } else if (status === "enable") {
+            this.trueLargeBoard = this.createSmallBoard();
+            const move = document.getElementById("current-move") as HTMLParagraphElement;
+            const small_board_cells = document.querySelectorAll(".small-board-cell") as NodeListOf<HTMLDivElement>;
+            small_board_cells.forEach((cell) => {
+            cell.onclick = (event) => {
                 const lrow = parseInt((event.currentTarget as HTMLDivElement).dataset.lrow!);
                 const lcol = parseInt((event.currentTarget as HTMLDivElement).dataset.lcol!);
                 const srow = parseInt((event.currentTarget as HTMLDivElement).dataset.srow!);
                 const scol = parseInt((event.currentTarget as HTMLDivElement).dataset.scol!);
                 this.makeMove(lrow, lcol, srow, scol, move, cell as HTMLDivElement);
-            })
-        });
+            }});
+        }
+    }
+
+    /*
+        this function will create a new true large board and a new large board
+        it will also reset the current move back to X
+        it will then rebuild the frontend for the board by calling the buildBoard function
+        after that, it will re-enable the cells to be clicked
+     */
+    private reset_state() {
+        const app = document.getElementById("app") as HTMLDivElement | HTMLElement;
+        const modal_container = document.getElementById("modal-container");
+        const main_container = document.getElementById("main-container");
+        main_container?.remove();
+        modal_container?.remove();
+        // clean up the true board
+        this.trueLargeBoard = this.createSmallBoard();
+        // clean up the large board
+        this.largeBoard = this.createlargeBoard();
+        this.lastMove = null;
+        this.buildBoard(app);
+        this.initializeBoard("enable");
+    }
+
+    private winnerModal(winner: string)
+    {
+        const app = document.getElementById("app") as HTMLDivElement | HTMLElement;
+
+        this.initializeBoard("disable");    // to disable the cells from being clicked
+        const background = document.createElement("div");
+        const main_screen = document.createElement("div");
+        main_screen.id = "modal-container";
+        main_screen.className = `fixed inset-0 z-50 flex items-center justify-center`;
+        app?.appendChild(main_screen);
+        background.id = "backscreen";
+        background.className = "fixed inset-0 bg-black opacity-80 flex justify-center items-center";
+        const modal = document.createElement("div");
+        modal.id = "winner-modal";
+        modal.className = "pixel-box relative bg-blue-900 p-8 w-96 text-white";
+        const text = document.createElement("h2");
+        text.innerText = `${winner} wins the game!`;
+        text.className = "text-2xl font-pixelify mb-6 rainbow text-center";
+        modal.appendChild(text);
+        main_screen.appendChild(background);
+        main_screen.appendChild(modal);
+
+        const retry_button = document.createElement("button");
+        retry_button.id = "retry-button";
+        retry_button.className = "pixel-box bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mx-auto block cursor-pointer";
+        retry_button.innerText = "Play Again";
+        modal.appendChild(retry_button);
+
+        retry_button.onclick = (event) => {
+            this.reset_state();
+        };
+    }
+
+    private makeMove(lrow: number, lcol: number, srow: number, scol: number, current_move: HTMLParagraphElement, cell: HTMLDivElement) {
+        if (this.largeBoard[lrow][lcol][srow][scol] !== "") {
+            console.log("Cell is already filled");
+            return ;
+        }
+        if (this.lastMove !== null) {
+            const parentCell = cell.parentElement?.parentElement;
+            if (parentCell !== this.lastMove) {
+                console.log("this board cannot move");
+                return ;
+            }
+        }
+        this.largeBoard[lrow][lcol][srow][scol] = this.currentMove;
+        // cell.innerText = this.currentMove;
+        const move = document.createElement("p");
+        move.className = "text-[0.5rem] md:text-[1rem]";
+        move.innerText = this.currentMove;
+        cell.appendChild(move);
+        if (this.checkBoardWin(this.largeBoard[lrow][lcol])) {
+            const largeCell = document.querySelector(`div.cell[data-lrow='${lrow}'][data-lcol='${lcol}']`) as HTMLDivElement;
+            const winner = document.createElement("div");
+            winner.className = "large-board-winner flex justify-center items-center aspect-square";
+            const winnerText = document.createElement("p");
+            winnerText.innerText = this.currentMove;
+            winnerText.className = "text-[2rem]";
+            winner.appendChild(winnerText);
+            largeCell.removeChild(largeCell.firstChild!);
+            largeCell.appendChild(winner);
+            largeCell.classList.remove("bg-purple-800");
+            this.trueLargeBoard[lrow][lcol] = this.currentMove;
+        }
+        if (this.checkBoardWin(this.trueLargeBoard)) this.winnerModal(this.currentMove);
+        this.currentMove = this.currentMove === "X" ? "O" : "X";
+        current_move.innerText = `${this.currentMove} to move`;
+        this.lockBoards(srow, scol, cell);
+    }
+
+    async load(app: HTMLDivElement | HTMLElement) {
+        await this.navbar.load(app);
+        this.largeBoard = this.createlargeBoard();
+        this.buildBoard(app);
+    }
+
+    async init() {
+        this.navbar.init();
+        this.initializeBoard("enable");
     }
 }
