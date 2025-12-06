@@ -118,7 +118,6 @@ export default class TicTacToePage extends Component {
 
     private initializeBoard(status: string) {
         const small_board_cells = document.querySelectorAll(".small-board-cell") as NodeListOf<HTMLDivElement>;
-        this.currentMove = "X";
         if (status === "disable") {
             small_board_cells.forEach((cell) => {
                 cell.onclick = null;
@@ -155,6 +154,7 @@ export default class TicTacToePage extends Component {
         // clean up the large board
         this.largeBoard = this.createlargeBoard();
         this.lastMove = null;
+        this.currentMove = "X";
         this.buildBoard(app);
         this.initializeBoard("enable");
     }
