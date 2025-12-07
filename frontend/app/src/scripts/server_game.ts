@@ -131,42 +131,43 @@ export function draw_frame(elements: any, message: any, room: any) {
 		elements.mins.innerText = timeFormat(Math.floor(message.time / 60));
 		elements.secs.innerText = timeFormat(message.time % 60);
 		elements.spectators.innerText = message.spec_count;
-		elements.result.innerText = message.game_over ? (message.winner == 0 ? 'Draw' : (message.winner == -1 ? 'Player 1 Won' : 'Player 2 Won')) : '';
+		if (message.game_over)
+			elements.result.innerText = (message.winner == 0 ? 'Draw' : (message.winner == -1 ? 'Player 1 Won' : 'Player 2 Won'));
 		room.left_player = message.left_player;
 		room.right_player = message.right_player;
 		elements.playersInfo.innerHTML = `
-			<div><p class="pb-4">Player 1:</p>
+			<div class="pixel-box bg-blue-800 p-3 text-center mb-4"><p class="text-xs font-pixelify text-gray-300 mb-2">Player 1</p>
 			${ room.left_player ?
 			`<div id="player1-info">
 				<div class="flex items-center space-x-4">
-					<img id="pfp" src="${ backend_url + room.left_player.avatarURL }" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
+					<img id="pfp" src="${ backend_url + room.left_player.avatarURL }" class="w-12 h-12 rounded-full pixel-box bg-blue-800" alt="Profile">
 					<div>
 						<h4 id="username" class="crt-text">${ room.left_player.username }</h4>
 						<p id="email" class="text-xs font-silkscreen">${ room.left_player.email }</p>
 					</div>
 				</div>
-			</div></div>` : `<div><p>Seat empty!</p></div><div><button id="take_seat_1" class="bg-blue-500 text-white py-3 mt-5 pixel-box font-pixelify hover:bg-blue-600 clicky" style="width: 180px;">TAKE SEAT</button></div></div>`}
-			<div><p class="pb-4">Player 2:</p>
+			</div></div>` : `<div><p class="text-xs text-white">Seat Empty!</p></div><div><button id="take_seat_1" class="bg-blue-500 text-white py-1 mt-5 mb-2 pixel-box font-pixelify hover:bg-blue-600 clicky" style="width: 120px;">TAKE SEAT</button></div></div>`}
+			<div class="pixel-box bg-blue-800 p-3 text-center mb-4"><p class="text-xs font-pixelify text-gray-300 mb-2">Player 2</p>
 			${ room.right_player ?
 			`<div id="player2-info">
 				<div class="flex items-center space-x-4">
-					<img id="pfp" src="${ backend_url + room.right_player.avatarURL }" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
+					<img id="pfp" src="${ backend_url + room.right_player.avatarURL }" class="w-12 h-12 rounded-full pixel-box bg-blue-800" alt="Profile">
 					<div>
 						<h4 id="username" class="crt-text">${ room.right_player.username }</h4>
 						<p id="email" class="text-xs font-silkscreen">${ room.right_player.email }</p>
 					</div>
 				</div>
-			</div></div>` : `<div><p>Seat empty!</p></div>${room.left_player ? `<div><button id="take_seat_2" class="bg-blue-500 text-white py-3 mt-5 pixel-box font-pixelify hover:bg-blue-600 clicky" style="width: 180px;">TAKE SEAT</button></div>` : ''}</div>`}`;
+			</div></div>` : `<div><p class="text-xs text-white">Seat Empty!</p></div><div><button id="take_seat_2" class="bg-blue-500 text-white py-1 mt-5 mb-2 pixel-box font-pixelify hover:bg-blue-600 clicky" style="width: 120px;">TAKE SEAT</button></div></div>`}` + elements.playersInfo.innerHTML;
 		const ts1 = document.getElementById('take_seat_1')!;
 		if (ts1) {
 			ts1.onclick = () => {
-				room.socket?.send(JSON.stringify({game_id: room.game_id, action: "JOIN", param: "PLAY"}));
+				room.socket?.send(JSON.stringify({game_id: room.game_id, action: "PLAY", param: "LEFT"}));
 			};
 		}
 		const ts2 = document.getElementById('take_seat_2')!;
 		if (ts2) {
 			ts2.onclick = () => {
-				room.socket?.send(JSON.stringify({game_id: room.game_id, action: "JOIN", param: "PLAY"}));
+				room.socket?.send(JSON.stringify({game_id: room.game_id, action: "PLAY", param: "RIGHT"}));
 			};
 		}
 	}

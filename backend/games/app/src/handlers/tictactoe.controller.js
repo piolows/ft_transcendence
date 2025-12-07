@@ -5,7 +5,7 @@ const pongHandler = (fastify, options, done) => {
 	let games = {};		//game.uuid -> game
 	let admins = {};	//username -> game
 
-	const authenticate = async (req) => {
+	const authentcate = async (req) => {
 		try {
 			const URL = process.env.AUTH_URL + "/me";
 			const headers = {'cookie': req.headers['cookie']};
@@ -24,7 +24,7 @@ const pongHandler = (fastify, options, done) => {
 		}
 	}
 
-	const delayed_closure = (id, uuid) => {
+	const delayed_closure = (id) => {
 		if (games[id] && Object.keys(games[id].all).length == 0 && !games[id].setup.game_over) {
 			const func = () => {
 				if (games[id] && Object.keys(games[id].all).length == 0) {

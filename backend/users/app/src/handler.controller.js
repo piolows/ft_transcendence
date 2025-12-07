@@ -19,6 +19,11 @@ const endpointHandler = (fastify, options, done) => {
 	}
 
 	async function addGame(user_id, op_id, info, date) {
+		if ("local_op" in info) {
+			await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, winner_id, local_op, game, p1_score, p2_score, time, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+				.run(user_id, op_id, info.winner_id, info.local_op, info.game, info.p1_score, info.p2_score, info.time, date);
+			return ;
+		}
 		await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, winner_id, game, p1_score, p2_score, time, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
 			.run(user_id, op_id, info.winner_id, info.game, info.p1_score, info.p2_score, info.time, date);
 		const stats = await fastify.sqlite.prepare(`SELECT * FROM ${ST} WHERE user_id=?`).get(user_id);
@@ -154,7 +159,7 @@ const endpointHandler = (fastify, options, done) => {
 			}
 		}
 		try {
-			if (req.body.op_id > 0) {
+			if (req.body.op_id >= 0) {
 				const user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE id=?`).get(req.body.op_id);
 				if (!user) {
 					return resp.send({ success: false, code: 404, error: "Opponent not found" });
@@ -165,7 +170,8 @@ const endpointHandler = (fastify, options, done) => {
 				return resp.send({ success: false, code: 404, error: "User not found" });
 			}
 			if (user['id'] == req.body.op_id) {
-				return resp.send({ success: false, code: 400, error: "Players can't play against themself" });
+				if (!("local_op" in req.body))
+					req.body["local_op"] = "Player 2";
 			}
 			if ((req.body.winner_id == req.body.op_id && req.body.p1_score > req.body.p2_score)
 				|| (req.body.winner_id == user['id'] && req.body.p1_score < req.body.p2_score)) {

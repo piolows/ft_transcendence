@@ -21,16 +21,15 @@ Fully compatible with Mozilla Firefox.								(DONE)
 Desired Modules:
 
 Pierce & Piolo:
-Game - Second game (M)
+Game - Second game (M)												(DONE 50%)
 Frontend - Tailwind (m) (Web 2)										(DONE)
 Game - AI Algorithm (M) (AI-Algo 1)									(DONE)
 
 PEAP:
-Game/Backend - User stats (AI-Algo 2) (m)                           (DONE 50%)
+Game/Backend - User stats (AI-Algo 2) (m)                           (DONE)
 Game/Backend - Remote Players (M)									(DONE)
 Backend/Game/Frontend - Server-Side Pong (Server-Side Pong 1) (M)	(DONE)
-Frontend - Expand Browser Compatibilitiy (Accessibility 1) (m)      (DONE)
-Frontend - Support on all devices (Accessibility 1) (m)             (DONE 50%)
+Frontend - Expand Browser Compatibilitiy (Accessibility 1) (m)      (DONE)         
 
 Alex & ej:
 Backend - User Auth & Info (M) (User management 1)					(DONE)

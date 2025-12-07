@@ -10,6 +10,7 @@ export default class Dev extends Component {
 		app.innerHTML += `
 			<!-- main content -->
 			<main class="container mx-auto mt-8 px-4">
+
 				<section class="mb-16">
 					<h2 class="text-5xl font-bold mb-10 text-center">Effects Showcase</h3>
 					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -53,6 +54,53 @@ export default class Dev extends Component {
 							<p>Scanline Effect</p> <!-- not really working -->
 						</div>
 					</div>
+					<div class="pixel-box bg-blue-800 mt-6">
+							<button id="settings-dropdown" class="w-full p-3 text-center transition-colors cursor-pointer">
+
+								<p class="text-xs font-pixelify text-gray-300">GAME SETTINGS</p>
+								<span id="toggle-icon" class="text-white text-sm">▼</span>
+
+							</button>
+							<div id="game-settings" class="hidden px-4 pb-4 space-y-4">
+								<div class="retro-border p-3 bg-blue-900">
+									<div class="relative mb-8">
+										<p class="text-xs font-pixelify text-gray-300 mb-2 text-center">BALL SPEED</p>
+										<input id="slider-name" type="range" min="0" max="10" value="5" step="1" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer">
+										<span class="text-sm absolute start-0 -bottom-6">0</span>
+										<span class="text-sm absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 -bottom-6">5</span>
+										<span class="text-sm absolute end-0 -bottom-6">10</span>
+									</div>
+									<div class="relative mb-4">
+										<p class="text-xs font-pixelify text-gray-300 mb-2 text-center">PADDLE SIZE</p>
+										<input id="slider-name" type="range" min="0" max="10" value="5" step="1" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer">
+										<span class="text-sm absolute start-0 -bottom-6">0</span>
+										<span class="text-sm absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 -bottom-6">5</span>
+										<span class="text-sm absolute end-0 -bottom-6">10</span>
+									</div>
+								</div>
+							</div>
+				</section>
+
+				<!-- sliders -->
+				<section class="mb-16">
+					<h2 class="text-2xl select-none font-bold mb-6 retro-shadow">Sliders</h2>
+					<div class="pixel-box p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+						<div class="relative">
+							<label for="slider-name" class="block mb-2.5 text-sm">Default slider</label>
+							<input id="slider-name" type="range" value="50" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer">
+						</div>
+						<div class="relative">
+							<label for="slider-name" class="block mb-2.5 text-sm">Slider w steps and labels</label>
+							<input id="slider-name" type="range" min="0" max="10" value="5" step="1" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer">
+							<span class="text-sm absolute start-0 -bottom-6">0</span>
+							<span class="text-sm absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 -bottom-6">5</span>
+							<span class="text-sm absolute end-0 -bottom-6">10</span>
+						</div>
+						<div class="relative">
+							<label for="slider-name" class="block mb-2.5 text-sm">Slider disabled</label>
+							<input id="slider-name" type="range" value="50" class="w-full h-2 bg-white rounded-full appearance-none cursor-pointer" disabled>
+						</div>
+					<div>
 				</section>
 
 				<!-- combination demos -->
@@ -80,6 +128,8 @@ export default class Dev extends Component {
 						<p class="custom_smalltext retro-shadow">Small Text Style</p>
 					</div>
 				</section>
+
+				
 			</main>
 
 			<footer class="text-center pb-8">
@@ -89,5 +139,23 @@ export default class Dev extends Component {
 
 	async init() {
 		this.navbar.init();
+
+		// game settings dropdown
+		const toggleButton = document.getElementById('settings-dropdown');
+		const content = document.getElementById('game-settings');
+		const icon = document.getElementById('toggle-icon');
+		
+		if (toggleButton && content && icon) {
+			toggleButton.addEventListener('click', () => {
+				const isHidden = content.classList.contains('hidden');
+				if (isHidden) {
+					content.classList.remove('hidden');
+					icon.textContent = '▲';
+				} else {
+					content.classList.add('hidden');
+					icon.textContent = '▼';
+				}
+			});
+		}
 	}
 }

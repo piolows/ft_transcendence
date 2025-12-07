@@ -46,7 +46,7 @@ export default class Profile extends Component {
 									<p class="text-gray-400 font-silkscreen">${this.profile_info.email}</p>
 									${this.online ? '' : `<p class="text-gray-400 font-silkscreen">Last seen: ${this.last_seen}</p>`}
 									${this.profile_info.id == this.router.login_info.id ? `
-									<button id="change-password-btn" class="mt-3 pixel-box bg-red-600 px-4 py-2 text-sm hover:bg-red-700 transition-colors clicky font-pixelify">
+									<button id="change-password-btn" class="mt-3 pixel-box bg-red-600 px-4 py-2 text-sm hover:bg-red-700 transition-colors clicky font-pixelify glitch">
 										CHANGE PASSWORD
 									</button>` : ''}
 								</div>
@@ -116,7 +116,7 @@ export default class Profile extends Component {
 
 			<!-- username modal -->
 			<div id="edit-username-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-				<div class="absolute inset-0 bg-black opacity-80"></div>
+				<div class="absolute inset-0 bg-black opacity-80 faded_bg"></div>
 				<div class="relative pixel-box bg-blue-900 p-8 w-96 text-white">
 					<h2 class="text-2xl font-pixelify mb-6 rainbow text-center">EDIT USERNAME</h2>
 					<form id="edit-username-form" class="space-y-6">
@@ -141,7 +141,7 @@ export default class Profile extends Component {
 
 			<!-- pfp modal -->
 			<div id="edit-avatar-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-				<div class="absolute inset-0 bg-black opacity-80"></div>
+				<div class="absolute inset-0 bg-black opacity-80 faded_bg"></div>
 				<div class="relative pixel-box bg-blue-900 p-8 w-96 text-white">
 					<h2 class="text-2xl font-pixelify mb-6 rainbow text-center">CHANGE PROFILE PICTURE</h2>
 					<form id="edit-avatar-form" class="space-y-6">
@@ -171,7 +171,7 @@ export default class Profile extends Component {
 
 			<!-- password modal -->
 			<div id="change-password-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-				<div class="absolute inset-0 bg-black opacity-80"></div>
+				<div class="absolute inset-0 bg-black opacity-80 faded_bg"></div>
 				<div class="relative pixel-box bg-blue-900 p-8 w-96 text-white">
 					<h2 class="text-2xl font-pixelify mb-6 rainbow text-center">CHANGE PASSWORD</h2>
 					<form id="change-password-form" class="space-y-6">
@@ -403,7 +403,7 @@ export default class Profile extends Component {
 			};
 		} else if (this.is_friends == true) {
 			fa.innerHTML = `
-				<button id="followbtn" class="bg-red-600 text-white py-3 pixel-box font-pixelify hover:bg-red-700 clicky w-50">
+				<button id="followbtn" class="bg-red-600 text-white py-3 pixel-box font-pixelify hover:bg-red-700 clicky w-50 glitch">
 					- UNFOLLOW
 				</button>`;
 			const fb = document.getElementById('followbtn')!;
@@ -434,6 +434,13 @@ export default class Profile extends Component {
 					console.error(error.message);
 				}
 			};
+		}
+
+		const backgrounds = document.getElementsByClassName("faded_bg");
+		for (const background of backgrounds) {
+			(background as HTMLButtonElement).onclick = () => {
+				background.parentElement?.classList.add('hidden');
+			}
 		}
 
 		const totalGames = document.getElementById('total-games')!;

@@ -13,6 +13,7 @@ import Profile from "./pages/profile";
 import History from "./pages/history";
 import Leaderboard from "./pages/leaderboard";
 import Friends from "./pages/friends";
+import TicTacToe from "./pages/tictactoe";
 
 const app_div = document.querySelector<HTMLDivElement>("#app")!;
 
@@ -33,6 +34,7 @@ router.add_route("/profile", new Profile(router), { auth: true, type: "wild" });
 router.add_route("/history", new History(router), { auth: true, type: "wild" });
 router.add_route("/friends", new Friends(router), { auth: true, type: "wild" });
 router.add_route("/leaderboard", new Leaderboard(router));
+router.add_route("/tictactoe", new TicTacToe(router), { auth: true });
 
 window.onload = () => {
 	console.log("Page loaded. Starting router...");

@@ -1,25 +1,17 @@
- -  Piolo:
-[ ] Loading Screen
+Alex:
+[-] Allow file upload for profile pictures
 
- -  Pierce
-[ ] Tournaments backend: 
-	[ ] Create 
-	[ ] Destroy 
-	[ ] Start 
-	[ ] Matchmaking 
-	[ ] Join 
-	[ ] Leave 
-	[ ] Get paginated list
-[ ] Tournaments testing FULL (Frontend / Backend)
+Emad:
+[ ] TOURNAMENTS
+[-] Test game end update history
+[-] Allow editing profile info on the frontend
+[ ] Allow history to receive a local match
 
- -  Emad
-[ ] Fix login not working on Firefox (OPTIONS Request)
-[ ] Add Online/Offline status (through regular pings to the server)
-[ ] Allow editing profile info on the frontend
-[ ] Allow file upload for profile pictures
-[ ] Test game end update history
-[ ] Fix the game room IN GENERAL
-[ ] Test server-side bot
+Piolo:
+[ ] Add start and end overlay for both local and online games
+[ ] Make local games update user history
+[ ] Diagrams for the report
+
 
 New issues:
 [ ] Auto-reconnect attempt in game rooms
