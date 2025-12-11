@@ -22,13 +22,12 @@ export default class Homepage extends Component {
 		card.add_button("PLAY", "/pong/menu");
 		this.menu.add_card(card);
 
-		card = new MenuCard(this.router, "ULTIMATE TIC-TAC-TOE", "CHALLENGE OTHERS TO A GAME OF ULTIMATE TIC-TAC-TOE", "yellow");
+		card = new MenuCard(this.router, "ULTIMATE TIC-TAC-TOE", "DO WHAT IT TAKES TO BECOME AN ULTIMATE TIC-TAC-TOE LEGEND", "yellow");
 		card.add_button("PLAY", "/tictactoe");
 		this.menu.add_card(card);
 
 		card = new MenuCard(this.router, "TOURNAMENTS", "FIGHT IN BRACKET-STYLE TOURNAMENTS AND CROWN THE ULTIMATE WINNER", "pink");
-		card.add_button("LIST", "/tournaments/list");
-		card.add_button("CREATE", "/tournaments/create");
+		card.add_button("START TOURNAMENT", "/tournaments/create");
 		this.menu.add_card(card);
 	}
 

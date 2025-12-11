@@ -14,6 +14,8 @@ import History from "./pages/history";
 import Leaderboard from "./pages/leaderboard";
 import Friends from "./pages/friends";
 import TicTacToe from "./pages/tictactoe";
+import CreateTournament from "./pages/tournament_init"
+import Tournament from "./pages/tournament";
 
 const app_div = document.querySelector<HTMLDivElement>("#app")!;
 
@@ -35,6 +37,8 @@ router.add_route("/history", new History(router), { auth: true, type: "wild" });
 router.add_route("/friends", new Friends(router), { auth: true, type: "wild" });
 router.add_route("/leaderboard", new Leaderboard(router));
 router.add_route("/tictactoe", new TicTacToe(router), { auth: true });
+router.add_route("/tournaments/create", new CreateTournament(router), { auth: true });
+router.add_route("/tournaments", new Tournament(router), { auth: true});
 
 window.onload = () => {
 	console.log("Page loaded. Starting router...");

@@ -72,10 +72,10 @@ export default class TicTacToePage extends Component {
     private buildBoard(app: HTMLDivElement | HTMLElement) {
         app.innerHTML += `
         <div id="main-container" class="flex flex-col items-center pt-8 h-screen">
-            <div id="game-info" class="flex justify-center items-center pixel-box w-[30vh] max-w-[40vh] h-15 md:h-20">
+            <div id="game-info" class="flex justify-center items-center pixel-box w-[30vh] max-w-[40vh] h-15 md:h-10">
                 <p id="current-move" class="text-[15px] lg:text-[1rem]">${this.currentMove}'s turn</p>
             </div>
-        <div id="tictactoe-board" class="overflow-hidden mt-6 grid grid-cols-3 pixel-box border-5 border-red-500 w-[70%] max-w-[100%] md:w-full md:max-w-[70vh] bg-blue-900"></div>
+        <div id="tictactoe-board" class="overflow-hidden mt-6 grid grid-cols-3 pixel-box border-5 border-red-500 w-[70%] max-w-[100%] md:w-full md:max-w-[65vh] bg-blue-900"></div>
         </div>`;
         const board = document.getElementById("tictactoe-board")!;
         for (let i = 0; i < 3; i++) {
@@ -118,7 +118,6 @@ export default class TicTacToePage extends Component {
 
     private initializeBoard(status: string) {
         const small_board_cells = document.querySelectorAll(".small-board-cell") as NodeListOf<HTMLDivElement>;
-        this.currentMove = "X";
         if (status === "disable") {
             small_board_cells.forEach((cell) => {
                 cell.onclick = null;
@@ -155,6 +154,7 @@ export default class TicTacToePage extends Component {
         // clean up the large board
         this.largeBoard = this.createlargeBoard();
         this.lastMove = null;
+        this.currentMove = "X";
         this.buildBoard(app);
         this.initializeBoard("enable");
     }
