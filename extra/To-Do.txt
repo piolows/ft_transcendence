@@ -14,8 +14,8 @@ Pierce:
 	- add a button to start the tournament
 
 Piolo:
-[ ] Add start and end overlay for both local and online games
 [ ] Make local games update user history
+
 [ ] Diagrams for the report
 
 
