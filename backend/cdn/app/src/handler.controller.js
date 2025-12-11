@@ -36,10 +36,15 @@ export default async function endpointHandler(fastify) {
 	// });
 
 	fastify.post('/upload-image', async (req, reply) => {
-	const file = await req.file();
-	if (!file)
-		return reply.send({ success: true, code: 400, error: 'No file uploaded' });
-	return reply.send({ success: true, filename });
+		try {
+			const file = await req.file();
+			if (!file)
+				return reply.send({ success: false, code: 400, error: 'No file uploaded' });
+			return reply.send({ success: true, filname: file.filename });
+		} catch (error) {
+			console.log(error);
+			return reply.send({ success: false, code: 500, error: error.text });
+		}
 	});
 
 	// fastify.get('/avatars/*', async (req, reply) => {
