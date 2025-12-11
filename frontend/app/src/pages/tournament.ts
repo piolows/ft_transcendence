@@ -2,34 +2,41 @@ import Component from "../scripts/router";
 import NavBar from "../components/nav_bar";
 
 export default class Tournament extends Component {
-    private navbar = new NavBar(this.router);
-    private players: string[] = [];
+	private navbar = new NavBar(this.router);
+	// private players = localStorage.getItem("players");
+	private players: Array<string> = [];
 
-    async load(app: HTMLDivElement | HTMLElement) {
-        await this.navbar.load(app);
-        // make a main container
-        const main_container = document.createElement("div");
-        main_container.className = "container mx-auto px-4 pixel-box h-full";
+	private matchMake() {
+		// this function will matchmake the players randomly
+		console.log(`testing ${this.players}`);
+	}
 
-        const title_container = document.createElement("div");
-        title_container.className = "py-16";
-        const title = document.createElement("h1");
-        title.className = "text-4xl font-bold text-center mb-12 retro-shadow";
-        title.innerText = "TOURNAMENTS";
-        title_container.appendChild(title);
+	async load(app: HTMLDivElement | HTMLElement) {
+		await this.navbar.load(app);
 
-        app.appendChild(title_container);
-        app.appendChild(main_container);
-        
-        // add an input box in the main container to enter player names. add a button to either submit or add a bot instead
-        const input_container = document.createElement("div");
+		
+	}
 
-    }
-    async init() {
-        await this.navbar.init();
-    }
+	async init() {
+		await this.navbar.init();
+		const params = new URLSearchParams(window.location.search);
+		if (!params.get("ongoing"))
+			await this.router.route_error(this.real_path, 404);
+		if (localStorage.getItem("ongoing") !== "true")
+			await this.router.route_error(this.real_path, 400, "Tournament was never created :(");
+		// match the players
+		const playersItem = localStorage.getItem("players");
+		if (playersItem !== null){
+			this.players = JSON.parse(playersItem);
+		}
+		this.matchMake();
+		// clear players at the end
+		// localStorage.removeItem("players");
+		// set the state to false
+		// localStorage.removeItem("ongoing");
+	}
 
-    unload(){
+	unload() {
 
-    }
+	}
 }
