@@ -68,10 +68,6 @@ const endpointHandler = (fastify, options, done) => {
 			let response = undefined;
 			const contentType = req.headers["content-type"] ?? "";
 			let body = undefined;
-			if (contentType.startsWith('multipart/form-data')) {
-				body = req.body;
-				console.log("JSH8er");
-			}
 			if (req.body && Object.keys(req.body).length > 0) {
 				if (contentType.includes("application/json")) {
 					body = JSON.stringify(req.body);
