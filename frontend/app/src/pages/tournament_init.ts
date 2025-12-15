@@ -80,6 +80,7 @@
 
 import Component from "../scripts/router";
 import NavBar from "../components/nav_bar";
+import { Tournament } from "./tournament";
 
 export default class CreateTournament extends Component {
     private navbar = new NavBar(this.router);
@@ -143,15 +144,14 @@ export default class CreateTournament extends Component {
                     this.players.push("bot");
                 } else this.players.push((player as HTMLInputElement).value);
             }
-            if (localStorage.getItem("ongoing") !== null && localStorage.getItem("ongoing") === "true") {
-                console.log("removing players from localStorage");
-                console.log("changing tournament ongoing status to false");
-                localStorage.removeItem("players");
-                localStorage.setItem("ongoing", "false");
+            if (localStorage.getItem("tournament") !== null) {
+                console.log("removing old tournament from localStorage");
+                localStorage.removeItem("touranment");
             }
-            localStorage.setItem("players", JSON.stringify(this.players));
-            localStorage.setItem("ongoing", "true");
-            this.router.route(`/tournaments?ongoing=true`);
+            console.log('playing ', players);
+            const tournament = new Tournament(this.players);
+            localStorage.setItem("tournament", JSON.stringify(tournament));
+            this.router.route(`/tournament`);
         };
     }
 
