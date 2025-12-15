@@ -90,7 +90,7 @@ const endpointHandler = (fastify, options, done) => {
 	});
 
 	fastify.post("/update", async (req, reply) => {
-		// try {
+		try {
 			if (!req.session || !req.session.user)
 				return reply.send({ success: false, code: 403, error: "Must be signed in" });
 			if (!req.body.email)
@@ -112,29 +112,30 @@ const endpointHandler = (fastify, options, done) => {
 			let newUrl = "";
 			if (req.file())
 			{
-				try {
-					const resp = await fetch(`${backend_url}/cdn/upload-image`, {
-						method: 'POST',
-						body: formData
-					});
-					if (!resp.ok) {
-						console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
-						return reply.send({ success: false, code: 500, error: "Unexpected error while trying to save uploaded file." });
-					}
-					const data = await resp.json();
-					if (!data) {
-						console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
-						return reply.send({ success: false, code: 500, error: "Unexpected error while trying to save uploaded file." });
-					}
-					if (!data.success) {
-						console.error(`Error while sending request: ${data.code} - ${data.error}`);
-						return reply.send(data);
-					}
-					newUrl = data.public_url;
-				} catch (error) {
-					console.error(error.message);
-					return reply.send({ success: false, code: 500, error: `Unexpected error while trying to save uploaded file: ${error.message}` });
-				}
+				reply.send({success: true});
+				// try {
+				// 	const resp = await fetch(`${backend_url}/cdn/upload-image`, {
+				// 		method: 'POST',
+				// 		body: formData
+				// 	});
+				// 	if (!resp.ok) {
+				// 		console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
+				// 		return reply.send({ success: false, code: 500, error: "Unexpected error while trying to save uploaded file." });
+				// 	}
+				// 	const data = await resp.json();
+				// 	if (!data) {
+				// 		console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
+				// 		return reply.send({ success: false, code: 500, error: "Unexpected error while trying to save uploaded file." });
+				// 	}
+				// 	if (!data.success) {
+				// 		console.error(`Error while sending request: ${data.code} - ${data.error}`);
+				// 		return reply.send(data);
+				// 	}
+				// 	newUrl = data.public_url;
+				// } catch (error) {
+				// 	console.error(error.message);
+				// 	return reply.send({ success: false, code: 500, error: `Unexpected error while trying to save uploaded file: ${error.message}` });
+				// }
 			}
 			const avatarURI = newUrl != "" ? newUrl : (req.body.avatarURL?.value && req.body.avatarURL?.value != "" ? await save_pfp(req.body.avatarURL?.value) : user['avatarURL']);
 			await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(username, req.body.email?.value, password, avatarURI, req.body.email?.value);
@@ -147,9 +148,9 @@ const endpointHandler = (fastify, options, done) => {
 				body: JSON.stringify(req.session.user)
 			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
-		// } catch (error) {
-		// 	return reply.send({ success: false, code: 500, error: error.message });
-		// }
+		} catch (error) {
+			return reply.send({ success: false, code: 500, error: error.message });
+		}
 	});
 
 	fastify.post("/google-login", googleLoginSchema, async (req, reply) => {
