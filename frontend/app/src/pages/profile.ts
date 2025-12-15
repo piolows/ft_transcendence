@@ -120,6 +120,7 @@ export default class Profile extends Component {
 				<div class="relative pixel-box bg-blue-900 p-8 w-96 text-white">
 					<h2 class="text-2xl font-pixelify mb-6 rainbow text-center">EDIT USERNAME</h2>
 					<form id="edit-username-form" class="space-y-6">
+						<input name="email" value="${this.router.login_info.email}" hidden />
 						<div>
 							<label class="block font-silkscreen mb-2">NEW USERNAME</label>
 							<input name="username" type="text" 
@@ -145,6 +146,7 @@ export default class Profile extends Component {
 				<div class="relative pixel-box bg-blue-900 p-8 w-96 text-white">
 					<h2 class="text-2xl font-pixelify mb-6 rainbow text-center">CHANGE PROFILE PICTURE</h2>
 					<form id="edit-avatar-form" class="space-y-6">
+						<input name="email" value="${this.router.login_info.email}" hidden />
 						<div>
 							<label class="block font-silkscreen mb-2">IMAGE URL</label>
 							<input name="avatarURL" type="url" 
@@ -175,6 +177,7 @@ export default class Profile extends Component {
 				<div class="relative pixel-box bg-blue-900 p-8 w-96 text-white">
 					<h2 class="text-2xl font-pixelify mb-6 rainbow text-center">CHANGE PASSWORD</h2>
 					<form id="change-password-form" class="space-y-6">
+						<input name="email" value="${this.router.login_info.email}" hidden />
 						<div>
 							<label class="block font-silkscreen mb-2">CURRENT PASSWORD</label>
 							<input name="currentPassword" type="password" 
@@ -303,8 +306,9 @@ export default class Profile extends Component {
 					console.log('key:', key, 'value:', value, 'isFile:', value instanceof File);
 				}
 				try {
-					const resp = await fetch(`${backend_url}/cdn/upload-image`, {
+					const resp = await fetch(`${backend_url}/auth/update`, {
 						method: 'POST',
+						credentials: "include",
 						body: formData
 					});
 					if (!resp.ok) {
@@ -319,7 +323,6 @@ export default class Profile extends Component {
 						console.error(`Error while sending request: ${data.code} - ${data.error}`);
 						return ;
 					}
-					const newUrl = data.public_url;
 				} catch (error: any) {
 					console.error(error.message);
 				}

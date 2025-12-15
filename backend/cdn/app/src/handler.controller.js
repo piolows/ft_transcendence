@@ -2,6 +2,7 @@ import path from "path";
 import { promises as fs } from "fs";
 import fetch from "node-fetch";
 import { randomUUID } from "crypto";
+import { pipeline } from "stream/promises";
 
 export function extType(contentType) {
 	let ext = ".png";
@@ -35,18 +36,6 @@ export default async function endpointHandler(fastify) {
 	// 	}
 	// });
 
-	fastify.post('/upload-image', async (req, reply) => {
-		try {
-			const file = await req.file();
-			if (!file)
-				return reply.send({ success: false, code: 400, error: 'No file uploaded' });
-			return reply.send({ success: true, filname: file.filename });
-		} catch (error) {
-			console.log(error);
-			return reply.send({ success: false, code: 500, error: error.text });
-		}
-	});
-
 	// fastify.get('/avatars/*', async (req, reply) => {
 	// 	const avatarFile = req.url.slice('/avatars/'.length);
 	// 	const CDN_ROOT = path.join(process.cwd(), 'public');
@@ -59,6 +48,26 @@ export default async function endpointHandler(fastify) {
 	// 	return reply.code(404).send({ error: 'Avatar not found' });
 	// 	}
 	// });
+
+	fastify.post('/upload-image', async (req, reply) => {
+		try {
+			const file = await req.file();
+			if (!file)
+				return reply.send({ success: false, code: 400, error: 'No file uploaded' });
+			const ext = extType(file.mimetype);
+			const filename = `${randomUUID().replace(/-/g, "").slice(0, 16)}${ext}`;
+			const avatarDir = path.join(process.cwd(), "public", "uploads", "avatars");
+			await pipeline(file.file, fs.createWriteStream(path.join(avatarDir, filename)));
+
+			const public_url = `/cdn/avatars/${filename}`;
+			fastify.log.info(`Saved avatar as ${public_url}`);
+
+			return reply.send({ success: true, filename, public_url });
+		} catch (error) {
+			console.log(error);
+			return reply.send({ success: false, code: 500, error: error.text });
+		}
+	});
 
 	fastify.post("/delete", async (req, reply) => {
 		const { file } = req.body;

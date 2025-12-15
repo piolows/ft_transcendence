@@ -54,13 +54,13 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	});
 
-	fastify.addContentTypeParser(
-		'multipart/form-data',
-		{ parseAs: 'buffer' },
-			(req, payload, done) => {
-			done(null, payload);
-		}
-	);
+	// fastify.addContentTypeParser(
+	// 	'multipart/form-data',
+	// 	{ parseAs: 'buffer' },
+	// 		(req, payload, done) => {
+	// 		done(null, payload);
+	// 	}
+	// );
 
 	fastify.all('/cdn/*', async (req, reply) => {
 		try {

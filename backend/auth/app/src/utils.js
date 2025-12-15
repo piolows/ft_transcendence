@@ -25,7 +25,7 @@ export function validate_registration(user, req, update = false) {
 	if (user && user['password'] != null && !update) {
 		return { success: false, code: 403, error: 'User already exists' };
 	}
-	if (req.body.username) {
+	if (req.body.username && req.body.user) {
 		if (req.body.username.length < 3) {
 			return { success: false, code: 400, error: 'Username too short: min 3' };
 		}
