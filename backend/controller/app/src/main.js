@@ -1,7 +1,7 @@
 import Fastify from "fastify";
 import formBody from '@fastify/formbody';
 import fastifyMultipart from '@fastify/multipart';
-import endpointHandler from "./handler.controller.js";
+// import endpointHandler from "./handler.controller.js";
 import fastifyCors from "@fastify/cors";
 import proxy from "@fastify/http-proxy";
 import 'dotenv/config';
@@ -16,16 +16,6 @@ async function startSever() {
 		}
 	});
 
-	// await fastify.register(formBody);
-
-	// await fastify.register(fastifyMultipart, {
-    // 	attachFieldsToBody: true,
-	// 	limits: {
-	// 		fileSize: 5 * 1024 * 1024,
-	// 		files: 1
-	// 	}
-	// });
-
 	// Enable CORS
 	await fastify.register(fastifyCors, {
 		origin: [process.env.FRONTEND_URL],
@@ -34,25 +24,20 @@ async function startSever() {
 		allowedHeaders: ['Content-Type', 'Authorization'],
 	});
 
-	fastify.register(proxy, {
-		upstream: process.env.AUTH_URL, // The URL of the backend to forward requests to
-		prefix: '/auth', // Only forward requests that start with /auth
-		// Other options can go here (e.g., http2 support, etc.)
+	await fastify.register(proxy, {
+		upstream: process.env.AUTH_URL,
+		prefix: '/auth',
 	});
 
-	fastify.register(proxy, {
-		upstream: process.env.USERS_URL, // The URL of the backend to forward requests to
-		prefix: '/users', // Only forward requests that start with /auth
-		// Other options can go here (e.g., http2 support, etc.)
+	await fastify.register(proxy, {
+		upstream: process.env.USERS_URL,
+		prefix: '/users',
 	});
 
-	fastify.register(proxy, {
-		upstream: process.env.CDN_URL, // The URL of the backend to forward requests to
-		prefix: '/cdn', // Only forward requests that start with /auth
-		// Other options can go here (e.g., http2 support, etc.)
+	await fastify.register(proxy, {
+		upstream: process.env.CDN_URL,
+		prefix: '/cdn',
 	});
-
-	// await fastify.register(endpointHandler);
 
 	fastify.listen({ port: process.env.PORT, host: '0.0.0.0' })
 		.catch(error => {
