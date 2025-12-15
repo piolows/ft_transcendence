@@ -23,10 +23,10 @@ export class Member {
 		this.uuid = shortUUID();
 	}
 
-	join(game) {
+	join(game, pref=null) {
 		if (this.game)
 			this.leave();
-		const ret = game.join(this);
+		let ret = game.join(this, pref);
 		if (ret == false)
 			this.is_left = false;
 		return ret;
@@ -121,6 +121,7 @@ class Setup {
 export class Game {
 	uuid;
 	setup;
+	game_name;
 	admin_info;
 	tournament_id;
 	winner = 0;
@@ -129,10 +130,12 @@ export class Game {
 	specs = {};			// username -> Member
 	all = {};			// username -> Member
 
-	constructor(admin_info, tournament_id = undefined) {
+	constructor(admin_info, game_name = "pong", tournament_id = undefined) {
 		this.uuid = shortUUID();
 		this.admin_info = admin_info;
-		this.setup = new Setup();
+		this.game_name = game_name;
+		if (game_name == "pong")
+			this.setup = new Setup();
 		this.tournament_id = tournament_id;
 	}
 
@@ -223,13 +226,15 @@ export class Game {
 			return this.player_join(member);
 	}
 
-	player_join(player) {
+	player_join(player, pref=null) {
 		if (this.players[player.user_info.username])
 			throw new Error("Player already in game");
-		if (this.player_count() == 2)
+		if (this.player_count() >= 2)
 			throw new Error("Max players in current game");
 		if (this.game_over)
 			throw new Error("Game already over");
+		if ((pref == "left" && this.lp_member) || (pref == "right" && this.rp_member))
+			throw new Error("Seat already taken");
 		player.is_player = true;
 		player.game = this;
 		delete this.specs[player.user_info.username];
@@ -477,6 +482,7 @@ export function repeated_updates(games) {
 }
 
 export function destroy_game(admins, games, id) {
+	console.log(`Destroyed room #${games[id].uuid}`);
 	for (const member of Object.values(games[id].all)) {
 		member.socket.send(JSON.stringify({ game_over: true, exit: true }));
 		member.game = null;

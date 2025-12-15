@@ -224,8 +224,9 @@ function drawBall(cv: HTMLCanvasElement, ball: Ball, delta: number)
 	ball.y += ball.yVel * delta;
 }
 
-export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Player | Bot, right_player: Player | Bot, p1_score: HTMLDivElement, p2_score: HTMLDivElement, timer: HTMLDivElement) {
+export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Player | Bot, right_player: Player | Bot, p1_score: HTMLDivElement, p2_score: HTMLDivElement, timer: HTMLDivElement, endOverlay?: (winner: string, p1Score: number, p2Score: number) => void) {
 	let animationId: number;
+	let game_over: boolean = false;
 	const left_paddle = left_player.paddle;
 	const right_paddle = right_player.paddle;
 	const mins = timer.children[0];
@@ -262,8 +263,51 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 	document.addEventListener('keydown', keyDownHandler, false);
 	document.addEventListener('keyup', keyUpHandler, false);
 
+	const end_game = () => {
+			game_over = true;
+            cancelAnimationFrame(animationId);
+            document.removeEventListener('keydown', keyDownHandler);
+            document.removeEventListener('keyup', keyUpHandler);
+        };
+
 	function draw(currentTime: number)
 	{
+		// GAME HAS ENDED PIOLO LOOK
+		if (time >= 300 || parseInt(p1_score.textContent) >= 1 || parseInt(p2_score.textContent) >= 1) {
+			end_game();
+			// check winner
+			const p1Final = parseInt(p1_score.textContent || '0');
+			const p2Final = parseInt(p2_score.textContent || '0');
+			let winner = 'draw';
+			if (p1Final > p2Final) {
+				winner = left_player.name;
+			} else if (p2Final > p1Final) {
+				winner = right_player.name;
+			}
+
+			if (endOverlay) {
+				endOverlay(winner, p1Final, p2Final);
+			}
+
+			// update history will implement idk when
+			// try {
+			// 	await fetch(`${process.env.USERS_URL}/users/${this.router._info.username}/history`, {
+			// 		method: "POST",
+			// 		body: {
+			// 			game: "pong",
+			// 			op_id: players[1].user_info.id,
+			// 			winner_id: this.winner == 0 ? -1 : (this.winner == -1 ? this.getPlayer('left') : this.getPlayer('right')),
+			// 			time: this.setup.time,
+			// 			p1_score: this.setup.p1_score,
+			// 			p2_score: this.setup.p2_score,
+			// 		}
+			// 	});
+			// } catch (error) {
+			// 	console.log(error);
+			// }
+			// return ;
+		}
+
 		const delta = (currentTime - lastTime) / 15;
 		lastTime = currentTime;
 		if (ball.starting === true)
@@ -314,15 +358,13 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 		drawPaddle(cv, left_paddle, delta);
 		drawPaddle(cv, right_paddle, delta);
 		drawBall(cv, ball, delta);
-		animationId = requestAnimationFrame(draw);
+		if (!game_over)
+			animationId = requestAnimationFrame(draw);
 	}
 
-	animationId = requestAnimationFrame(draw);
+	if (!game_over)
+		animationId = requestAnimationFrame(draw);
 
 	// Return a controller to stop the game
-    return () => {
-            cancelAnimationFrame(animationId);
-            document.removeEventListener('keydown', keyDownHandler);
-            document.removeEventListener('keyup', keyUpHandler);
-        };
+    return end_game;
 }

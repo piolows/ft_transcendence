@@ -54,10 +54,17 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	});
 
+	// fastify.addContentTypeParser(
+	// 	'multipart/form-data',
+	// 	{ parseAs: 'buffer' },
+	// 		(req, payload, done) => {
+	// 		done(null, payload);
+	// 	}
+	// );
+
 	fastify.all('/cdn/*', async (req, reply) => {
 		try {
 			const URL = `${process.env.CDN_URL}${req.url.substring(process.env.CDN_URL.endsWith('/') ? 1 : 0)}`;
-
 			let response = undefined;
 			const contentType = req.headers["content-type"] ?? "";
 			let body = undefined;

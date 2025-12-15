@@ -2,12 +2,14 @@ import Fastify from "fastify";
 import endpointHandler from "./handler.controller.js";
 import sqlite from './plugins/fastify-sqlite.js';
 import formBody from '@fastify/formbody';
+import fastifyMultipart from '@fastify/multipart';
 import fastifyCookie from "@fastify/cookie";
 import fastifySession from "@fastify/session";
 import createSqliteStore from "better-sqlite3-session-store";
 import Database from 'better-sqlite3';
 import 'dotenv/config';
 
+	
 async function startSever() {
 	const fastify = Fastify({
 		logger: true
@@ -35,6 +37,14 @@ async function startSever() {
 	});
 
 	await fastify.register(formBody);
+
+	await fastify.register(fastifyMultipart, {
+    	attachFieldsToBody: true,
+		limits: {
+			fileSize: 5 * 1024 * 1024,
+			files: 1
+		}
+	});
 
 	await fastify.register(endpointHandler);
 

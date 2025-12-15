@@ -6,9 +6,9 @@ import { hash, validate_registration, save_pfp } from './utils.js';
 const endpointHandler = (fastify, options, done) => {
 	fastify.get("/me", async (req, reply) => {
 		if (req.session && req.session.user) {
-			return reply.send({ loggedIn: true, user: req.session.user });
+			return reply.send({ success: true, loggedIn: true, user: req.session.user });
 		}
-		return reply.send({ loggedIn: false });
+		return reply.send({ success: true, loggedIn: false });
 	});
 
 	fastify.post("/login", loginSchema, async (req, reply) => {
@@ -90,28 +90,55 @@ const endpointHandler = (fastify, options, done) => {
 	});
 
 	fastify.post("/update", async (req, reply) => {
-		try {
+		// try {
 			if (!req.session || !req.session.user)
 				return reply.send({ success: false, code: 403, error: "Must be signed in" });
 			if (!req.body.email)
 				return reply.send({ success: false, code: 400, error: "Must include email in body" });
-			if (req.body.email != req.session.user.email)
+			if (req.body.email.value != req.session.user.email)
 				return reply.send({ success: false, code: 403, error: "Can only update own account" });
 
-			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
+			let user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE email=?`).get(req.body.email.value);
 			if (!user) {
 				return reply.send({ success: false, code: 404, error: "User not found" });
 			}
 
-			const valReg = validate_registration(user, req, true);
-			if (valReg)
-				return reply.send(valReg);
+			// const valReg = validate_registration(user, req, true);
+			// if (valReg)
+			// 	return reply.send(valReg);
 
-			const username = req.body.username ?? user['avatarURL'];
-			const password = req.body.password ?? user['avatarURL'];
-			const avatarURI = req.body.avatarURL && req.body.avatarURL != "" ? await save_pfp(req.body.avatarURL) : user['avatarURL'];
-			await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(username, req.body.email, password, avatarURI, req.body.email);
-			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
+			const username = req.body.username.value ?? user['username'];
+			const password = req.body.password.value ?? user['password'];
+			let newUrl = "";
+			if (req.file())
+			{
+				try {
+					const resp = await fetch(`${backend_url}/cdn/upload-image`, {
+						method: 'POST',
+						body: formData
+					});
+					if (!resp.ok) {
+						console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
+						return reply.send({ success: false, code: 500, error: "Unexpected error while trying to save uploaded file." });
+					}
+					const data = await resp.json();
+					if (!data) {
+						console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
+						return reply.send({ success: false, code: 500, error: "Unexpected error while trying to save uploaded file." });
+					}
+					if (!data.success) {
+						console.error(`Error while sending request: ${data.code} - ${data.error}`);
+						return reply.send(data);
+					}
+					newUrl = data.public_url;
+				} catch (error) {
+					console.error(error.message);
+					return reply.send({ success: false, code: 500, error: `Unexpected error while trying to save uploaded file: ${error.message}` });
+				}
+			}
+			const avatarURI = newUrl != "" ? newUrl : (req.body.avatarURL?.value && req.body.avatarURL?.value != "" ? await save_pfp(req.body.avatarURL?.value) : user['avatarURL']);
+			await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(username, req.body.email?.value, password, avatarURI, req.body.email?.value);
+			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email?.value);
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: avatarURI };
 			req.session.save();
 			fetch(process.env.USERS_URL + "/users", {
@@ -120,9 +147,9 @@ const endpointHandler = (fastify, options, done) => {
 				body: JSON.stringify(req.session.user)
 			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
-		} catch (error) {
-			return reply.send({ success: false, code: 500, error: error.message });
-		}
+		// } catch (error) {
+		// 	return reply.send({ success: false, code: 500, error: error.message });
+		// }
 	});
 
 	fastify.post("/google-login", googleLoginSchema, async (req, reply) => {

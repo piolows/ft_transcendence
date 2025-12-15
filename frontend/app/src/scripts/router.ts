@@ -232,10 +232,8 @@ export class Router {
 		.then(res => res.json())
 		.then(data => {
 			this.login_info = data.user;
-			if (history.length > 2)
-				history.back();
-			else
-				this.route(window.location.pathname, "replace");
+			this.start_presence_heartbeat();
+			this.route(window.location.pathname, "replace");
 		})
 		.catch(err => console.error("Error sending token to backend:", err));
 	}

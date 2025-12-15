@@ -3,7 +3,8 @@ import Component, { backend_url, backend_websocket, Router, sockets_url } from "
 import { Ball, Paddle, draw_frame } from "../scripts/server_game";
 
 export default class PongRoom extends Component {
-	private navbar = new NavBar(this.router);
+	// private navbar = new NavBar(this.router);
+	private preferance = "SPEC";
 	private game_id: string = "";
 	private game_over: boolean = false;
 	private socket: WebSocket | null = null;
@@ -29,7 +30,7 @@ export default class PongRoom extends Component {
 	constructor(router: Router) {
 		super(router);
 		this.back_url = "/pong/menu";
-		this.navbar.back_url = "/pong/menu";
+		// this.navbar.back_url = "/pong/menu";
 	}
 
 	async load(app: HTMLDivElement | HTMLElement) {
@@ -69,21 +70,29 @@ export default class PongRoom extends Component {
 			<!-- main area -->
 				<div class="flex-1 flex overflow-hidden">
 					<!-- left sidebar -->
-					<div class="w-72 bg-blue-900 border-r-2 border-blue-700 p-4 flex flex-col justify-between overflow-y-auto">
-						<div>
-							<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
-								<p class="text-xs font-pixelify text-gray-300 mb-2">CONTROLS</p>
-								<p class="text-xs text-white">W/S</p>
-								<p class="text-xs text-white">to move</p>
-							</div>
-							<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
-								<p class="text-xs font-pixelify text-gray-300 mb-2">ROOM CODE</p>
-								<p class="text-sm text-white font-bold">${ this.game_id }</p>
+					<div class="w-72 bg-blue-900 border-r-2 border-blue-700 p-4 flex flex-col justify-between overflow-hidden">
+						<div class="flex flex-col h-full justify-between">
+							<div>
+								<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
+									<p class="text-xs font-pixelify text-gray-300 mb-2">CONTROLS</p>
+									<p class="text-xs text-white">W/S</p>
+									<p class="text-xs text-white">to move</p>
+								</div>
+								<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
+									<p class="text-xs font-pixelify text-gray-300 mb-2">GAME STATUS</p>
+									<p id="result" class="text-white">WAITING</p>
+									<button id="startGame" class="text-white py-1 mt-2 mb-5 pixel-box font-pixelify ${this.router.login_info.id == this.admin.id || this.game_over ? 'bg-blue-500 hover:bg-blue-600 clicky' : 'bg-gray-500 hover:bg-gray-600'}" style="width: 120px;">START GAME</button>
+									<p class="text-xs text-white">${this.router.login_info.id == this.admin.id ? 'Bots will replace the empty seats' : `Only the admin can start the game`}</p>
+								</div>
+								<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
+									<p class="text-xs font-pixelify text-gray-300 mb-2">ROOM CODE</p>
+									<p class="text-sm text-white font-bold">${ this.game_id }</p>
+								</div>
 							</div>
 							<div class="pixel-box bg-blue-800 p-3 text-center">
 								<p class="text-xs font-pixelify text-gray-300 mb-2">CREATED BY</p>
-								<div class="flex flex-col items-center space-y-2">
-									<img src="${ backend_url + this.admin.avatarURL }" class="w-10 h-10 rounded-full pixel-box" alt="Admin">
+								<div class="flex flex-row justify-center items-center space-y-2">
+									<img src="${ backend_url + this.admin.avatarURL }" class="w-10 h-10 rounded-full pixel-box mr-3" alt="Admin">
 									<p class="text-xs text-white">${ this.admin.username }</p>
 								</div>
 							</div>
@@ -96,24 +105,20 @@ export default class PongRoom extends Component {
 					</div>
 
 					<!-- right sidebar -->
-					<div class="w-72 bg-blue-900 border-l-2 border-blue-700 p-4 flex flex-col justify-between overflow-y-auto">
-						<div>
-							<a href="/pong/menu" router-link>
-							<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
-								<p class="text-xs font-pixelify text-gray-300 mb-2">GAME MODE</p>
-								<p class="text-white">ONLINE</p>
-							</div>
-							</a>
+					<div class="w-72 bg-blue-900 border-l-2 border-blue-700 p-4 flex flex-col justify-between overflow-hidden">
+						<div id="playersInfo" class="flex flex-col">
 							<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
 								<p class="text-xs font-pixelify text-gray-300 mb-2">SPECTATORS</p>
 								<p id="spectators" class="text-white text-lg font-bold">0</p>
 							</div>
-							<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
-								<p class="text-xs font-pixelify text-gray-300 mb-2">GAME STATUS</p>
-								<p id="result" class="text-white">WAITING</p>
-							</div>
 						</div>
-						<div id="playersInfo" class="space-y-4">
+						<div>
+							<a href="/pong/menu" router-link>
+							<div class="pixel-box bg-blue-800 p-3 text-center">
+								<p class="text-xs font-pixelify text-gray-300 mb-2">GAME MODE</p>
+								<p class="text-white">ONLINE</p>
+							</div>
+							</a>
 						</div>
 					</div>
 				</div>
@@ -132,7 +137,7 @@ export default class PongRoom extends Component {
 		if (room.length >= 1 && room[0] == "/")
 			room = room.substring(1);
 		if (room.indexOf("?") != -1)
-			room = room.substring(0, room.indexOf("?"));
+			[room, this.preferance] = room.split("?");
 		const slash_at = room.indexOf("/");
 		if ((slash_at != -1 && slash_at != room.length - 1) || room.length <= 1) {
 			await this.router.route_error(this.real_path, 404);
@@ -185,7 +190,12 @@ export default class PongRoom extends Component {
 		this.socket = new WebSocket(backend_websocket + "/pong");
 		this.socket.onopen = () => {
 			this.setupElements();
-			this.socket?.send(JSON.stringify({game_id: this.game_id, action: "JOIN", param: "SPEC"}));
+			if (this.preferance == "SPEC" || this.preferance == "EITHER")
+				this.socket?.send(JSON.stringify({game_id: this.game_id, action: "JOIN", param: this.preferance}));
+			else if (this.preferance == "PLAY")
+				this.socket?.send(JSON.stringify({game_id: this.game_id, action: "PLAY"}));
+			else
+				this.socket?.send(JSON.stringify({game_id: this.game_id, action: "JOIN", param: "SPEC"}));
 		};
 		this.socket.onmessage = (message) => {
 			try {
@@ -246,7 +256,7 @@ export default class PongRoom extends Component {
 	}
 
 	async init() {
-		this.navbar.init();
+		// this.navbar.init();
 		// back button
 		const backbtn = document.getElementById('back_btn')!;
 		backbtn.onclick = () => {
@@ -271,7 +281,7 @@ export default class PongRoom extends Component {
 							</div>
 						</div>
 					</a>
-					<button id="logout-button" class="pixel-box bg-red-600 px-4 py-2 text-white hover:bg-red-700 transition-colors clicky">
+					<button id="logout-button" class="pixel-box bg-red-600 px-4 py-2 text-white hover:bg-red-700 transition-colors clicky glitch">
 						LOGOUT
 					</button>
 				</div>
