@@ -162,6 +162,7 @@ export default class Pong extends Component {
 		const paddle_width = 20;
 		const params = new URLSearchParams(window.location.search);
 		const op = params.get("op");
+		const isTournament = params.get("tournament");
 		const difficulty = parseInt(params.get("difficulty") ?? "1");
 		
 		// const gamemodeLabel = document.getElementById('gamemode')!;
@@ -189,8 +190,20 @@ export default class Pong extends Component {
 		const ball = new Ball(cv.width / 2, cv.height / 2, ball_speed, ball_radius, 'white');
 		const left_paddle = new Paddle(paddle_height, paddle_width, paddle_width, (cv.height - paddle_height) / 2, paddle_speed, 'orange');
 		const right_paddle = new Paddle(paddle_height, paddle_width, cv.width - (paddle_width * 2), (cv.height - paddle_height) / 2, paddle_speed, 'red');
-		const player1 = new Player("Player 1", left_paddle);
-		const player2 = (op == "bot") ? new Bot("AI Bot", right_paddle, cv, difficulty) : new Player("Player 2", right_paddle);
+		if (isTournament !== null && isTournament === "true") {
+			const tournament_string = localStorage.getItem("tournament");
+			if (tournament_string === null) {
+				alert("No tournament found. Redirecting to menu.");
+				this.router.route("/pong/menu");
+				return;
+			}
+			// const tournament = 
+			const player1 = new Player("Player 1", left_paddle);
+			const player2 = (op == "bot") ? new Bot("AI Bot", right_paddle, cv, difficulty) : new Player("Player 2", right_paddle);
+		} else {
+			const player1 = new Player("Player 1", left_paddle);
+			const player2 = (op == "bot") ? new Bot("AI Bot", right_paddle, cv, difficulty) : new Player("Player 2", right_paddle);
+		}
 
 		// overlay
 		const overlay = document.getElementById('game-overlay')!;

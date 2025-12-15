@@ -292,6 +292,7 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 			}
 
 			// update history will implement idk when
+			// if (localStorage.getItem("tournament") === null && )
 			try {
 				fetch(`${backend_url}/users/${router.login_info.username}/history`, {
 					method: "POST",
