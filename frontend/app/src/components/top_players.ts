@@ -29,7 +29,7 @@ export default class TopPlayers extends Component {
 		try {
 			const response = await fetch(`${backend_url}/users/top`);
 			if (!response.ok) {
-				console.error(response.status, response.text);
+				console.error(response.status, response.text());
 				return ;
 			}
 			const data = await response.json();

@@ -12,9 +12,16 @@ async function startSever() {
 		bodyLimit: 10 * 1024 * 1024,
 	});
 
+	// await fastify.register(fastifyCors, {
+	// 	origin: process.env.FRONTEND_URL,
+	// 	credentials: true
+	// });
+
 	await fastify.register(fastifyCors, {
-		origin: process.env.FRONTEND_URL,
-		credentials: true
+		origin: [process.env.FRONTEND_URL],
+		credentials: true,
+		methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+		allowedHeaders: ['Content-Type', 'Authorization'],
 	});
 
 	await fastify.register(fastifyMultipart, {
@@ -32,7 +39,7 @@ async function startSever() {
 		maxAge: '1d',
 	});
 
-	await fastify.register(endpointHandler, { prefix: '/cdn' });
+	await fastify.register(endpointHandler);
 
 	fastify.listen({ port: process.env.PORT, host: '0.0.0.0' })
 		.catch(error => {

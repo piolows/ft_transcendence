@@ -4,6 +4,7 @@ import sqlite from './plugins/fastify-sqlite.js';
 import formBody from '@fastify/formbody';
 import fastifyMultipart from '@fastify/multipart';
 import fastifyCookie from "@fastify/cookie";
+import fastifyCors from '@fastify/cors';
 import fastifySession from "@fastify/session";
 import createSqliteStore from "better-sqlite3-session-store";
 import Database from 'better-sqlite3';
@@ -34,6 +35,13 @@ async function startSever() {
 
 	await fastify.register(sqlite, {
 		dbFile: process.env.DB_FILE
+	});
+
+	await fastify.register(fastifyCors, {
+		origin: [process.env.FRONTEND_URL],
+		credentials: true,
+		methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+		allowedHeaders: ['Content-Type', 'Authorization'],
 	});
 
 	await fastify.register(formBody);

@@ -98,7 +98,7 @@ const endpointHandler = (fastify, options, done) => {
 			if (req.body.email.value != req.session.user.email)
 				return reply.send({ success: false, code: 403, error: "Can only update own account" });
 
-			let user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE email=?`).get(req.body.email.value);
+			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_URL} WHERE email=?`).get(req.body.email.value);
 			if (!user) {
 				return reply.send({ success: false, code: 404, error: "User not found" });
 			}

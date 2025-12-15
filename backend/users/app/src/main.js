@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import endpointHandler from "./handler.controller.js";
 import sqlite from './plugins/fastify-sqlite.js';
+import fastifyCors from '@fastify/cors';
 import 'dotenv/config';
 
 async function startSever() {
@@ -12,7 +13,14 @@ async function startSever() {
 		dbFile: process.env.DB_FILE,
 	});
 
-	await fastify.register(endpointHandler, { prefix: "/users" });
+	await fastify.register(fastifyCors, {
+		origin: [process.env.FRONTEND_URL],
+		credentials: true,
+		methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+		allowedHeaders: ['Content-Type', 'Authorization'],
+	});
+
+	await fastify.register(endpointHandler);
 
 	fastify.listen({ port: process.env.PORT, host: '0.0.0.0' })
 		.catch(error => {
