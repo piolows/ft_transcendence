@@ -34,7 +34,6 @@ async function startSever() {
 
 	await fastify.register(fastifyStatic, {
 		root: path.join(process.cwd(), 'public', 'uploads'),
-		prefix: '/cdn/',
 		cacheControl: true,
 		maxAge: '1d',
 	});

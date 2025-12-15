@@ -65,7 +65,7 @@ export function validate_registration(user, req, update = false) {
 export async function save_pfp(url) {
 	let avatarURI = "/cdn/avatars/kermit.webp";
 	try {
-		const res = await fetch(`${ process.env.CDN_URL }/cdn/avatars`, {
+		const res = await fetch(`${ process.env.CDN_URL }/avatars`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify( { url } )

@@ -32,7 +32,7 @@ const endpointHandler = (fastify, options, done) => {
 			}
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: user['avatarURL'] };
 			req.session.save();
-			fetch(process.env.USERS_URL + "/users", {
+			fetch(process.env.USERS_URL, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(req.session.user)
@@ -67,7 +67,7 @@ const endpointHandler = (fastify, options, done) => {
 			else
 				await fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username, email, password, avatarURL) VALUES (?, ?, ?, ?)`).run(req.body.username, req.body.email, password, avatarURI);
 			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
-			await fetch(`${process.env.USERS_URL}/users`, {
+			await fetch(`${process.env.USERS_URL}`, {
 				method: "POST",
 				body: {
 					id: user['id'],
@@ -78,7 +78,7 @@ const endpointHandler = (fastify, options, done) => {
 			});
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: avatarURI };
 			req.session.save();
-			fetch(process.env.USERS_URL + "/users", {
+			fetch(process.env.USERS_URL, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(req.session.user)
@@ -97,8 +97,7 @@ const endpointHandler = (fastify, options, done) => {
 				return reply.send({ success: false, code: 400, error: "Must include email in body" });
 			if (req.body.email.value != req.session.user.email)
 				return reply.send({ success: false, code: 403, error: "Can only update own account" });
-
-			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_URL} WHERE email=?`).get(req.body.email.value);
+			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email.value);
 			if (!user) {
 				return reply.send({ success: false, code: 404, error: "User not found" });
 			}
@@ -107,42 +106,42 @@ const endpointHandler = (fastify, options, done) => {
 			// if (valReg)
 			// 	return reply.send(valReg);
 
-			const username = req.body.username.value ?? user['username'];
-			const password = req.body.password.value ?? user['password'];
+			const username = req.body.username?.value ?? user['username'];
+			const password = req.body.password?.value ?? user['password'];
 			let newUrl = "";
 			if (req.file())
 			{
-				reply.send({success: true});
-				// try {
-				// 	const resp = await fetch(`${backend_url}/cdn/upload-image`, {
-				// 		method: 'POST',
-				// 		body: formData
-				// 	});
-				// 	if (!resp.ok) {
-				// 		console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
-				// 		return reply.send({ success: false, code: 500, error: "Unexpected error while trying to save uploaded file." });
-				// 	}
-				// 	const data = await resp.json();
-				// 	if (!data) {
-				// 		console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
-				// 		return reply.send({ success: false, code: 500, error: "Unexpected error while trying to save uploaded file." });
-				// 	}
-				// 	if (!data.success) {
-				// 		console.error(`Error while sending request: ${data.code} - ${data.error}`);
-				// 		return reply.send(data);
-				// 	}
-				// 	newUrl = data.public_url;
-				// } catch (error) {
-				// 	console.error(error.message);
-				// 	return reply.send({ success: false, code: 500, error: `Unexpected error while trying to save uploaded file: ${error.message}` });
-				// }
+				// reply.send({success: true});
+				try {
+					const resp = await fetch(`${process.env.CDN_URL}/upload-image`, {
+						method: 'POST',
+						body: req.body
+					});
+					if (!resp.ok) {
+						console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
+						return reply.send({ success: false, code: 500, error: "Unexpected error while trying to save uploaded file." });
+					}
+					const data = await resp.json();
+					if (!data) {
+						console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
+						return reply.send({ success: false, code: 500, error: "Unexpected error while trying to save uploaded file." });
+					}
+					if (!data.success) {
+						console.error(`Error while sending request: ${data.code} - ${data.error}`);
+						return reply.send(data);
+					}
+					newUrl = data.public_url;
+				} catch (error) {
+					console.error(error.message);
+					return reply.send({ success: false, code: 500, error: `Unexpected error while trying to save uploaded file: ${error.text()}` });
+				}
 			}
 			const avatarURI = newUrl != "" ? newUrl : (req.body.avatarURL?.value && req.body.avatarURL?.value != "" ? await save_pfp(req.body.avatarURL?.value) : user['avatarURL']);
 			await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(username, req.body.email?.value, password, avatarURI, req.body.email?.value);
 			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email?.value);
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: avatarURI };
 			req.session.save();
-			fetch(process.env.USERS_URL + "/users", {
+			fetch(process.env.USERS_URL, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(req.session.user)
@@ -181,7 +180,7 @@ const endpointHandler = (fastify, options, done) => {
 
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: user['avatarURL'] };
 			req.session.save();
-			fetch(process.env.USERS_URL + "/users", {
+			fetch(process.env.USERS_URL, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(req.session.user)

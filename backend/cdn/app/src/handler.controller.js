@@ -21,7 +21,7 @@ export function extType(contentType) {
 }
 
 export default async function endpointHandler(fastify) {
-  // if /cdn/new is called, create a new folder within the public folder using the body parameter "folder"
+  // if /new is called, create a new folder within the public folder using the body parameter "folder"
 	// fastify.post("/new", async (req, reply) => {
 	// 	const { folder } = req.body;
 	// 	if (!folder)

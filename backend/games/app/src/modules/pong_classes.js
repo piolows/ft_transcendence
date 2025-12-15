@@ -172,7 +172,7 @@ export class Game {
 		if (players.length > 1) {
 			if (this.setup.game_over) {
 				try {
-					await fetch(`${process.env.USERS_URL}/users/${players[0].user_info.username}/history`, {
+					await fetch(`${process.env.USERS_URL}/${players[0].user_info.username}/history`, {
 						method: "POST",
 						body: {
 							game: "pong",
