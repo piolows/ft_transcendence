@@ -210,7 +210,7 @@ export default class Pong extends Component {
 		// start game button
 		overlayButton.onclick = () => {
 			overlay.style.display = 'none';
-			this.end_game = start_game(cv, ball, player1, player2, p1_score, p2_score, timer, endOverlay);
+			this.end_game = start_game(cv, ball, player1, player2, p1_score, p2_score, timer, this.router, endOverlay);
 		};
 	}
 

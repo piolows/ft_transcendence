@@ -1,3 +1,5 @@
+import { backend_url, Router } from "./router";
+
 export class Ball
 {
 	x: number;
@@ -224,7 +226,7 @@ function drawBall(cv: HTMLCanvasElement, ball: Ball, delta: number)
 	ball.y += ball.yVel * delta;
 }
 
-export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Player | Bot, right_player: Player | Bot, p1_score: HTMLDivElement, p2_score: HTMLDivElement, timer: HTMLDivElement, endOverlay?: (winner: string, p1Score: number, p2Score: number) => void) {
+export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Player | Bot, right_player: Player | Bot, p1_score: HTMLDivElement, p2_score: HTMLDivElement, timer: HTMLDivElement, router: Router, endOverlay?: (winner: string, p1Score: number, p2Score: number) => void) {
 	let animationId: number;
 	let game_over: boolean = false;
 	const left_paddle = left_player.paddle;
@@ -290,22 +292,22 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 			}
 
 			// update history will implement idk when
-			// try {
-			// 	await fetch(`${process.env.USERS_URL}/users/${this.router._info.username}/history`, {
-			// 		method: "POST",
-			// 		body: {
-			// 			game: "pong",
-			// 			op_id: players[1].user_info.id,
-			// 			winner_id: this.winner == 0 ? -1 : (this.winner == -1 ? this.getPlayer('left') : this.getPlayer('right')),
-			// 			time: this.setup.time,
-			// 			p1_score: this.setup.p1_score,
-			// 			p2_score: this.setup.p2_score,
-			// 		}
-			// 	});
-			// } catch (error) {
-			// 	console.log(error);
-			// }
-			// return ;
+			try {
+				fetch(`${backend_url}/users/${router.login_info.username}/history`, {
+					method: "POST",
+					body: JSON.stringify ({
+						game: "pong",
+						op_id: router.login_info.id,
+						winner_id: -1,
+						time: time,
+						p1_score: p1Final,
+						p2_score: p2Final,
+					}),
+				});
+			} catch (error) {
+				console.log(error);
+			}
+			return ;
 		}
 
 		const delta = (currentTime - lastTime) / 15;
