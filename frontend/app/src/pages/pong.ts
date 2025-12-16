@@ -1,7 +1,7 @@
 import Component, { Router, backend_url, sockets_url } from "../scripts/router";
 import { Player, Ball, Bot, Paddle, start_game } from "../scripts/game";
 import NavBar from "../components/nav_bar";
-
+import { Tournament } from "./tournament";
 export default class Pong extends Component {
 	private end_game: () => void = () => {};
 	private navbar = new NavBar(this.router);
@@ -170,8 +170,8 @@ export default class Pong extends Component {
 		const rcontrols = document.getElementById('right-controls')!;
 		const diffbox = document.getElementById('difficulty-box')!;
 		const difftext = document.getElementById('difficulty')!;
+		const difficultyNames = ["EASY", "HARD", "EXTREME"];
 		if (op === "bot") {
-			const difficultyNames = ["EASY", "HARD", "EXTREME"];
 			modeDisplay.textContent = 'VS BOT';
 			difftext.textContent = difficultyNames[difficulty];
 			diffbox.style.display = 'block';
@@ -190,6 +190,9 @@ export default class Pong extends Component {
 		const ball = new Ball(cv.width / 2, cv.height / 2, ball_speed, ball_radius, 'white');
 		const left_paddle = new Paddle(paddle_height, paddle_width, paddle_width, (cv.height - paddle_height) / 2, paddle_speed, 'orange');
 		const right_paddle = new Paddle(paddle_height, paddle_width, cv.width - (paddle_width * 2), (cv.height - paddle_height) / 2, paddle_speed, 'red');
+		let player1 = null;
+		let player2 = null;
+		let tournament: Tournament | null = null;
 		if (isTournament !== null && isTournament === "true") {
 			const tournament_string = localStorage.getItem("tournament");
 			if (tournament_string === null) {
@@ -197,12 +200,18 @@ export default class Pong extends Component {
 				this.router.route("/pong/menu");
 				return;
 			}
-			// const tournament = 
-			const player1 = new Player("Player 1", left_paddle);
-			const player2 = (op == "bot") ? new Bot("AI Bot", right_paddle, cv, difficulty) : new Player("Player 2", right_paddle);
+			// get the palyer values of the matchup
+			tournament = Tournament.loadFromLocalStorage();
+			const currentMatch = tournament?.currentMatch;
+			const diff = Math.random() < 0.5 ? 1 : 2; // randomize bot difficulty if bot is playing
+			// player1 = new Player(currentMatch?.player1, left_paddle);
+			console.log(Math.floor(Math.random() * difficultyNames.length));
+			console.log(Math.floor(Math.random() * difficultyNames.length));
+			player1 = currentMatch?.player1 == "bot" ? new Bot("AI Bot", left_paddle, cv, Math.floor(Math.random() * difficultyNames.length)) : new Player(currentMatch?.player1!, left_paddle);
+			player2 = currentMatch?.player2 == "bot" ? new Bot("AI Bot", right_paddle, cv, Math.floor(Math.random() * difficultyNames.length)) : new Player(currentMatch?.player2!, right_paddle);
 		} else {
-			const player1 = new Player("Player 1", left_paddle);
-			const player2 = (op == "bot") ? new Bot("AI Bot", right_paddle, cv, difficulty) : new Player("Player 2", right_paddle);
+			player1 = new Player("Player 1", left_paddle);
+			player2 = (op == "bot") ? new Bot("AI Bot", right_paddle, cv, difficulty) : new Player("Player 2", right_paddle);
 		}
 
 		// overlay
@@ -212,12 +221,23 @@ export default class Pong extends Component {
 		const overlayButton = document.getElementById('overlay-button')!;
 
 		// game end callback
-		const endOverlay = (winner: string, p1Score: number, p2Score: number) => {
+		const endOverlay = isTournament !== "true" ? (winner: string, p1Score: number, p2Score: number) => {
 			overlay.style.display = 'flex';
 			overlayTitle.textContent = winner === 'draw' ? 'DRAW!' : `${winner} WINS!`;
 			overlayMessage.textContent = `Final Score: ${p1Score} - ${p2Score}`;
 			overlayButton.textContent = 'REMATCH';
 			overlayButton.onclick = () => window.location.reload();
+		} : (winner: string, p1Score: number, p2Score: number) => {
+			overlay.style.display = 'flex';
+			overlayTitle.textContent = winner === 'draw' ? 'DRAW!' : `${winner} WINS!`;
+			overlayMessage.textContent = `Final Score: ${p1Score} - ${p2Score}`;
+			overlayButton.textContent = 'BACK TO TOURNAMENTS';
+			overlayButton.onclick = () => {
+				// tournament.reportMatchResult(player1!.name, player2!.name, winner === 'draw' ? null : winner);
+				console.log(`player1: ${player1}, player2: ${player2}, winner: ${winner}`);
+				tournament?.recordMatch(player1!.name, player2!.name, winner === 'draw' ? "none" : (winner === "AI Bot" ? "bot" : winner));
+				this.router.route("/tournament");
+			};
 		};
 
 		// start game button

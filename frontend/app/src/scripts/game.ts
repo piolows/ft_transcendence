@@ -70,6 +70,8 @@ export class Bot extends Player {
 	private cv: HTMLCanvasElement;
 	private difficulty: number;
 	private dest_y: number;
+	private hitOffset: number = 0;
+	private lastBallDirection: number = 0;
 	type = "bot";
 
 	constructor(name: string, paddle: Paddle, cv: HTMLCanvasElement, difficulty: number) {
@@ -79,22 +81,66 @@ export class Bot extends Player {
 		this.difficulty = difficulty;
 	}
 
-	update(ball_x: number, ball_y: number, ball_xVel: number, ball_yVel: number, moving: boolean) {
+	// update(ball_x: number, ball_y: number, ball_xVel: number, ball_yVel: number, moving: boolean) {
+	// 	if (!moving) {
+	// 		this.dest_y = this.cv.height / 2;
+	// 		return;
+	// 	}
+	// 	const modifier = 2 - this.difficulty;
+	// 	const variation = modifier * (Math.random()) * (0.05 * this.cv.height)
+	// 		* (Math.random() > 0.5 ? -1 : 1) * (Math.random() < (0.4 * modifier) ? 1 : 0);
+	// 	const intersect = ball_xVel > 0 ? this.cv.width : -this.cv.width;
+	// 	const steps = Math.abs(intersect - ball_x) / ball_xVel;
+	// 	const dest = Math.abs(ball_y + ball_yVel * steps);
+	// 	const reflects = Math.floor(dest / this.cv.height);
+	// 	if (reflects % 2 == 0 && ball_xVel > 0)
+	// 		this.dest_y = (dest % this.cv.height) + variation;
+	// 	else
+	// 		this.dest_y = this.cv.height * (reflects + 1) - (dest % this.cv.height) + variation;
+	// }
+
+	update(ball_x: number, ball_y: number, ball_xVel: number, ball_yVel: number, moving: boolean, paddleSide: 'left' | 'right') {
 		if (!moving) {
 			this.dest_y = this.cv.height / 2;
 			return;
 		}
+
+		if (Math.sign(ball_xVel) !== this.lastBallDirection) {
+            this.lastBallDirection = Math.sign(ball_xVel);
+            // Randomize which part of paddle to hit with
+            // Range: -0.4 to 0.4 (negative = top of paddle, positive = bottom)
+            this.hitOffset = (Math.random() - 0.5) * 0.8;
+        }
+
 		const modifier = 2 - this.difficulty;
 		const variation = modifier * (Math.random()) * (0.05 * this.cv.height)
 			* (Math.random() > 0.5 ? -1 : 1) * (Math.random() < (0.4 * modifier) ? 1 : 0);
-		const intersect = ball_xVel > 0 ? this.cv.width : -this.cv.width;
-		const steps = Math.abs(intersect - ball_x) / ball_xVel;
+		
+		// Calculate intersection based on which paddle this is
+		const intersect = paddleSide === 'right' ? this.cv.width : 0;
+		
+		// Only calculate if ball is heading toward this paddle
+		const ballHeadingTowardsPaddle = (paddleSide === 'right' && ball_xVel > 0) || 
+										(paddleSide === 'left' && ball_xVel < 0);
+		
+		if (!ballHeadingTowardsPaddle) {
+			// Ball going away - return to center or track loosely
+			this.dest_y = this.cv.height / 2;
+			return;
+		}
+		
+		const steps = Math.abs(intersect - ball_x) / Math.abs(ball_xVel);
 		const dest = Math.abs(ball_y + ball_yVel * steps);
 		const reflects = Math.floor(dest / this.cv.height);
-		if (reflects % 2 == 0 && ball_xVel > 0)
-			this.dest_y = (dest % this.cv.height) + variation;
-		else
-			this.dest_y = this.cv.height * (reflects + 1) - (dest % this.cv.height) + variation;
+		
+		let targetY;
+		if (reflects % 2 == 0)
+            targetY = (dest % this.cv.height) + variation;
+        else
+            targetY = this.cv.height * (reflects + 1) - (dest % this.cv.height) + variation;
+        
+        // Apply the hit offset (multiply by paddle height to get pixel offset)
+        this.dest_y = targetY + (this.hitOffset * this.paddle.height);
 	}
 
 	play() {
@@ -174,7 +220,7 @@ function hit_paddle(paddle: Paddle, ball: Ball, is_left: boolean = false)
 			const angle = normal_intersect * (Math.PI / 4);
 			ball.xVel = ball.speed * Math.cos(angle);
 			ball.yVel = ball.speed * Math.sin(angle);
-			// ball.speed *= 1.05;
+			if (ball.speed < 15) ball.speed *= 1.05;	// use 15 as the cap for the ball speed
 			if (!is_left)
 				ball.xVel *= -1;
 		}
@@ -244,9 +290,9 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 			right_paddle.up = true;
 		else if (event.key == 'ArrowDown' && right_player.type != "bot")
 			right_paddle.down = true;
-		if (event.key == 'w' || event.key == 'W')
+		if (event.key == 'w' || event.key == 'W' && left_player.type !== "bot")
 			left_paddle.up = true;
-		else if (event.key == 's' || event.key == 'S')
+		else if (event.key == 's' || event.key == 'S' && left_player.type !== "bot")
 			left_paddle.down = true;
 	}
 
@@ -256,9 +302,9 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 			right_paddle.up = false;
 		else if (event.key == 'ArrowDown' && right_player.type != "bot")
 			right_paddle.down = false;
-		if (event.key == 'w' || event.key == 'W')
+		if (event.key == 'w' || event.key == 'W' && left_player.type !== "bot")
 			left_paddle.up = false;
-		if (event.key == 's' || event.key == 'S')
+		if (event.key == 's' || event.key == 'S' && left_player.type !== "bot")
 			left_paddle.down = false;
 	}
 
@@ -293,22 +339,29 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 
 			// update history will implement idk when
 			// if (localStorage.getItem("tournament") === null && )
-			try {
-				fetch(`${backend_url}/users/${router.login_info.username}/history`, {
-					method: "POST",
-					body: JSON.stringify ({
-						game: "pong",
-						op_id: router.login_info.id,
-						winner_id: -1,
-						time: time,
-						p1_score: p1Final,
-						p2_score: p2Final,
-					}),
-				});
-			} catch (error) {
-				console.log(error);
+			const params = new URLSearchParams(window.location.search);
+			const tournament = params.get("tournament");
+			if (!(localStorage.getItem("tournament") !== null && tournament !== null && tournament == "true")) {
+				console.log("updating history becuase game is not a tournament game");
+				try {
+					fetch(`${backend_url}/users/${router.login_info.username}/history`, {
+						method: "POST",
+						body: JSON.stringify ({
+							game: "pong",
+							op_id: router.login_info.id,
+							winner_id: -1,
+							time: time,
+							p1_score: p1Final,
+							p2_score: p2Final,
+						}),
+					});
+				} catch (error) {
+					console.log(error);
+				}
+				return ;
+			} else {
+				console.log("not updating history because game is a tournament game");
 			}
-			return ;
 		}
 
 		const delta = (currentTime - lastTime) / 15;
@@ -353,9 +406,13 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 		if (currentTime - lastSecondBot >= 1000)
 		{
 			lastSecondBot = currentTime;
+			if (left_player.type == "bot")
+				(left_player as Bot)?.update(ball.x, ball.y, ball.xVel, ball.yVel, ball.moving, "left");
 			if (right_player.type == "bot")
-				(right_player as Bot)?.update(ball.x, ball.y, ball.xVel, ball.yVel, ball.moving);
+				(right_player as Bot)?.update(ball.x, ball.y, ball.xVel, ball.yVel, ball.moving, "right");
 		}
+		if (left_player.type == "bot")
+			(left_player as Bot)?.play();
 		if (right_player.type == "bot")
 			(right_player as Bot)?.play();
 		drawPaddle(cv, left_paddle, delta);

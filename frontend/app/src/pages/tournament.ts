@@ -35,8 +35,12 @@ export class Tournament {
 		return this.matches_;
 	}
 
-	public get currentMatch() {
+	public get currentMatch(): Match {
 		return this.matches_[this.currentMatchIndex_];
+	}
+
+	public get currentRound() {
+		return this.round_;
 	}
 
 	// Save tournament state to local storage
@@ -70,6 +74,59 @@ export class Tournament {
 		}
 	}
 
+	private advanceToNextRound(): void {
+		const currentRoundMatches = this.matches_.filter(m => m.round === this.round_);
+		const winners = currentRoundMatches.map(m => m.winner as string);
+
+		// Check if tournament is complete
+		if (winners.length === 1) {
+			this.status_ = "completed";
+			this.saveToLocalStorage();
+			return;
+		}
+
+		// Create next round matches
+		this.round_++;
+		const nextRoundStartId = this.matches_.length;
+		
+		for (let i = 0; i < winners.length / 2; i++) {
+			this.matches_.push({
+				id: nextRoundStartId + i,
+				round: this.round_,
+				player1: winners[i * 2],
+				player2: winners[i * 2 + 1],
+				winner: null
+			});
+		}
+		this.saveToLocalStorage();
+	}
+
+	public recordMatch(player1: string, player2: string, winner: string) {
+		const match = this.currentMatch;
+		console.log(match);
+		if (!match) {
+			throw new Error("No current match to record winner for");
+		}
+
+		if (winner !== match.player1 && winner !== match.player2) {
+			throw new Error("Winner must be one of the players in the match");
+		}
+
+		match.winner = winner;
+		this.currentMatchIndex_++;
+
+		// Check if round is complete
+		const roundMatches = this.matches_.filter(m => m.round === this.round_);
+		const allRoundMatchesComplete = roundMatches.every(m => m.winner !== null);
+
+		if (allRoundMatchesComplete) {
+			console.log("creating next bracket");
+			this.advanceToNextRound();
+		}
+
+		this.saveToLocalStorage();
+	}
+
 	public startTournament() {
 		// shuffle the players
 		const shuffled = [...this.players_];
@@ -81,7 +138,7 @@ export class Tournament {
 		for (let i = 0; i < 4; i++) {
 			this.matches_.push({
 				id: i,
-				round: 1,
+				round: this.round_,
 				player1: shuffled[i * 2],
 				player2: shuffled[i * 2 + 1],
 				winner: null
@@ -115,11 +172,14 @@ export class TournamentPage extends Component {
 
 	private startGames() {
 		console.log("starting match: ", this.tournament?.currentMatch);
+		// redirect to game page with tournament flag as true
+		this.router.route(`/pong/game?tournament=true`);
 	}
 
 	async init() {
 		await this.navbar.init();
 		this.tournament = Tournament.loadFromLocalStorage();
+		const round: number = this.tournament?.currentRound as number
 		if (this.tournament === null)
 			await this.router.route_error(this.real_path, 404, " No tournament found. Please create a tournament first.");
 		if (this.tournament?.status !== "ongoing") this.tournament?.startTournament();
@@ -128,8 +188,20 @@ export class TournamentPage extends Component {
 			const p = document.createElement("p");
 			p.innerText = `${this.tournament?.matches[i].player1} vs ${this.tournament?.matches[i].player2}`;
 			info_container.appendChild(p);
+			if (this.tournament?.matches[i].winner !== null) {
+				const result = document.createElement("span");
+				result.innerText = ` - Winner: ${this.tournament?.matches[i].winner}`;
+				p.appendChild(result);
+			}
 		}
-		this.startGames();
+		const start = document.createElement("button");
+		start.id = "start-match";
+		start.innerText = "Start Match";
+		start.className = "pixel-box clicky bg-green-500 mt-4";
+		start.onclick = () => {
+			this.startGames();
+		}
+		info_container.appendChild(start);
 	}
 
 	unload() {
