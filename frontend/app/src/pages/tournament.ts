@@ -276,7 +276,7 @@ export class TournamentPage extends Component {
         playersContainer.className = "flex items-center justify-between mb-4";
         
         const player1 = document.createElement("div");
-        player1.className = `flex-1 text-center py-3 px-4 ${match.winner === match.player1 ? 'bg-green-500 text-white font-bold' : 'bg-purple-800 text-gray-300'}`;
+        player1.className = `flex-1 text-center py-3 px-4 ${match.winner?.name === match.player1.name ? 'bg-green-500 text-white font-bold' : 'bg-purple-800 text-gray-300'}`;
         player1.innerText = match.player1.name;
         
         const vs = document.createElement("div");
@@ -284,7 +284,7 @@ export class TournamentPage extends Component {
         vs.innerText = "VS";
         
         const player2 = document.createElement("div");
-        player2.className = `flex-1 text-center  py-3 px-4 ${match.winner === match.player2 ? 'bg-green-500 text-white font-bold' : 'bg-blue-800 text-gray-300'}`;
+        player2.className = `flex-1 text-center  py-3 px-4 ${match.winner?.name === match.player2.name ? 'bg-green-500 text-white font-bold' : 'bg-blue-800 text-gray-300'}`;
         player2.innerText = match.player2.name;
         
         playersContainer.appendChild(player1);

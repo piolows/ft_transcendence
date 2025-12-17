@@ -71,9 +71,14 @@ export default class CreateTournament extends Component {
             // for every pairing, get each value in the input box
             const players = document.querySelectorAll(".player-name");
             for (const player of players) {
+                if (this.players.map(p => p.name).find(name => name === (player as HTMLInputElement).value)) {
+                    alert("Duplicate player names are not allowed!");
+                    this.players = [];
+                    return;
+                }
                 if ((player as HTMLInputElement).value === "") {
                     this.players.push({
-                        name: faker.person.firstName(),
+                        name: faker.person.firstName() + "(bot)",
                         isBot: true
                     });
                 }
