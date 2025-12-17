@@ -59,11 +59,11 @@ export class Tournament {
 			currentMatchIndex_: this.currentMatchIndex_,
 			winner_: this.winner_
 		};
-		localStorage.setItem('tournament', JSON.stringify(tournamentData));
+		sessionStorage.setItem('tournament', JSON.stringify(tournamentData));
 	}
 
 	public static loadFromLocalStorage(): Tournament | null {
-		const data = localStorage.getItem('tournament');
+		const data = sessionStorage.getItem('tournament');
 		if (!data) {
 			return null;
 		}
@@ -140,7 +140,7 @@ export class Tournament {
 	}
 
 	public clearTournament() {
-		localStorage.removeItem("tournament");
+		sessionStorage.removeItem("tournament");
 	}
 
 	public startTournament() {

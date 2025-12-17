@@ -65,12 +65,12 @@ export default class CreateTournament extends Component {
                 if ((player as HTMLInputElement).value === "") this.players.push("bot");
                 else this.players.push((player as HTMLInputElement).value);
             }
-            if (localStorage.getItem("tournament") !== null) {
+            if (sessionStorage.getItem("tournament") !== null) {
                 console.log('deleting old tournament object');
-                localStorage.removeItem("touranment");
+                sessionStorage.removeItem("touranment");
             }
             const tournament = new Tournament(this.players as Array<string>);
-            localStorage.setItem("tournament", JSON.stringify(tournament));
+            sessionStorage.setItem("tournament", JSON.stringify(tournament));
             this.router.route(`/tournament`);
         };
     }

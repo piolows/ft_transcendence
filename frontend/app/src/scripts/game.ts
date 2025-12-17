@@ -341,7 +341,7 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 			// if (localStorage.getItem("tournament") === null && )
 			const params = new URLSearchParams(window.location.search);
 			const tournament = params.get("tournament");
-			if (!(localStorage.getItem("tournament") !== null && tournament !== null && tournament == "true")) {
+			if (!(sessionStorage.getItem("tournament") !== null && tournament !== null && tournament == "true")) {
 				console.log("updating history becuase game is not a tournament game");
 				try {
 					fetch(`${backend_url}/users/${router.login_info.username}/history`, {

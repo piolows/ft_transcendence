@@ -39,7 +39,7 @@ export default class Homepage extends Component {
 
 	async init() {
 		this.navbar.init();
-		if (localStorage.getItem("tournament") !== null) {
+		if (sessionStorage.getItem("tournament") !== null) {
 			const menuCards = document.querySelectorAll(".menu-card") as NodeListOf<HTMLDivElement>;
 			let i = 0;
 			for (;i < menuCards.length; i++) {
