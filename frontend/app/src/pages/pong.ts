@@ -231,7 +231,7 @@ export default class Pong extends Component {
 			overlay.style.display = 'flex';
 			overlayTitle.textContent = winner === 'draw' ? 'DRAW!' : `${winner} WINS!`;
 			overlayMessage.textContent = `Final Score: ${p1Score} - ${p2Score}`;
-			overlayButton.textContent = 'BACK TO TOURNAMENTS';
+			overlayButton.textContent = 'BACK TO TOURNAMENT';
 			overlayButton.onclick = () => {
 				// tournament.reportMatchResult(player1!.name, player2!.name, winner === 'draw' ? null : winner);
 				console.log(`player1: ${player1}, player2: ${player2}, winner: ${winner}`);

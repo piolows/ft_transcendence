@@ -26,7 +26,7 @@ export default class Homepage extends Component {
 		card.add_button("PLAY", "/tictactoe");
 		this.menu.add_card(card);
 
-		card = new MenuCard(this.router, "TOURNAMENTS", "FIGHT IN BRACKET-STYLE TOURNAMENTS AND CROWN THE ULTIMATE WINNER", "pink");
+		card = new MenuCard(this.router, "TOURNAMENT", "FIGHT IN A BRACKET-STYLE TOURNAMENT AND BE CROWNED THE ULTIMATE WINNER", "pink");
 		card.add_button("START TOURNAMENT", "/tournament/create");
 		this.menu.add_card(card);
 	}
@@ -39,6 +39,25 @@ export default class Homepage extends Component {
 
 	async init() {
 		this.navbar.init();
+		if (localStorage.getItem("tournament") !== null) {
+			const menuCards = document.querySelectorAll(".menu-card") as NodeListOf<HTMLDivElement>;
+			let i = 0;
+			for (;i < menuCards.length; i++) {
+				const title = menuCards[i].querySelector("#card-title") as HTMLHeadElement;
+				if (title.innerText === "TOURNAMENT") break ;
+			}
+			const href = document.createElement("a");
+			href.href = "/tournament";
+			const button = document.createElement("button");
+			button.className = "bg-pink-500 text-white px-6 py-3 rounded clicky font-pixelify group-hover:animate-pulse";
+			button.innerText = "GO TO TOURNAMENT";
+			href.appendChild(button);
+			menuCards[i].appendChild(href);
+			// card.add_button("GO TO TOURNAMENT", "/tournament");
+			// <button id=${ this.buttons[i][2] } class="${ colors[this.color][2] } text-white px-6 py-3 rounded clicky font-pixelify group-hover:animate-pulse">
+			// 			${ this.buttons[i][0] }
+			// 		</button>`;
+		}
 		this.topPlayers.init();
 	}
 }

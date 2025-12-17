@@ -33,8 +33,8 @@ export default class MenuCard extends Component {
 
 	get_html() {
 		let html = `
-		<div class="pixel-box bg-opacity-80 ${ colors[this.color][0] } p-8 text-center group hover:transform hover:scale-105 transition-all popout">
-			<h3 class="text-xl font-pressstart ${ colors[this.color][1] } mb-4">${ this.title }</h3>
+		<div class="menu-card pixel-box bg-opacity-80 ${ colors[this.color][0] } p-8 text-center group hover:transform hover:scale-105 transition-all popout">
+			<h3 id="card-title" class="text-xl font-pressstart ${ colors[this.color][1] } mb-4">${ this.title }</h3>
 			<p class="font-silkscreen mb-6">${ this.desc }</p>`;
 		for (let i = 0; i < this.buttons.length; i++) {
 			html += !this.buttons[i][2] || this.buttons[i][2] == "" ? `<a href="${ this.buttons[i][1] }" router-link>
