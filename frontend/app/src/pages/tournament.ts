@@ -1,22 +1,24 @@
 import Component from "../scripts/router";
 import NavBar from "../components/nav_bar";
 import { HighlightSpanKind } from "typescript";
+import { TournamentPlayer } from "./tournament_init";
+
 export interface Match {
 	id: number;
 	round: number;
-	player1: string;
-	player2: string;
-	winner: string | null;
+	player1: TournamentPlayer;
+	player2: TournamentPlayer;
+	winner: TournamentPlayer | null;
 }
 export class Tournament {
-	private players_: Array<string> = [];
+	private players_: Array<TournamentPlayer> = [];
 	private status_: string = "not ongoing";
 	private matches_: Array<Match> = [];
 	private round_: number = 0;
 	private currentMatchIndex_: number = 0;
 	private winner_: string | null = null;
 
-	constructor (players: Array<string> = []) {
+	constructor (players: Array<TournamentPlayer> = []) {
 		this.players_ = players;
 		this.status_ = "not ongoing";
 		this.matches_ = [];
@@ -25,7 +27,7 @@ export class Tournament {
 		this.winner_ = null;
 	}
 
-	public get players(): Array<string> {
+	public get players(): Array<TournamentPlayer> {
 		return this.players_;
 	}
 
@@ -49,6 +51,10 @@ export class Tournament {
 		return this.winner_;
 	}
 
+	public get currentMatchIndex(): number {
+		return this.currentMatchIndex_;
+	}
+
 	// Save tournament state to local storage
 	private saveToLocalStorage(): void {
 		const tournamentData = {
@@ -70,7 +76,7 @@ export class Tournament {
 
 		try {
 			const parsed = JSON.parse(data);
-			const tournament = new Tournament(parsed.players_);
+			const tournament = new Tournament(parsed.players_ as Array<TournamentPlayer>);
 			tournament.status_ = parsed.status_;
 			tournament.matches_ = parsed.matches_;
 			tournament.round_ = parsed.round_;
@@ -82,16 +88,22 @@ export class Tournament {
 		}
 	}
 
-
-
 	private advanceToNextRound(): void {
 		const currentRoundMatches = this.matches_.filter(m => m.round === this.round_);
-		const winners = currentRoundMatches.map(m => m.winner as string);
+		console.log("testing: ", currentRoundMatches);
+		const winners: Array<TournamentPlayer> = [];
+		for (const match of currentRoundMatches) {
+			console.log("match: ", match);
+			if (match.winner !== null) {
+				winners.push({name: match.winner.name, isBot: match.winner.isBot} );
+			}
+		}
+		console.log("winners: ", winners);
 
 		// Check if tournament is complete
 		if (winners.length === 1) {
 			this.status_ = "completed";
-			this.winner_ = winners[0];
+			this.winner_ = winners[0].name;
 			console.log(`${this.winner} wins`)
 			this.saveToLocalStorage();
 			return;
@@ -113,16 +125,14 @@ export class Tournament {
 		this.saveToLocalStorage();
 	}
 
-	public recordMatch(player1: string, player2: string, winner: string) {
+	public recordMatch(player1: TournamentPlayer, player2: TournamentPlayer, winner: TournamentPlayer) {
 		const match = this.currentMatch;
 		console.log(match);
 		if (!match) {
 			throw new Error("No current match to record winner for");
 		}
 
-		if (winner !== match.player1 && winner !== match.player2) {
-			throw new Error("Winner must be one of the players in the match");
-		}
+		console.log(winner);
 
 		match.winner = winner;
 		this.currentMatchIndex_++;
@@ -196,31 +206,6 @@ export class TournamentPage extends Component {
 		await this.navbar.init();
 		const app = document.getElementById("app") as HTMLDivElement;
 		this.tournament = Tournament.loadFromLocalStorage();
-		// if (this.tournament?.winner !== null) {
-		// 	const winnerOverlay = document.createElement("div");
-		// 	const blackScreen = document.createElement("div");
-		// 	const winnerText = document.createElement("p");
-		// 	const info_box = document.createElement("div");
-		// 	winnerText.innerText = `${this.tournament?.winner} has won!`;
-		// 	winnerOverlay.className = "fixed inset-0 z-50 flex items-center justify-center";
-		// 	blackScreen.className = "absolute inset-0 bg-black opacity-80";
-		// 	app.appendChild(winnerOverlay);
-		// 	app.appendChild(blackScreen);
-		// 	info_box.className = "pixel-box flex flex-col bg-purple-500 mx-auto";
-		// 	info_box.id = "winner-info";
-		// 	info_box.innerText = `${this.tournament?.winner} has won!`;
-		// 	winnerOverlay.appendChild(info_box);
-		// 	const back_button = document.createElement("button");
-		// 	back_button.id = "back";
-		// 	back_button.className = "pixel-box clicky bg-green-500";
-		// 	back_button.innerText = "BACK TO MENU"
-		// 	back_button.onclick = () => {
-		// 		// delete the tournament object
-		// 		this.tournament?.clearTournament();
-		// 		this.router.route("/");
-		// 	}
-		// 	info_box.appendChild(back_button);
-		// }
 		if (this.tournament?.winner !== null) {
 			const winnerOverlay = document.createElement("div");
 			winnerOverlay.className = "fixed inset-0 z-50 flex items-center justify-center";
@@ -264,19 +249,6 @@ export class TournamentPage extends Component {
 			await this.router.route_error(this.real_path, 404, " No tournament found. Please create a tournament first.");
 		if (this.tournament?.status !== "ongoing") this.tournament?.startTournament();
 		const info_container = document.getElementById("matches-info") as HTMLDivElement;
-		// for (let i = 0; i < this.tournament!.matches.length; i++) {
-		// 	const match = this.tournament!.matches[i];
-		// 	if (match.round !== round) continue;
-		// 	const pairing_container = document.createElement("div");
-		// 	const p = document.createElement("p");
-		// 	p.innerText = `${this.tournament?.matches[i].player1} vs ${this.tournament?.matches[i].player2}`;
-		// 	info_container.appendChild(p);
-		// 	if (this.tournament?.matches[i].winner !== null) {
-		// 		const result = document.createElement("span");
-		// 		result.innerText = ` - Winner: ${this.tournament?.matches[i].winner}`;
-		// 		p.appendChild(result);
-		// 	}
-		// }
 		const matchesGrid = document.createElement("div");
     	matchesGrid.className = "grid gap-4 mb-8";
     
@@ -290,7 +262,14 @@ export class TournamentPage extends Component {
         
         const matchHeader = document.createElement("div");
         matchHeader.className = "text-sm text-gray-400 mb-3 text-center";
-        matchHeader.innerText = `Match ${match.id + 1}`;
+		// if the previous match has a winner and the upcoming match does not have a winner yet
+		if (i === this.tournament!.currentMatchIndex && match.winner === null) {
+			matchHeader.className = "text-sm rainbow mb-3 text-center";
+        	matchHeader.innerText = `Match ${match.id + 1} - UPCOMING`;
+		} else {
+			matchHeader.className = "text-sm text-blue-200 mb-3 text-center";
+			matchHeader.innerText = match.winner === null ? `Match ${match.id + 1}` : `Match ${match.id + 1} - ${match.winner.name} won!`;
+		}
         matchCard.appendChild(matchHeader);
         
         const playersContainer = document.createElement("div");
@@ -298,7 +277,7 @@ export class TournamentPage extends Component {
         
         const player1 = document.createElement("div");
         player1.className = `flex-1 text-center py-3 px-4 ${match.winner === match.player1 ? 'bg-green-500 text-white font-bold' : 'bg-purple-800 text-gray-300'}`;
-        player1.innerText = match.player1;
+        player1.innerText = match.player1.name;
         
         const vs = document.createElement("div");
         vs.className = "px-4 text-xl font-bold text-purple-400";
@@ -306,7 +285,7 @@ export class TournamentPage extends Component {
         
         const player2 = document.createElement("div");
         player2.className = `flex-1 text-center  py-3 px-4 ${match.winner === match.player2 ? 'bg-green-500 text-white font-bold' : 'bg-blue-800 text-gray-300'}`;
-        player2.innerText = match.player2;
+        player2.innerText = match.player2.name;
         
         playersContainer.appendChild(player1);
         playersContainer.appendChild(vs);
@@ -316,7 +295,7 @@ export class TournamentPage extends Component {
         if (match.winner !== null) {
             const winnerBadge = document.createElement("div");
             winnerBadge.className = "text-center text-sm bg-green-600 text-white py-2 px-4 rounded";
-            winnerBadge.innerText = `✓ Winner: ${match.winner}`;
+            winnerBadge.innerText = `✓ Winner: ${match.winner.name}`;
             matchCard.appendChild(winnerBadge);
         }
         

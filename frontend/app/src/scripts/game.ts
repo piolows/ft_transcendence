@@ -1,5 +1,5 @@
 import { backend_url, Router } from "./router";
-
+import { TournamentPlayer } from "../pages/tournament_init";
 export class Ball
 {
 	x: number;
@@ -345,7 +345,7 @@ function drawBall(cv: HTMLCanvasElement, ball: Ball, delta: number)
 	ball.y += ball.yVel * delta;
 }
 
-export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Player | Bot, right_player: Player | Bot, p1_score: HTMLDivElement, p2_score: HTMLDivElement, timer: HTMLDivElement, router: Router, endOverlay?: (winner: string, p1Score: number, p2Score: number) => void) {
+export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Player | Bot, right_player: Player | Bot, p1_score: HTMLDivElement, p2_score: HTMLDivElement, timer: HTMLDivElement, router: Router, endOverlay?: (winner: any, p1Score: number, p2Score: number) => void) {
 	let animationId: number;
 	let game_over: boolean = false;
 	const left_paddle = left_player.paddle;
@@ -399,11 +399,18 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 			// check winner
 			const p1Final = parseInt(p1_score.textContent || '0');
 			const p2Final = parseInt(p2_score.textContent || '0');
-			let winner = 'draw';
-			if (p1Final > p2Final) {
-				winner = left_player.name;
-			} else if (p2Final > p1Final) {
-				winner = right_player.name;
+
+			const params = new URLSearchParams(window.location.search);
+			const tournament = params.get("tournament");
+			let winner: string | TournamentPlayer = 'draw';
+			if ((sessionStorage.getItem("tournament") !== null && tournament !== null && tournament == "true")) {
+				if (p1Final > p2Final) {
+					winner = { name: left_player.name, isBot: left_player instanceof Bot };
+				} else if (p2Final > p1Final) {
+					winner = { name: right_player.name, isBot: right_player instanceof Bot };
+				}
+			} else {
+				winner = p1Final > p2Final ? left_player.name : right_player.name;
 			}
 
 			if (endOverlay) {
@@ -411,8 +418,6 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 			}
 
 			// update history will implement idk when
-			const params = new URLSearchParams(window.location.search);
-			const tournament = params.get("tournament");
 			if (!(sessionStorage.getItem("tournament") !== null && tournament !== null && tournament == "true")) {
 				console.log("updating history becuase game is not a tournament game");
 				try {

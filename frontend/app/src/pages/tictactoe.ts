@@ -439,4 +439,8 @@ export default class TicTacToePage extends Component {
         this.navbar.init();
         this.initializeBoard("enable");
     }
+
+    unload() {
+        this.reset_state();
+    }
 }

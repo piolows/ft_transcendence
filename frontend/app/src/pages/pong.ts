@@ -2,6 +2,7 @@ import Component, { Router, backend_url, sockets_url } from "../scripts/router";
 import { Player, Ball, Bot, Paddle, start_game } from "../scripts/game";
 import NavBar from "../components/nav_bar";
 import { Tournament } from "./tournament";
+import { TournamentPlayer } from "./tournament_init";
 export default class Pong extends Component {
 	private end_game: () => void = () => {};
 	private navbar = new NavBar(this.router);
@@ -205,8 +206,8 @@ export default class Pong extends Component {
 			const currentMatch = tournament?.currentMatch;
 			console.log(Math.floor(Math.random() * difficultyNames.length));
 			console.log(Math.floor(Math.random() * difficultyNames.length));
-			player1 = currentMatch?.player1 == "bot" ? new Bot("AI Bot", left_paddle, cv, Math.floor(Math.random() * difficultyNames.length)) : new Player(currentMatch?.player1!, left_paddle);
-			player2 = currentMatch?.player2 == "bot" ? new Bot("AI Bot", right_paddle, cv, Math.floor(Math.random() * difficultyNames.length)) : new Player(currentMatch?.player2!, right_paddle);
+			player1 = currentMatch?.player1.isBot == true ? new Bot(currentMatch?.player1.name, left_paddle, cv, Math.floor(Math.random() * difficultyNames.length)) : new Player(currentMatch?.player1.name!, left_paddle);
+			player2 = currentMatch?.player2.isBot == true ? new Bot(currentMatch?.player2.name, right_paddle, cv, Math.floor(Math.random() * difficultyNames.length)) : new Player(currentMatch?.player2.name!, right_paddle);
 		} else {
 			player1 = new Player("Player 1", left_paddle);
 			player2 = (op == "bot") ? new Bot("AI Bot", right_paddle, cv, difficulty) : new Player("Player 2", right_paddle);
@@ -225,15 +226,17 @@ export default class Pong extends Component {
 			overlayMessage.textContent = `Final Score: ${p1Score} - ${p2Score}`;
 			overlayButton.textContent = 'REMATCH';
 			overlayButton.onclick = () => window.location.reload();
-		} : (winner: string, p1Score: number, p2Score: number) => {
+		} : (winner: TournamentPlayer, p1Score: number, p2Score: number) => {
 			overlay.style.display = 'flex';
-			overlayTitle.textContent = winner === 'draw' ? 'DRAW!' : `${winner} WINS!`;
+			overlayTitle.textContent = `${winner.name} WINS!`;
 			overlayMessage.textContent = `Final Score: ${p1Score} - ${p2Score}`;
 			overlayButton.textContent = 'BACK TO TOURNAMENT';
 			overlayButton.onclick = () => {
 				// tournament.reportMatchResult(player1!.name, player2!.name, winner === 'draw' ? null : winner);
 				console.log(`player1: ${player1}, player2: ${player2}, winner: ${winner}`);
-				tournament?.recordMatch(player1!.name, player2!.name, winner === 'draw' ? "none" : (winner === "AI Bot" ? "bot" : winner));
+				const currentMatch = tournament?.currentMatch;
+				// tournament?.recordMatch(player1!.name, player2!.name, winner === 'draw' ? "none" : (winner === "AI Bot" ? "bot" : winner));
+				tournament?.recordMatch(currentMatch?.player1!, currentMatch?.player2!, winner);
 				this.router.route("/tournament");
 			};
 		};

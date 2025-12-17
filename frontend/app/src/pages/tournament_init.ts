@@ -1,10 +1,18 @@
 import Component from "../scripts/router";
 import NavBar from "../components/nav_bar";
 import { Tournament } from "./tournament";
+import { faker } from '@faker-js/faker';
+import { Player, Bot } from "../scripts/game";
+import { T } from "@faker-js/faker/dist/airline-DF6RqYmq";
+
+export interface TournamentPlayer {
+    name: string;
+    isBot: boolean;
+}
 
 export default class CreateTournament extends Component {
     private navbar = new NavBar(this.router);
-    private players: Array<string> = [];
+    private players: Array<TournamentPlayer> = [];
 
     async load(app: HTMLDivElement | HTMLElement) {
         await this.navbar.load(app);
@@ -63,14 +71,25 @@ export default class CreateTournament extends Component {
             // for every pairing, get each value in the input box
             const players = document.querySelectorAll(".player-name");
             for (const player of players) {
-                if ((player as HTMLInputElement).value === "") this.players.push("bot");
-                else this.players.push((player as HTMLInputElement).value);
+                if ((player as HTMLInputElement).value === "") {
+                    this.players.push({
+                        name: faker.person.firstName(),
+                        isBot: true
+                    });
+                }
+                // else this.players.push((player as HTMLInputElement).value);
+                else {
+                    this.players.push({
+                        name: (player as HTMLInputElement).value,
+                        isBot: false
+                    });
+                }
             }
             if (sessionStorage.getItem("tournament") !== null) {
                 console.log('deleting old tournament object');
                 sessionStorage.removeItem("touranment");
             }
-            const tournament = new Tournament(this.players as Array<string>);
+            const tournament = new Tournament(this.players);
             sessionStorage.setItem("tournament", JSON.stringify(tournament));
             this.router.route(`/tournament`);
         };
