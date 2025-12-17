@@ -99,22 +99,76 @@ export class Bot extends Player {
 	// 		this.dest_y = this.cv.height * (reflects + 1) - (dest % this.cv.height) + variation;
 	// }
 
-	update(ball_x: number, ball_y: number, ball_xVel: number, ball_yVel: number, moving: boolean, paddleSide: 'left' | 'right') {
+	// update(ball_x: number, ball_y: number, ball_xVel: number, ball_yVel: number, moving: boolean, paddleSide: 'left' | 'right') {
+	// 	if (!moving) {
+	// 		this.dest_y = this.cv.height / 2;
+	// 		return;
+	// 	}
+
+	// 	if (Math.sign(ball_xVel) !== this.lastBallDirection) {
+    //         this.lastBallDirection = Math.sign(ball_xVel);
+    //         // Randomize which part of paddle to hit with
+    //         // Range: -0.4 to 0.4 (negative = top of paddle, positive = bottom)
+    //         this.hitOffset = (Math.random() - 0.5) * 0.8;
+    //     }
+
+	// 	const modifier = 2 - this.difficulty;
+	// 	const variation = modifier * (Math.random()) * (0.05 * this.cv.height)
+	// 		* (Math.random() > 0.5 ? -1 : 1) * (Math.random() < (0.4 * modifier) ? 1 : 0);
+		
+	// 	// Calculate intersection based on which paddle this is
+	// 	const intersect = paddleSide === 'right' ? this.cv.width : 0;
+		
+	// 	// Only calculate if ball is heading toward this paddle
+	// 	const ballHeadingTowardsPaddle = (paddleSide === 'right' && ball_xVel > 0) || 
+	// 									(paddleSide === 'left' && ball_xVel < 0);
+		
+	// 	if (!ballHeadingTowardsPaddle) {
+	// 		// Ball going away - return to center or track loosely
+	// 		this.dest_y = this.cv.height / 2;
+	// 		return;
+	// 	}
+		
+	// 	const steps = Math.abs(intersect - ball_x) / Math.abs(ball_xVel);
+	// 	const dest = Math.abs(ball_y + ball_yVel * steps);
+	// 	const reflects = Math.floor(dest / this.cv.height);
+		
+	// 	let targetY;
+	// 	if (reflects % 2 == 0)
+    //         targetY = (dest % this.cv.height) + variation;
+    //     else
+    //         targetY = this.cv.height * (reflects + 1) - (dest % this.cv.height) + variation;
+        
+    //     // Apply the hit offset (multiply by paddle height to get pixel offset)
+    //     this.dest_y = targetY + (this.hitOffset * this.paddle.height);
+	// }
+
+	update(ball_x: number, ball_y: number, ball_xVel: number, ball_yVel: number, moving: boolean, paddleSide: 'left' | 'right', currentSpeed: number) {
 		if (!moving) {
 			this.dest_y = this.cv.height / 2;
 			return;
 		}
 
 		if (Math.sign(ball_xVel) !== this.lastBallDirection) {
-            this.lastBallDirection = Math.sign(ball_xVel);
-            // Randomize which part of paddle to hit with
-            // Range: -0.4 to 0.4 (negative = top of paddle, positive = bottom)
-            this.hitOffset = (Math.random() - 0.5) * 0.8;
-        }
+			this.lastBallDirection = Math.sign(ball_xVel);
+			
+			// Difficulty affects prediction accuracy
+			// Easy: -0.5 to 0.5 (larger range = less accurate)
+			// Hard: -0.2 to 0.2 (smaller range = more accurate)
+			const predictionRange = (3 - this.difficulty) * 0.4;
+			this.hitOffset = (Math.random() - 0.5) * predictionRange;
+		}
 
+		// Difficulty-based reaction modifier
+		// Easy bot (difficulty 0): more variation, slower reaction
+		// Hard bot (difficulty 1): less variation, faster reaction
+		const reactionFactor = 0.3 + (this.difficulty * 0.35); // 0.3 to 1.0
 		const modifier = 2 - this.difficulty;
-		const variation = modifier * (Math.random()) * (0.05 * this.cv.height)
-			* (Math.random() > 0.5 ? -1 : 1) * (Math.random() < (0.4 * modifier) ? 1 : 0);
+		
+		// Add variation based on difficulty (easier = more mistakes)
+		const variation = modifier * (Math.random()) * (0.08 * this.cv.height)
+			* (Math.random() > 0.5 ? -1 : 1) 
+			* (Math.random() < (0.3 * (modifier / 3)) ? 1 : 0);
 		
 		// Calculate intersection based on which paddle this is
 		const intersect = paddleSide === 'right' ? this.cv.width : 0;
@@ -124,23 +178,42 @@ export class Bot extends Player {
 										(paddleSide === 'left' && ball_xVel < 0);
 		
 		if (!ballHeadingTowardsPaddle) {
-			// Ball going away - return to center or track loosely
-			this.dest_y = this.cv.height / 2;
+			// Ball going away - return to center with some delay based on difficulty
+			const centerBias = 0.5 + (this.difficulty * 0.35); // easier bots stay more centered
+			this.dest_y = this.cv.height / 2 + ((Math.random() - 0.5) * this.cv.height * (1 - centerBias));
 			return;
 		}
 		
+		// Use actual ball speed for calculation to account for speed increases
+		const ballSpeed = Math.sqrt(ball_xVel * ball_xVel + ball_yVel * ball_yVel);
+		const speedRatio = ballSpeed / currentSpeed; // How much faster than initial speed
+		
+		// Harder bots anticipate speed increases better
+		const speedCompensation = 1 + ((speedRatio - 1) * reactionFactor);
+		
+		// Calculate steps using current velocity magnitude
 		const steps = Math.abs(intersect - ball_x) / Math.abs(ball_xVel);
-		const dest = Math.abs(ball_y + ball_yVel * steps);
+		
+		// Predict where ball will be, accounting for speed
+		const predictedY = ball_y + (ball_yVel * steps * speedCompensation);
+		const dest = Math.abs(predictedY);
+		
+		// Calculate wall bounces
 		const reflects = Math.floor(dest / this.cv.height);
 		
 		let targetY;
 		if (reflects % 2 == 0)
-            targetY = (dest % this.cv.height) + variation;
-        else
-            targetY = this.cv.height * (reflects + 1) - (dest % this.cv.height) + variation;
-        
-        // Apply the hit offset (multiply by paddle height to get pixel offset)
-        this.dest_y = targetY + (this.hitOffset * this.paddle.height);
+			targetY = (dest % this.cv.height) + variation;
+		else
+			targetY = this.cv.height * (reflects + 1) - (dest % this.cv.height) + variation;
+		
+		// Apply the hit offset (multiply by paddle height to get pixel offset)
+		// Harder bots use smaller offsets for more consistent hits
+		const offsetFactor = 0.3 + (this.difficulty * 0.35);
+		this.dest_y = targetY + (this.hitOffset * this.paddle.height * offsetFactor);
+		
+		// Clamp to valid range
+		this.dest_y = Math.max(this.paddle.height / 2, Math.min(this.dest_y, this.cv.height - this.paddle.height / 2));
 	}
 
 	play() {
@@ -338,7 +411,6 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 			}
 
 			// update history will implement idk when
-			// if (localStorage.getItem("tournament") === null && )
 			const params = new URLSearchParams(window.location.search);
 			const tournament = params.get("tournament");
 			if (!(sessionStorage.getItem("tournament") !== null && tournament !== null && tournament == "true")) {
@@ -407,9 +479,9 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 		{
 			lastSecondBot = currentTime;
 			if (left_player.type == "bot")
-				(left_player as Bot)?.update(ball.x, ball.y, ball.xVel, ball.yVel, ball.moving, "left");
+				(left_player as Bot)?.update(ball.x, ball.y, ball.xVel, ball.yVel, ball.moving, "left", ball.speed);
 			if (right_player.type == "bot")
-				(right_player as Bot)?.update(ball.x, ball.y, ball.xVel, ball.yVel, ball.moving, "right");
+				(right_player as Bot)?.update(ball.x, ball.y, ball.xVel, ball.yVel, ball.moving, "right", ball.speed);
 		}
 		if (left_player.type == "bot")
 			(left_player as Bot)?.play();

@@ -194,7 +194,7 @@ export default class Pong extends Component {
 		let player2 = null;
 		let tournament: Tournament | null = null;
 		if (isTournament !== null && isTournament === "true") {
-			const tournament_string = localStorage.getItem("tournament");
+			const tournament_string = sessionStorage.getItem("tournament");
 			if (tournament_string === null) {
 				alert("No tournament found. Redirecting to menu.");
 				this.router.route("/pong/menu");
@@ -203,8 +203,6 @@ export default class Pong extends Component {
 			// get the palyer values of the matchup
 			tournament = Tournament.loadFromLocalStorage();
 			const currentMatch = tournament?.currentMatch;
-			const diff = Math.random() < 0.5 ? 1 : 2; // randomize bot difficulty if bot is playing
-			// player1 = new Player(currentMatch?.player1, left_paddle);
 			console.log(Math.floor(Math.random() * difficultyNames.length));
 			console.log(Math.floor(Math.random() * difficultyNames.length));
 			player1 = currentMatch?.player1 == "bot" ? new Bot("AI Bot", left_paddle, cv, Math.floor(Math.random() * difficultyNames.length)) : new Player(currentMatch?.player1!, left_paddle);

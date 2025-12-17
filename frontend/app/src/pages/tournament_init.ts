@@ -56,6 +56,7 @@ export default class CreateTournament extends Component {
     async init() {
         await this.navbar.init();
         const start_tourney = document.getElementById("start-tournament") as HTMLButtonElement;
+        this.players = [];
         start_tourney.onclick = (event) => {
             event.preventDefault();
             console.log("Starting tournament");

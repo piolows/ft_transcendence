@@ -9,12 +9,12 @@ export interface Match {
 	winner: string | null;
 }
 export class Tournament {
-	private players_: Array<string>;
-	private status_: string;
-	private matches_: Array<Match>;
+	private players_: Array<string> = [];
+	private status_: string = "not ongoing";
+	private matches_: Array<Match> = [];
 	private round_: number = 0;
 	private currentMatchIndex_: number = 0;
-	private winner_: string | null;
+	private winner_: string | null = null;
 
 	constructor (players: Array<string> = []) {
 		this.players_ = players;
@@ -169,7 +169,6 @@ export class Tournament {
 
 export class TournamentPage extends Component {
 	private navbar = new NavBar(this.router);
-	// private tournament: Tournament | null = null;
 	private tournament: Tournament | null = null;
 
 	async load(app: HTMLDivElement | HTMLElement) {
@@ -179,7 +178,7 @@ export class TournamentPage extends Component {
 		title.innerText = "TOURNAMENT";
 		app.appendChild(title);
 		const main_container = document.createElement("div");
-		main_container.className = "container flex justify-center align-center mx-auto pixel-box px-4 w-[80%]";
+		main_container.className = "container flex justify-center align-center mx-auto px-4 w-[80%]";
 		main_container.id = "main-container";
 		app.appendChild(main_container);
 		const info = document.createElement("div");
@@ -197,57 +196,140 @@ export class TournamentPage extends Component {
 		await this.navbar.init();
 		const app = document.getElementById("app") as HTMLDivElement;
 		this.tournament = Tournament.loadFromLocalStorage();
-		console.log(`winner ${this.tournament?.winner}`);
+		// if (this.tournament?.winner !== null) {
+		// 	const winnerOverlay = document.createElement("div");
+		// 	const blackScreen = document.createElement("div");
+		// 	const winnerText = document.createElement("p");
+		// 	const info_box = document.createElement("div");
+		// 	winnerText.innerText = `${this.tournament?.winner} has won!`;
+		// 	winnerOverlay.className = "fixed inset-0 z-50 flex items-center justify-center";
+		// 	blackScreen.className = "absolute inset-0 bg-black opacity-80";
+		// 	app.appendChild(winnerOverlay);
+		// 	app.appendChild(blackScreen);
+		// 	info_box.className = "pixel-box flex flex-col bg-purple-500 mx-auto";
+		// 	info_box.id = "winner-info";
+		// 	info_box.innerText = `${this.tournament?.winner} has won!`;
+		// 	winnerOverlay.appendChild(info_box);
+		// 	const back_button = document.createElement("button");
+		// 	back_button.id = "back";
+		// 	back_button.className = "pixel-box clicky bg-green-500";
+		// 	back_button.innerText = "BACK TO MENU"
+		// 	back_button.onclick = () => {
+		// 		// delete the tournament object
+		// 		this.tournament?.clearTournament();
+		// 		this.router.route("/");
+		// 	}
+		// 	info_box.appendChild(back_button);
+		// }
 		if (this.tournament?.winner !== null) {
 			const winnerOverlay = document.createElement("div");
-			const blackScreen = document.createElement("div");
-			const winnerText = document.createElement("p");
-			const info_box = document.createElement("div");
-			winnerText.innerText = `${this.tournament?.winner} has won!`;
 			winnerOverlay.className = "fixed inset-0 z-50 flex items-center justify-center";
+			
+			const blackScreen = document.createElement("div");
 			blackScreen.className = "absolute inset-0 bg-black opacity-80";
-			app.appendChild(winnerOverlay);
-			app.appendChild(blackScreen);
-			info_box.className = "pixel-box flex flex-col bg-purple-500 mx-auto";
-			info_box.id = "winner-info";
-			info_box.innerText = `${this.tournament?.winner} has won!`;
-			winnerOverlay.appendChild(info_box);
+			winnerOverlay.appendChild(blackScreen);
+			
+			const info_box = document.createElement("div");
+			info_box.className = "pixel-box relative z-10 bg-gradient-to-b from-yellow-400 to-yellow-600 p-8 max-w-md mx-4 text-center";
+			
+			const trophy = document.createElement("div");
+			trophy.className = "text-6xl mb-4 animate-bounce";
+			trophy.innerText = "🏆";
+			info_box.appendChild(trophy);
+			
+			const winnerText = document.createElement("h2");
+			winnerText.className = "text-3xl font-bold mb-4 text-white retro-shadow";
+			winnerText.innerText = `${this.tournament?.winner} WINS!`;
+			info_box.appendChild(winnerText);
+			
+			const congratsText = document.createElement("p");
+			congratsText.className = "text-lg mb-6 text-white";
+			congratsText.innerText = `Congratulations ${this.tournament?.winner}!`;
+			info_box.appendChild(congratsText);
+			
 			const back_button = document.createElement("button");
-			back_button.id = "back";
-			back_button.className = "pixel-box clicky bg-green-500";
-			back_button.innerText = "BACK TO MENU"
+			back_button.className = "pixel-box clicky bg-green-500 hover:bg-green-600 text-white px-8 py-3 text-lg font-bold w-full";
+			back_button.innerText = "BACK TO MENU";
 			back_button.onclick = () => {
-				// delete thr tournament
 				this.tournament?.clearTournament();
 				this.router.route("/");
-			}
+			};
 			info_box.appendChild(back_button);
-		}
+        
+			winnerOverlay.appendChild(info_box);
+			app.appendChild(winnerOverlay);
+	}
 		const round: number = this.tournament?.currentRound as number;
 		if (this.tournament === null)
 			await this.router.route_error(this.real_path, 404, " No tournament found. Please create a tournament first.");
 		if (this.tournament?.status !== "ongoing") this.tournament?.startTournament();
 		const info_container = document.getElementById("matches-info") as HTMLDivElement;
-		for (let i = 0; i < this.tournament!.matches.length; i++) {
-			const match = this.tournament!.matches[i];
-			if (match.round !== round) continue;
-			const pairing_container = document.createElement("div");
-			const p = document.createElement("p");
-			p.innerText = `${this.tournament?.matches[i].player1} vs ${this.tournament?.matches[i].player2}`;
-			info_container.appendChild(p);
-			if (this.tournament?.matches[i].winner !== null) {
-				const result = document.createElement("span");
-				result.innerText = ` - Winner: ${this.tournament?.matches[i].winner}`;
-				p.appendChild(result);
-			}
-		}
+		// for (let i = 0; i < this.tournament!.matches.length; i++) {
+		// 	const match = this.tournament!.matches[i];
+		// 	if (match.round !== round) continue;
+		// 	const pairing_container = document.createElement("div");
+		// 	const p = document.createElement("p");
+		// 	p.innerText = `${this.tournament?.matches[i].player1} vs ${this.tournament?.matches[i].player2}`;
+		// 	info_container.appendChild(p);
+		// 	if (this.tournament?.matches[i].winner !== null) {
+		// 		const result = document.createElement("span");
+		// 		result.innerText = ` - Winner: ${this.tournament?.matches[i].winner}`;
+		// 		p.appendChild(result);
+		// 	}
+		// }
+		const matchesGrid = document.createElement("div");
+    	matchesGrid.className = "grid gap-4 mb-8";
+    
+    for (let i = 0; i < this.tournament!.matches.length; i++) {
+        const match = this.tournament!.matches[i];
+        if (match.round !== round) continue;
+        
+        const matchCard = document.createElement("div");
+        // matchCard.className = "pixel-box bg-gray-800 p-6 hover:bg-gray-700 transition-colors";
+        matchCard.className = "pixel-box bg-gradient-to-br from-purple-900 via-blue-900 to-black p-6 hover:bg-gray-700 transition-colors";
+        
+        const matchHeader = document.createElement("div");
+        matchHeader.className = "text-sm text-gray-400 mb-3 text-center";
+        matchHeader.innerText = `Match ${match.id + 1}`;
+        matchCard.appendChild(matchHeader);
+        
+        const playersContainer = document.createElement("div");
+        playersContainer.className = "flex items-center justify-between mb-4";
+        
+        const player1 = document.createElement("div");
+        player1.className = `flex-1 text-center py-3 px-4 ${match.winner === match.player1 ? 'bg-green-500 text-white font-bold' : 'bg-purple-800 text-gray-300'}`;
+        player1.innerText = match.player1;
+        
+        const vs = document.createElement("div");
+        vs.className = "px-4 text-xl font-bold text-purple-400";
+        vs.innerText = "VS";
+        
+        const player2 = document.createElement("div");
+        player2.className = `flex-1 text-center  py-3 px-4 ${match.winner === match.player2 ? 'bg-green-500 text-white font-bold' : 'bg-blue-800 text-gray-300'}`;
+        player2.innerText = match.player2;
+        
+        playersContainer.appendChild(player1);
+        playersContainer.appendChild(vs);
+        playersContainer.appendChild(player2);
+        matchCard.appendChild(playersContainer);
+        
+        if (match.winner !== null) {
+            const winnerBadge = document.createElement("div");
+            winnerBadge.className = "text-center text-sm bg-green-600 text-white py-2 px-4 rounded";
+            winnerBadge.innerText = `✓ Winner: ${match.winner}`;
+            matchCard.appendChild(winnerBadge);
+        }
+        
+        matchesGrid.appendChild(matchCard);
+    }
 		const start = document.createElement("button");
 		start.id = "start-match";
 		start.innerText = "Start Match";
-		start.className = "pixel-box bg-green-500 px-8 py-4 text-white hover:bg-green-600 font-pixelify text-xl clicky";
-		start.onclick = () => {
-			this.startGames();
-		}
+		start.className = "pixel-box bg-green-500 px-8 py-4 text-white hover:bg-green-600 font-pixelify text-xl clicky w-full";
+    	start.onclick = () => {
+        	this.startGames();
+    	};
+		info_container.appendChild(matchesGrid);
 		info_container.appendChild(start);
 	}
 

@@ -45,4 +45,3 @@ window.onload = () => {
 	router.start();
 	console.log("Router started")
 };
-
