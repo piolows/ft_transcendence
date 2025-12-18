@@ -16,7 +16,7 @@ export default class SignUp extends Component {
                                 <label class="block font-silkscreen mb-2">USERNAME</label>
                                 <input name="username" type="text" 
                                     class="w-full px-4 py-2 bg-black border-2 border-green-500 text-white font-vt323 text-base"
-                                    required>
+                                    maxlength="15" required>
                             </div>
                             <div>
                                 <label class="block font-silkscreen mb-2">EMAIL</label>

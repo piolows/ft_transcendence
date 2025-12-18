@@ -391,10 +391,10 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
             document.removeEventListener('keyup', keyUpHandler);
         };
 
-	function draw(currentTime: number)
+	async function draw(currentTime: number)
 	{
 		// GAME HAS ENDED PIOLO LOOK
-		if (time >= 300 || parseInt(p1_score.textContent) >= 1 || parseInt(p2_score.textContent) >= 1) {
+		if (time >= 300 || parseInt(p1_score.textContent!) >= 1 || parseInt(p2_score.textContent!) >= 1) {
 			end_game();
 			// check winner
 			const p1Final = parseInt(p1_score.textContent || '0');
@@ -402,8 +402,9 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 
 			const params = new URLSearchParams(window.location.search);
 			const tournament = params.get("tournament");
+			const isTournament = sessionStorage.getItem("tournament") !== null && tournament !== null && tournament == "true";
 			let winner: string | TournamentPlayer = 'draw';
-			if ((sessionStorage.getItem("tournament") !== null && tournament !== null && tournament == "true")) {
+			if (isTournament) {
 				if (p1Final > p2Final) {
 					winner = { name: left_player.name, isBot: left_player instanceof Bot };
 				} else if (p2Final > p1Final) {
@@ -418,11 +419,12 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 			}
 
 			// update history will implement idk when
-			if (!(sessionStorage.getItem("tournament") !== null && tournament !== null && tournament == "true")) {
+			if (!isTournament) {
 				console.log("updating history becuase game is not a tournament game");
 				try {
-					fetch(`${backend_url}/users/${router.login_info.username}/history`, {
+					const res = await fetch(`${backend_url}/users/${router.login_info.username}/history`, {
 						method: "POST",
+						headers: {"Content-Type": "application/json"},
 						body: JSON.stringify ({
 							game: "pong",
 							op_id: router.login_info.id,
@@ -432,6 +434,8 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 							p2_score: p2Final,
 						}),
 					});
+					const data = await res.json();
+					console.log(data);
 				} catch (error) {
 					console.log(error);
 				}

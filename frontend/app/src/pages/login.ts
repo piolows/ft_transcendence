@@ -14,7 +14,7 @@ export default class Login extends Component {
                         <label class="block font-silkscreen mb-2">USERNAME</label>
                         <input name="username" type="text" 
                             class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323"
-                            required>
+                            maxlength="15" required>
                     </div>
                     <div>
                         <label class="block font-silkscreen mb-2">PASSWORD</label>
