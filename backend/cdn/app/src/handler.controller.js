@@ -53,7 +53,7 @@ export default async function endpointHandler(fastify) {
 		try {
 			const file = await req.file();
 			if (!file)
-				return reply.send({ success: false, code: 400, error: 'No file uploaded' });
+				return reply.send({ success: false, code: 400, source: "/cdn/upload-image", error: 'No file uploaded' });
 			const ext = extType(file.mimetype);
 			const filename = `${randomUUID().replace(/-/g, "").slice(0, 16)}${ext}`;
 			const avatarDir = path.join(process.cwd(), "public", "uploads", "avatars");
@@ -65,14 +65,14 @@ export default async function endpointHandler(fastify) {
 			return reply.send({ success: true, filename, public_url });
 		} catch (error) {
 			console.log(error);
-			return reply.send({ success: false, code: 500, error: error.text });
+			return reply.send({ success: false, code: 500, source: "/cdn/upload-image", error: error.text });
 		}
 	});
 
 	fastify.post("/delete", async (req, reply) => {
 		const { file } = req.body;
 		if (!file)
-			return reply.send({ success: false, code: 400, error: 'Missing file parameter'});
+			return reply.send({ success: false, code: 400, source: "/cdn/delete", error: 'Missing file parameter'});
 		const new_file = path.join(process.cwd(), 'public', file);
 		if (fs.existsSync(new_file)) {
 			try {
@@ -80,12 +80,12 @@ export default async function endpointHandler(fastify) {
 					if (err) {
 						console.error('Error deleting file:', err);
 						fastify.log.error(err);
-						return reply.send({ success: false, code: 500, error: 'Failed to delete file' });
+						return reply.send({ success: false, code: 500, source: "/cdn/delete", error: 'Failed to delete file' });
 					}
 				});
 			} catch (err) {
 				fastify.log.error(err);
-				return reply.send({ success: false, code: 500, error: 'Failed to delete file' });
+				return reply.send({ success: false, code: 500, source: "/cdn/delete", error: 'Failed to delete file' });
 			}
 		}
 		return reply.send({ success: true });
@@ -94,7 +94,7 @@ export default async function endpointHandler(fastify) {
 	fastify.post("/avatars", async (req, reply) => {
 		const { url } = req.body;
 		if (!url)
-			return reply.send({ success: false, code: 400, error: "Missing URL" });
+			return reply.send({ success: false, code: 400, source: "/cdn/avatars", error: "Missing URL" });
 		try {
 			fastify.log.info(`Fetching avatar from ${url}`);
 
@@ -117,7 +117,7 @@ export default async function endpointHandler(fastify) {
 			return reply.send({ success: true, filename, public_url });
 		} catch (err) {
 			fastify.log.error(err);
-			return reply.send({ success: false, code: 500, error: "Failed to download avatar" });
+			return reply.send({ success: false, code: 500, source: "/cdn/avatars", error: "Failed to download avatar" });
 		}
 	});
 }

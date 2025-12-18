@@ -142,7 +142,7 @@ export default class Friends extends Component {
 							return ;
 						}
 						if (!data.success) {
-							console.error(`Error while sending request: ${data.code} - ${data.error}`);
+							console.error(`Error while sending request: ${data.code} - ${data.source} - ${data.error}`);
 							return ;
 						}
 						this.router.route(this.real_path, false);
@@ -170,7 +170,7 @@ export default class Friends extends Component {
 							return ;
 						}
 						if (!data.success) {
-							console.error(`Error while sending request: ${data.code} - ${data.error}`);
+							console.error(`Error while sending request: ${data.code} - ${data.source} - ${data.error}`);
 							return ;
 						}
 						this.router.route(this.real_path, false);

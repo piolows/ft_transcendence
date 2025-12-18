@@ -13,14 +13,14 @@ const pongHandler = (fastify, options, done) => {
 				headers
 			});
 			if (!response.ok)
-				return { success: false, code: response.status, error: "Authentication failed" };
+				return { success: false, code: response.status, source: "/tictactoe:authenticate", error: "Authentication failed" };
 			const data = await response.json();
 			if (data && !data.loggedIn)
-				return { success: false, code: 403, error: "Must be signed in" };
+				return { success: false, code: 403, source: "/tictactoe:authenticate", error: "Must be signed in" };
 			return data;
 		} catch (error) {
 			console.log("COULD NOT AUTHENTICATE:", error);
-				return { success: false, code: 500, error: "Authentication Error. Check logs." };
+				return { success: false, code: 500, source: "/tictactoe:authenticate", error: "Authentication Error. Check logs." };
 		}
 	}
 
@@ -45,10 +45,10 @@ const pongHandler = (fastify, options, done) => {
 		const room_code = (req.params.room_id ?? "").toUpperCase();
 		const room_code_regex = /^[A-Z0-9]{5}$/;
 		if (!room_code_regex.test(room_code)) {
-			return resp.send({ success: false, code: 400, error: "Invalid room code" });
+			return resp.send({ success: false, code: 400, source: "/tictactoe/room/:room_id", error: "Invalid room code" });
 		}
 		if (!games[room_code])
-			return resp.send({ success: false, code: 404, error: "Room not found"});
+			return resp.send({ success: false, code: 404, source: "/tictactoe/room/:room_id", error: "Room not found"});
 		return resp.send({ 
 			success: true,
 			started: games[room_code].started,
@@ -83,12 +83,12 @@ const pongHandler = (fastify, options, done) => {
 
 	fastify.post("/new", async (req, resp) => {
 		if (Object.keys(games).length > 1024)
-			return resp.send({ success: false, code: 501, error: "Maximum game limit reached" });
+			return resp.send({ success: false, code: 501, source: "/tictactoe/new", error: "Maximum game limit reached" });
 		const login_data = await authenticate(req);
 		if (!login_data.success)
 			return resp.send(login_data);
 		if (admins[login_data.user.username])
-			return resp.send({ success: false, code: 403, error: "User already has an open room" });
+			return resp.send({ success: false, code: 403, source: "/tictactoe/new", error: "User already has an open room" });
 		let id = -1;
 		if (typeof req.body !== 'undefined' && typeof req.body.tournament_id !== "undefined") {
 			try {
@@ -99,7 +99,7 @@ const pongHandler = (fastify, options, done) => {
 				id = uuid;
 			} catch (error) {
 				fastify.log.error(`error fetching tournament info: ${error.message}`);
-				return resp.send({ success: false, code: 500, error: error.message });
+				return resp.send({ success: false, code: 500, source: "/tictactoe/new", error: error.text() });
 			}
 		}
 		// const game = new Game(login_data.user, req.body.tournament_id);
@@ -141,7 +141,7 @@ const pongHandler = (fastify, options, done) => {
 				try {
 					data = JSON.parse(msg);
 				} catch (err) {
-					socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid JSON" }));
+					socket.send(JSON.stringify({ success: false, code: 400, source: "/tictactoe:socket.onmessage", error: "Invalid JSON" }));
 					return;
 				}
 
@@ -168,19 +168,19 @@ const pongHandler = (fastify, options, done) => {
 				//============ TEMPORARY FOR TESTING =============//
 
 				if (!game_id || !action) {
-					socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid message: Must contain game_id & action [& param]" }));
+					socket.send(JSON.stringify({ success: false, code: 400, source: "/tictactoe:socket.onmessage", error: "Invalid message: Must contain game_id & action [& param]" }));
 					return;
 				}
 				if (!games[game_id]) {
-					socket.send(JSON.stringify({ success: false, code: 404, error: "Game not found" }));
+					socket.send(JSON.stringify({ success: false, code: 404, source: "/tictactoe:socket.onmessage", error: "Game not found" }));
 					return;
 				}
 				try {
 					switch (action) {
 						case "JOIN":
 							if (param && param != "SPEC" && param != "EITHER") {
-								socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid message param: JOIN only takes PLAY/SPEC as optional params." }));
-								console.log(JSON.stringify({ success: false, code: 400, error: "Invalid message param: JOIN only takes PLAY/SPEC as optional params." }));
+								socket.send(JSON.stringify({ success: false, code: 400, source: "/tictactoe:socket.onmessage", error: "Invalid message param: JOIN only takes PLAY/SPEC as optional params." }));
+								console.log(JSON.stringify({ success: false, code: 400, source: "/tictactoe:socket.onmessage", error: "Invalid message param: JOIN only takes PLAY/SPEC as optional params." }));
 								break;
 							}
 							else if (param && param == "SPEC") {
@@ -214,16 +214,16 @@ const pongHandler = (fastify, options, done) => {
 							break;
 						case "PLAY":
 							if (param && param != "LEFT" && param != "RIGHT") {
-								socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid message param: PLAY only takes LEFT/RIGHT as optional params." }));
-								console.log(JSON.stringify({ success: false, code: 400, error: "Invalid message param: PLAY only takes LEFT/RIGHT as optional params." }));
+								socket.send(JSON.stringify({ success: false, code: 400, source: "/tictactoe:socket.onmessage", error: "Invalid message param: PLAY only takes LEFT/RIGHT as optional params." }));
+								console.log(JSON.stringify({ success: false, code: 400, source: "/tictactoe:socket.onmessage", error: "Invalid message param: PLAY only takes LEFT/RIGHT as optional params." }));
 								break;
 							}
 							const players = Object.values(games[game_id].players);
 							if (players.length >= 2)
-								socket.send(JSON.stringify({ success: false, code: 403, error: "Game room is full" }));
+								socket.send(JSON.stringify({ success: false, code: 403, source: "/tictactoe:socket.onmessage", error: "Game room is full" }));
 							if (param && param == "LEFT") {
 								if (players.length == 1 && players[0].is_left) {
-									socket.send(JSON.stringify({ success: false, code: 403, error: "Seat 1 is already taken" }));
+									socket.send(JSON.stringify({ success: false, code: 403, source: "/tictactoe:socket.onmessage", error: "Seat 1 is already taken" }));
 									return ;
 								}
 								member.join(games[game_id], "left");
@@ -232,7 +232,7 @@ const pongHandler = (fastify, options, done) => {
 							}
 							else if (param && param == "LEFT") {
 								if (players.length == 1 && !players[0].is_left) {
-									socket.send(JSON.stringify({ success: false, code: 403, error: "Seat 2 is already taken" }));
+									socket.send(JSON.stringify({ success: false, code: 403, source: "/tictactoe:socket.onmessage", error: "Seat 2 is already taken" }));
 									return ;
 								}
 								member.join(games[game_id], "right");
@@ -259,12 +259,12 @@ const pongHandler = (fastify, options, done) => {
 							break;
 						case "LEAVE":
 							if (!member.game) {
-								socket.send(JSON.stringify({ success: false, code: 403, error: `User is not in a game` }));
+								socket.send(JSON.stringify({ success: false, code: 403, source: "/tictactoe:socket.onmessage", error: `User is not in a game` }));
 								break;
 							}
 							const gid = member.game.uuid;
 							if (gid != game_id) {
-								socket.send(JSON.stringify({ success: false, code: 403, error: `Wrong game ID. User is in game #${gid}` }));
+								socket.send(JSON.stringify({ success: false, code: 403, source: "/tictactoe:socket.onmessage", error: `Wrong game ID. User is in game #${gid}` }));
 								break;
 							}
 							member.leave();
@@ -303,13 +303,13 @@ const pongHandler = (fastify, options, done) => {
 							break;
 						case "MESSAGE":
 							if (!param || param.trim() == "") {
-								socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid message action: no param variable with message" }));
+								socket.send(JSON.stringify({ success: false, code: 400, source: "/tictactoe:socket.onmessage", error: "Invalid message action: no param variable with message" }));
 								break;
 							}
 							// socket.send("You said: " + param);
 							break;
 						default:
-							socket.send(JSON.stringify({ success: false, code: 400, error: "Invalid action. Available actions: JOIN/PLAY/LEAVE/MOVE_UP/MOVE_DOWN/STOP/MESSAGE" }));
+							socket.send(JSON.stringify({ success: false, code: 400, source: "/tictactoe:socket.onmessage", error: "Invalid action. Available actions: JOIN/PLAY/LEAVE/MOVE_UP/MOVE_DOWN/STOP/MESSAGE" }));
 							break;
 					}
 					if (!games[game_id].started || action == "MESSAGE") {
@@ -317,7 +317,7 @@ const pongHandler = (fastify, options, done) => {
 					}
 				} catch (err) {
 					console.log("Error on command: ", err.message);
-					socket.send(JSON.stringify({ success: false, code: 500, error: err.message }));
+					socket.send(JSON.stringify({ success: false, code: 500, source: "/tictactoe:socket.onmessage", error: err.message }));
 				}
 			});
 

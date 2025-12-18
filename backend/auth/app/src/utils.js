@@ -23,41 +23,41 @@ export function shortUUID() {
 
 export function validate_registration(user, req, update = false) {
 	if (user && user['password'] != null && !update) {
-		return { success: false, code: 403, error: 'User already exists' };
+		return { success: false, code: 403, source: "/auth:validate_registration", error: 'User already exists' };
 	}
 	if (req.body.username && req.body.user) {
 		if (req.body.username.length < 3) {
-			return { success: false, code: 400, error: 'Username too short: min 3' };
+			return { success: false, code: 400, source: "/auth:validate_registration", error: 'Username too short: min 3' };
 		}
 		if (req.body.username.length > 20) {
-			return { success: false, code: 400, error: 'Username too long: max 20' };
+			return { success: false, code: 400, source: "/auth:validate_registration", error: 'Username too long: max 20' };
 		}
 	}
 
 	const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 	if (req.body.email && !email_regex.test(req.body.email) && !update) {
-		return { success: false, code: 400, error: 'Invalid email format' };
+		return { success: false, code: 400, source: "/auth:validate_registration", error: 'Invalid email format' };
 	}
 
 	if (req.body.password) {
 		if (req.body.password.length < 8) {
-			return { success: false, code: 400, error: 'Password too short: min 8' };
+			return { success: false, code: 400, source: "/auth:validate_registration", error: 'Password too short: min 8' };
 		}
 		if (req.body.password.length > 64) {
-			return { success: false, code: 400, error: 'Password too long: max 64' };
+			return { success: false, code: 400, source: "/auth:validate_registration", error: 'Password too long: max 64' };
 		}
 		if (req.body.password.includes(req.body.username) || req.body.password.includes(req.body.email.split('@')[0])) {
-			return { success: false, code: 400, error: 'Unsafe password: Must not contain username or email address' };
+			return { success: false, code: 400, source: "/auth:validate_registration", error: 'Unsafe password: Must not contain username or email address' };
 		}
 		const password_regex = /^(?=.{8,64}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9_]).{8,64}$/;
 		if (!password_regex.test(req.body.password)) {
-			return { success: false, code: 400, error: 'Unsafe password: Must contain at least 1 Small letter, 1 Capital letter, 1 Digit and 1 Symbol' };
+			return { success: false, code: 400, source: "/auth:validate_registration", error: 'Unsafe password: Must contain at least 1 Small letter, 1 Capital letter, 1 Digit and 1 Symbol' };
 		}
 	}
 
 	const url_regex = /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp|svg)(\?.*)?)$/i;
 	if (req.body.avatarURL && !url_regex.test(req.body.avatarURL)) {
-		return { success: false, code: 400, error: 'Invalid email' };
+		return { success: false, code: 400, source: "/auth:validate_registration", error: 'Invalid email' };
 	}
 	return null;
 }

@@ -45,11 +45,11 @@ const endpointHandler = (fastify, options, done) => {
 
 	fastify.post("/", async (req, resp) => {
 		if (!req.body || !isDictionary(req.body))
-			return resp.send({ success: false, code: 400, error: `Invalid Request: JSON Body required` });
+			return resp.send({ success: false, code: 400, source: "/users", error: `Invalid Request: JSON Body required` });
 		const required = ["id", "username", "email", "avatarURL"];
 		for (const key of required) {
 			if (!(key in req.body)) {
-				return resp.send({ success: false, code: 400, error: `Missing field: ${key}` });
+				return resp.send({ success: false, code: 400, source: "/users", error: `Missing field: ${key}` });
 			}
 		}
 		try {
@@ -68,37 +68,37 @@ const endpointHandler = (fastify, options, done) => {
 			}
 			return resp.send({ success: true });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, error: error.message });
+			return resp.send({ success: false, code: 500, source: "/users", error: error.text() });
 		}
 	});
 
 	fastify.delete("/", async (req, reply) => {
 		if (!req.body || !isDictionary(req.body))
-			return resp.send({ success: false, code: 400, error: `Invalid Request: JSON Body required` });
+			return resp.send({ success: false, code: 400, source: "/users/delete", error: `Invalid Request: JSON Body required` });
 		if (!req.body.username)
-			return resp.send({ success: false, code: 400, error: "Must provide username" });
+			return resp.send({ success: false, code: 400, source: "/users/delete", error: "Must provide username" });
 		try {
 			const user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE username=?`).get(req.body.username);
 			if (!user) {
-				return reply.send({ success: false, code: 404, error: 'User does not exists!' });
+				return reply.send({ success: false, code: 404, source: "/users/delete", error: 'User does not exists!' });
 			}
 			if (!await argon2.verify(user['password'], req.body.password)) {
-				return reply.send({ success: false, code: 403, error: "Wrong password" });
+				return reply.send({ success: false, code: 403, source: "/users/delete", error: "Wrong password" });
 			}
 			await fastify.sqlite.prepare(`DELETE FROM ${UT} WHERE username=?`).run(req.body.username);
 			return reply.send({ success: true });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, error: error.message });
+			return reply.send({ success: false, code: 500, source: "/users/delete", error: error.text() });
 		}
 	});
 
 	fastify.get("/:username", async (req, resp) => {
 		if (!req.params.username || req.params.username == "")
-			return resp.send({ success: false, code: 400, error: "Must provide username" });
+			return resp.send({ success: false, code: 400, source: "/users/:username", error: "Must provide username" });
 		try {
 			const user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE username=?`).get(req.params.username);
 			if (!user) {
-				return resp.send({ success: false, code: 404, error: "User not found" });
+				return resp.send({ success: false, code: 404, source: "/users/:username", error: "User not found" });
 			}
 			const friend_cnt = await fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${FT} WHERE user_id=?`).get(user['id'])['COUNT(user_id)'];
 			let is_friend = undefined;
@@ -125,7 +125,7 @@ const endpointHandler = (fastify, options, done) => {
 			}
 			return resp.send({ success: true, user, friend_cnt, stats, game_cnt, games, is_friend, online, last_seen });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, error: error.message });
+			return resp.send({ success: false, code: 500, source: "/users/:username", error: error.text() });
 		}
 	});
 
@@ -133,7 +133,7 @@ const endpointHandler = (fastify, options, done) => {
 		try {
 			const user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE username=?`).get(req.params.username);
 			if (!user) {
-				return resp.send({ success: false, code: 404, error: "User not found" });
+				return resp.send({ success: false, code: 404, source: "/users/:username/history:get", error: "User not found" });
 			}
 			if (!("page" in req.query) || req.query.page < 1) {
 				req.query.page = 1;
@@ -145,29 +145,29 @@ const endpointHandler = (fastify, options, done) => {
 			const count = await fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${HT} WHERE user_id=?`).get(user['id'])['COUNT(user_id)'];
 			return resp.send({ success: true, games: games, user, count });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, error: error.message });
+			return resp.send({ success: false, code: 500, source: "/users/:username/history:get", error: error.text() });
 		}
 	});
 
 	fastify.post("/:username/history", async (req, resp) => {
 		if (!req.body || !isDictionary(req.body))
-			return resp.send({ success: false, code: 400, error: `Invalid Request: JSON Body required` });
+			return resp.send({ success: false, code: 400, source: "/users/:username/history:post", error: `Invalid Request: JSON Body required` });
 		const required = ["op_id", "winner_id", "p1_score", "p2_score", "game", "time"];
 		for (const key of required) {
 			if (!(key in req.body)) {
-				return resp.send({ success: false, code: 400, error: `Missing field: ${key}` });
+				return resp.send({ success: false, code: 400, source: "/users/:username/history:post", error: `Missing field: ${key}` });
 			}
 		}
 		try {
 			if (req.body.op_id >= 0) {
 				const user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE id=?`).get(req.body.op_id);
 				if (!user) {
-					return resp.send({ success: false, code: 404, error: "Opponent not found" });
+					return resp.send({ success: false, code: 404, source: "/users/:username/history:post", error: "Opponent not found" });
 				}
 			}
 			const user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE username=?`).get(req.params.username);
 			if (!user) {
-				return resp.send({ success: false, code: 404, error: "User not found" });
+				return resp.send({ success: false, code: 404, source: "/users/:username/history:post", error: "User not found" });
 			}
 			if (user['id'] == req.body.op_id) {
 				if (!("local_op" in req.body))
@@ -187,7 +187,7 @@ const endpointHandler = (fastify, options, done) => {
 			addGame(req.body.op_id, user['id'], req.body, date);
 			return resp.send({ success: true });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, error: error.message });
+			return resp.send({ success: false, code: 500, source: "/users/:username/history:post", error: error.text() });
 		}
 	});
 
@@ -195,20 +195,20 @@ const endpointHandler = (fastify, options, done) => {
 	// Description: Send post request for last seen online. Check if user exists using id from frontend. Get time now, update.
 	fastify.post("/status", async (req, resp) => {
 		if (!req.body || !isDictionary(req.body))
-			return resp.send({ success: false, code: 400, error: `Invalid Request: JSON Body required` });
+			return resp.send({ success: false, code: 400, source: "/users/status", error: `Invalid Request: JSON Body required` });
 		if (!req.body.id)
-			return resp.send({ success: false, code: 400, error: `Missing field: id`});
+			return resp.send({ success: false, code: 400, source: "/users/status", error: `Missing field: id`});
 		try {
 			const user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE id=?`).get(req.body.id);
 			if (!user)
-				return resp.send({ success: false, code: 404, error: "User not found" });
+				return resp.send({ success: false, code: 404, source: "/users/status", error: "User not found" });
 
 			const now = sqliteNow();
 			await fastify.sqlite.prepare(`UPDATE ${UT} SET last_seen=? WHERE id=?`).run(now, req.body.id);
 
 			return resp.send({ success: true, last_seen: now });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, error: error.message });
+			return resp.send({ success: false, code: 500, source: "/users/status", error: error.text() });
 		}
 	});
 
@@ -216,11 +216,11 @@ const endpointHandler = (fastify, options, done) => {
 	fastify.get("/status/:username", async (req, resp) => {
 		const username = req.params.username;
 		if (!username || username == "")
-			return resp.send({ success: false, code: 400, error: "Must provide username" });
+			return resp.send({ success: false, code: 400, source: "/users/status/:username", error: "Must provide username" });
 		try {
 			const user = await fastify.sqlite.prepare(`SELECT id, username, last_seen FROM ${UT} WHERE username=?`).get(username);
 			if (!user)
-				return resp.send({ success: false, code: 404, error: "User not found" });
+				return resp.send({ success: false, code: 404, source: "/users/status/:username", error: "User not found" });
 
 			let online = false;
 			let last_seen = user.last_seen;
@@ -233,7 +233,7 @@ const endpointHandler = (fastify, options, done) => {
 			}
 			return resp.send({ success: true, online, last_seen });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, error: error.message });
+			return resp.send({ success: false, code: 500, source: "/users/status/:username", error: error.text() });
 		}
 	});
 	// AGG [WIP]
@@ -253,7 +253,7 @@ const endpointHandler = (fastify, options, done) => {
 					JOIN ${UT} ON ${ST}.user_id = ${UT}.id ORDER BY ${ST}.points DESC LIMIT ? OFFSET ?`).all(PLAYERS_PER_PAGE, OFFSET);
 			return resp.send({ success: true, top_players, player_count });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, error: error.message });
+			return resp.send({ success: false, code: 500, source: "/users/top", error: error.text() });
 		}
 	});
 
@@ -261,12 +261,12 @@ const endpointHandler = (fastify, options, done) => {
 		try {
 			const user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE username=?`).get(req.params.username);
 			if (!user) {
-				return resp.send({ success: false, code: 404, error: "User not found" });
+				return resp.send({ success: false, code: 404, source: "/users/:username/stats", error: "User not found" });
 			}
 			const stats = await fastify.sqlite.prepare(`SELECT * FROM ${ST} WHERE user_id=?`).get(user['id']);
 			return resp.send({ success: true, stats: stats });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, error: error.message });
+			return resp.send({ success: false, code: 500, source: "/users/:username/stats", error: error.text() });
 		}
 	});
 
@@ -274,7 +274,7 @@ const endpointHandler = (fastify, options, done) => {
 		try {
 			const user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE username=?`).get(req.params.username);
 			if (!user) {
-				return resp.send({ success: false, code: 404, error: "User not found" });
+				return resp.send({ success: false, code: 404, source: "/users/:username/friends:get", error: "User not found" });
 			}
 			if (!("page" in req.query) || req.query.page < 1) {
 				req.query.page = 1;
@@ -302,28 +302,28 @@ const endpointHandler = (fastify, options, done) => {
 				return resp.send({ success: true, friends: friends, user, count });
 			}
 		} catch (error) {
-			return resp.send({ success: false, code: 500, error: error.message });
+			return resp.send({ success: false, code: 500, source: "/users/:username/friends:get", error: error.text() });
 		}
 	});
 
 	fastify.post("/:username/friends", async (req, resp) => {
 		if (!req.body || !isDictionary(req.body))
-			return resp.send({ success: false, code: 400, error: `Invalid Request: JSON Body required` });
+			return resp.send({ success: false, code: 400, source: "/users/:username/friends:post", error: `Invalid Request: JSON Body required` });
 		if (!req.body.user_id)
-			return resp.send({ success: false, code: 400, error: `Missing Field: user_id` });
+			return resp.send({ success: false, code: 400, source: "/users/:username/friends:post", error: `Missing Field: user_id` });
 		try {
 			let user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE id=?`).get(req.body.user_id);
 			if (!user) {
-				return resp.send({ success: false, code: 404, error: "User with user_id not found" });
+				return resp.send({ success: false, code: 404, source: "/users/:username/friends:post", error: "User with user_id not found" });
 			}
 			user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE username=?`).get(req.params.username);
 			if (!user) {
-				return resp.send({ success: false, code: 404, error: "Target user not found" });
+				return resp.send({ success: false, code: 404, source: "/users/:username/friends:post", error: "Target user not found" });
 			}
 			const rec1 = await fastify.sqlite.prepare(`SELECT * FROM ${FT} WHERE user_id=? AND friend_id=?`).get(user['id'], req.body.user_id);
 			const rec2 = await fastify.sqlite.prepare(`SELECT * FROM ${FT} WHERE user_id=? AND friend_id=?`).get(req.body.user_id, user['id']);
 			if (rec1 && rec2) {
-				return resp.send({ success: false, code: 403, error: "Already friends" });
+				return resp.send({ success: false, code: 403, source: "/users/:username/friends:post", error: "Already friends" });
 			}
 			if (!rec1)
 				await fastify.sqlite.prepare(`INSERT INTO ${FT} (user_id, friend_id) VALUES (?, ?)`).run(user['id'], req.body.user_id);
@@ -331,28 +331,28 @@ const endpointHandler = (fastify, options, done) => {
 				await fastify.sqlite.prepare(`INSERT INTO ${FT} (user_id, friend_id) VALUES (?, ?)`).run(req.body.user_id, user['id']);
 			return resp.send({ success: true });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, error: error.message });
+			return resp.send({ success: false, code: 500, source: "/users/:username/friends:post", error: error.text() });
 		}
 	});
 
 	fastify.delete("/:username/friends", async (req, resp) => {
 		if (!req.body || !isDictionary(req.body))
-			return resp.send({ success: false, code: 400, error: `Invalid Request: JSON Body required` });
+			return resp.send({ success: false, code: 400, source: "/users/:username/friends:delete", error: `Invalid Request: JSON Body required` });
 		if (!req.body.user_id)
-			return resp.send({ success: false, code: 400, error: `Missing Field: user_id` });
+			return resp.send({ success: false, code: 400, source: "/users/:username/friends:delete", error: `Missing Field: user_id` });
 		try {
 			let user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE id=?`).get(req.body.user_id);
 			if (!user) {
-				return resp.send({ success: false, code: 404, error: "User with user_id not found" });
+				return resp.send({ success: false, code: 404, source: "/users/:username/friends:delete", error: "User with user_id not found" });
 			}
 			user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE username=?`).get(req.params.username);
 			if (!user) {
-				return resp.send({ success: false, code: 404, error: "Target user not found" });
+				return resp.send({ success: false, code: 404, source: "/users/:username/friends:delete", error: "Target user not found" });
 			}
 			const rec1 = await fastify.sqlite.prepare(`SELECT * FROM ${FT} WHERE user_id=? AND friend_id=?`).get(user['id'], req.body.user_id);
 			const rec2 = await fastify.sqlite.prepare(`SELECT * FROM ${FT} WHERE user_id=? AND friend_id=?`).get(req.body.user_id, user['id']);
 			if (!rec1 && !rec2) {
-				return resp.send({ success: false, code: 403, error: "Already not friends" });
+				return resp.send({ success: false, code: 403, source: "/users/:username/friends:delete", error: "Already not friends" });
 			}
 			if (rec1)
 				await fastify.sqlite.prepare(`DELETE FROM ${FT} WHERE user_id=? AND friend_id=?`).run(user['id'], req.body.user_id);
@@ -360,7 +360,7 @@ const endpointHandler = (fastify, options, done) => {
 				await fastify.sqlite.prepare(`DELETE FROM ${FT} WHERE user_id=? AND friend_id=?`).run(req.body.user_id, user['id']);
 			return resp.send({ success: true });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, error: error.message });
+			return resp.send({ success: false, code: 500, source: "/users/:username/friends:delete", error: error.text() });
 		}
 	});
 

@@ -13,22 +13,22 @@ const endpointHandler = (fastify, options, done) => {
 
 	fastify.post("/login", loginSchema, async (req, reply) => {
 		if (req.contentLength === 0 || !req.body)
-			return reply.send({ success: false, code: 400, error: "Empty body" });
+			return reply.send({ success: false, code: 400, source: "/auth/login", error: "Empty body" });
 		if (req.session && req.session.user)
-			return reply.send({ success: false, code: 403, error: "Already logged in. Logout first" });
+			return reply.send({ success: false, code: 403, source: "/auth/login", error: "Already logged in. Logout first" });
 		try {
 			if (!req.session) {
 				req.session.init();
 			}
 			const user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`).get(req.body.username);
 			if (!user) {
-				return reply.send({ success: false, code: 404, error: "User not found" });
+				return reply.send({ success: false, code: 404, source: "/auth/login", error: "User not found" });
 			}
 			if (user['password'] == null) {
-				return reply.send({ success: false, code: 403, error: "Account only registered through google sign-in, try signing up with the same email" });
+				return reply.send({ success: false, code: 403, source: "/auth/login", error: "Account only registered through google sign-in, try signing up with the same email" });
 			}
 			if (!await argon2.verify(user['password'], req.body.password)) {
-				return reply.send({ success: false, code: 403, error: "Wrong password" });
+				return reply.send({ success: false, code: 403, source: "/auth/login", error: "Wrong password" });
 			}
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: user['avatarURL'] };
 			req.session.save();
@@ -39,7 +39,7 @@ const endpointHandler = (fastify, options, done) => {
 			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, error: error.message });
+			return reply.send({ success: false, code: 500, source: "/auth/login", error: error.text() });
 		}
 	});
 
@@ -51,7 +51,7 @@ const endpointHandler = (fastify, options, done) => {
 
 			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`).get(req.body.username);
 			if (user && (user['email'] != req.body.email || user['password'] != null)) {
-				return reply.send({ success: false, code: 403, error: 'User already exists' });
+				return reply.send({ success: false, code: 403, source: "/auth/register", error: 'User already exists' });
 			}
 
 			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
@@ -85,21 +85,21 @@ const endpointHandler = (fastify, options, done) => {
 			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, error: error.message });
+			return reply.send({ success: false, code: 500, source: "/auth/register", error: error.text() });
 		}
 	});
 
 	fastify.post("/update", async (req, reply) => {
 		try {
 			if (!req.session || !req.session.user)
-				return reply.send({ success: false, code: 403, error: "Must be signed in" });
+				return reply.send({ success: false, code: 403, source: "/auth/update", error: "Must be signed in" });
 			if (!req.body.email)
-				return reply.send({ success: false, code: 400, error: "Must include email in body" });
+				return reply.send({ success: false, code: 400, source: "/auth/update", error: "Must include email in body" });
 			if (req.body.email.value != req.session.user.email)
-				return reply.send({ success: false, code: 403, error: "Can only update own account" });
+				return reply.send({ success: false, code: 403, source: "/auth/update", error: "Can only update own account" });
 			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email.value);
 			if (!user) {
-				return reply.send({ success: false, code: 404, error: "User not found" });
+				return reply.send({ success: false, code: 404, source: "/auth/update", error: "User not found" });
 			}
 
 			// const valReg = validate_registration(user, req, true);
@@ -119,21 +119,21 @@ const endpointHandler = (fastify, options, done) => {
 					});
 					if (!resp.ok) {
 						console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
-						return reply.send({ success: false, code: 500, error: "Unexpected error while trying to save uploaded file." });
+						return reply.send({ success: false, code: 500, source: "/auth/update", error: "Unexpected error while trying to save uploaded file." });
 					}
 					const data = await resp.json();
 					if (!data) {
 						console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
-						return reply.send({ success: false, code: 500, error: "Unexpected error while trying to save uploaded file." });
+						return reply.send({ success: false, code: 500, source: "/auth/update", error: "Unexpected error while trying to save uploaded file." });
 					}
 					if (!data.success) {
-						console.error(`Error while sending request: ${data.code} - ${data.error}`);
+						console.error(`Error while sending request: ${data.code} - ${data.source} - ${data.error}`);
 						return reply.send(data);
 					}
 					newUrl = data.public_url;
 				} catch (error) {
 					console.error(error.message);
-					return reply.send({ success: false, code: 500, error: `Unexpected error while trying to save uploaded file: ${error.text()}` });
+					return reply.send({ success: false, code: 500, source: "/auth/update", error: `Unexpected error while trying to save uploaded file: ${error.text()}` });
 				}
 			}
 			const avatarURI = newUrl != "" ? newUrl : (req.body.avatarURL?.value && req.body.avatarURL?.value != "" ? await save_pfp(req.body.avatarURL?.value) : user['avatarURL']);
@@ -148,7 +148,7 @@ const endpointHandler = (fastify, options, done) => {
 			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, error: error.message });
+			return reply.send({ success: false, code: 500, source: "/auth/update", error: error.text() });
 		}
 	});
 
@@ -167,7 +167,7 @@ const endpointHandler = (fastify, options, done) => {
 
 			const payload = ticket.getPayload();
 			if (!payload)
-				return reply.send({ succes: false, code: 500, error: "Invalid Google payload"});
+				return reply.send({ succes: false, code: 500, source: "/auth/google-login", error: "Invalid Google payload"});
 			const { sub, email, name, picture } = payload;
 
 			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(email);
@@ -187,25 +187,25 @@ const endpointHandler = (fastify, options, done) => {
 			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, error: error.message });
+			return reply.send({ success: false, code: 500, source: "/auth/google-login", error: error.text() });
 		}
 	});
 
 	fastify.post("/logout", async (req, reply) => {
 		try {
 			if (!req.session || !req.session.user) {
-				return reply.send({ succes: false, code: 401, error: 'Not logged in!' });
+				return reply.send({ succes: false, code: 401, source: "/auth/logout", error: 'Not logged in!' });
 			}
 			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=? OR email=?`).get(req.session.user.username, req.session.user.email);
 			if (!user)
-				return reply.send({ succes: false, code: 404, error: 'User not found!' });
+				return reply.send({ succes: false, code: 404, source: "/auth/logout", error: 'User not found!' });
 			if (user['id'] != req.session.user.id || user['username'] != req.session.user.username || user['email'] != req.session.user.email) {
-				return reply.send({ succes: false, code: 403, error: 'Credentials do not match cookie!' });
+				return reply.send({ succes: false, code: 403, source: "/auth/logout", error: 'Credentials do not match cookie!' });
 			}
 			req.session.destroy();
 			return reply.send({ success: true });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, error: error.message });
+			return reply.send({ success: false, code: 500, source: "/auth/logout", error: error.text() });
 		}
 	});
 
@@ -213,15 +213,15 @@ const endpointHandler = (fastify, options, done) => {
 		try {
 			const user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`).get(req.body.username);
 			if (!user) {
-				return reply.send({ success: false, code: 404, error: 'User does not exists!' });
+				return reply.send({ success: false, code: 404, source: "/auth/delete", error: 'User does not exists!' });
 			}
 			if (!await argon2.verify(user['password'], req.body.password)) {
-				return reply.send({ success: false, code: 403, error: "Wrong password" });
+				return reply.send({ success: false, code: 403, source: "/auth/delete", error: "Wrong password" });
 			}
 			await fastify.sqlite.prepare(`DELETE FROM ${process.env.USERS_TABLE} WHERE username=?`).run(req.body.username);
 			return reply.send({ success: true });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, error: error.message });
+			return reply.send({ success: false, code: 500, source: "/auth/delete", error: error.text() });
 		}
 	});
 

@@ -34,7 +34,7 @@ export default class TopPlayers extends Component {
 			}
 			const data = await response.json();
 			if (!data.success) {
-				console.error(data.code, data.error);
+				console.error(data.code, data.source, data.error);
 				return ;
 			}
 			this.top = data.top_players;

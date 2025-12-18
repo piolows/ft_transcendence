@@ -80,7 +80,7 @@ export default class Leaderboard extends Component {
 			}
 			const data = await response.json();
 			if (!data.success) {
-				console.error(data.code, data.error);
+				console.error(data.code, data.source, data.error);
 				return ;
 			}
 			this.players = data.top_players;

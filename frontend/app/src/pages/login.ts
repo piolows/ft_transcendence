@@ -67,7 +67,7 @@ export default class Login extends Component {
 					if (!data)
 						console.error("Fetch error");
 					else
-						console.error(`Error ${data.code}: ${data.error}`);
+						console.error(`Error ${data.code}: ${data.source} - ${data.error}`);
 				}
 			} catch (error: any) {
 				console.error("Fetch error:", error.status, error.message);

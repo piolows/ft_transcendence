@@ -62,8 +62,8 @@ export default class PongJoin extends Component {
 
 				if (response.ok && data && data.success) {
 					this.router.route(`/pong/room/${game_id}?pref=${body.param}`);
-				} else {
-					alert(`Error: ${data.message}`);
+				} else if(data && !data.success) {
+					alert(`Error: ${data.code} - ${data.source} - ${data.error}`);
 				}
 			} catch (error) {
 				console.error("Fetch error:", error);

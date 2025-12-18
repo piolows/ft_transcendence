@@ -320,9 +320,10 @@ export default class Profile extends Component {
 						console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
 					}
 					if (!data.success) {
-						console.error(`Error while sending request: ${data.code} - ${data.error}`);
+						console.error(`Error while sending request: ${data.code} - ${data.source} - ${data.error}`);
 						return ;
 					}
+					this.router.route(this.real_path);
 				} catch (error: any) {
 					console.error(error.message);
 				}
@@ -396,7 +397,7 @@ export default class Profile extends Component {
 						return ;
 					}
 					if (!data.success) {
-						console.error(`Error while sending request: ${data.code} - ${data.error}`);
+						console.error(`Error while sending request: ${data.code} - ${data.source} - ${data.error}`);
 						return ;
 					}
 					this.router.route(this.real_path, false);
@@ -429,7 +430,7 @@ export default class Profile extends Component {
 						return ;
 					}
 					if (!data.success) {
-						console.error(`Error while sending request: ${data.code} - ${data.error}`);
+						console.error(`Error while sending request: ${data.code} - ${data.source} - ${data.error}`);
 						return ;
 					}
 					this.router.route(this.real_path, false);

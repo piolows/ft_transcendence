@@ -53,7 +53,7 @@ export default class PongMenu extends Component {
 					this.router.route(`/pong/room/${ data.game_id }`);
 				}
 				else {
-					console.error(`Game not found! ${data.code} - ${data.error}`);
+					console.error(`Game not found! ${data.code} - ${data.source} - ${data.error}`);
 				}
 			});
 		};
