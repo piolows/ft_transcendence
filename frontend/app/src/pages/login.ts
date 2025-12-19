@@ -21,6 +21,7 @@ export default class Login extends Component {
                         <input name="password" type="password" 
                             class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323"
                             required>
+						<p id="errmsg" class="text-red-500 text-xs h-4 pt-3 text-center"></p>
                     </div>
                     <button type="submit"
                         class="w-full bg-blue-500 text-white py-3 pixel-box font-pixelify hover:bg-blue-600 clicky">
@@ -41,7 +42,7 @@ export default class Login extends Component {
 
 	async init() {
 		const form = document.getElementById("loginForm") as HTMLFormElement;
-	
+		const errtext = document.getElementById('errmsg')!;
 		form.addEventListener("submit", async (event) => {
 			event.preventDefault();
 
@@ -57,7 +58,6 @@ export default class Login extends Component {
 				});
 
 				const data = response.ok ? await response.json() : null;
-
 				if (response.ok && data && data.success) {
 					this.router.loggedin = true;
 					this.router.login_info = data.user;
@@ -65,12 +65,12 @@ export default class Login extends Component {
 					this.router.route(history.state?.route, "replace");
 				} else {
 					if (!data)
-						console.error("Fetch error");
+						errtext.textContent = "Error: Connection issue";
 					else
-						console.error(`Error ${data.code}: ${data.source} - ${data.error}`);
+						errtext.textContent = `Error: ${data.error}`;
 				}
 			} catch (error: any) {
-				console.error("Fetch error:", error.status, error.message);
+				errtext.textContent = `Unexpected Error: ${error.statusText}`;
 			}
 		});
 
