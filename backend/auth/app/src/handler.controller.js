@@ -109,9 +109,9 @@ const endpointHandler = (fastify, options, done) => {
 			const username = req.body.username?.value ?? user['username'];
 			const password = req.body.password?.value ?? user['password'];
 			let newUrl = "";
-			if (req.file())
+			if (req.file() && req.file().size > 0)
 			{
-				// reply.send({success: true});
+				reply.send({success: true});
 				try {
 					const resp = await fetch(`${process.env.CDN_URL}/upload-image`, {
 						method: 'POST',

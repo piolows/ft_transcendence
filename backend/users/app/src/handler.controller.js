@@ -257,18 +257,18 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	});
 
-	fastify.get("/:username/stats", async (req, resp) => {
-		try {
-			const user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE username=?`).get(req.params.username);
-			if (!user) {
-				return resp.send({ success: false, code: 404, source: "/users/:username/stats", error: "User not found" });
-			}
-			const stats = await fastify.sqlite.prepare(`SELECT * FROM ${ST} WHERE user_id=?`).get(user['id']);
-			return resp.send({ success: true, stats: stats });
-		} catch (error) {
-			return resp.send({ success: false, code: 500, source: "/users/:username/stats", error: error.text() });
-		}
-	});
+	// fastify.get("/:username/stats", async (req, resp) => {
+	// 	try {
+	// 		const user = await fastify.sqlite.prepare(`SELECT * FROM ${UT} WHERE username=?`).get(req.params.username);
+	// 		if (!user) {
+	// 			return resp.send({ success: false, code: 404, source: "/users/:username/stats", error: "User not found" });
+	// 		}
+	// 		const stats = await fastify.sqlite.prepare(`SELECT * FROM ${ST} WHERE user_id=?`).get(user['id']);
+	// 		return resp.send({ success: true, stats: stats });
+	// 	} catch (error) {
+	// 		return resp.send({ success: false, code: 500, source: "/users/:username/stats", error: error.text() });
+	// 	}
+	// });
 
 	fastify.get("/:username/friends", async (req, resp) => {
 		try {

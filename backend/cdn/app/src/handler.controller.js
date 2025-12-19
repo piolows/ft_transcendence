@@ -69,27 +69,27 @@ export default async function endpointHandler(fastify) {
 		}
 	});
 
-	fastify.post("/delete", async (req, reply) => {
-		const { file } = req.body;
-		if (!file)
-			return reply.send({ success: false, code: 400, source: "/cdn/delete", error: 'Missing file parameter'});
-		const new_file = path.join(process.cwd(), 'public', file);
-		if (fs.existsSync(new_file)) {
-			try {
-				fs.unlink(new_file, (err) => {
-					if (err) {
-						console.error('Error deleting file:', err);
-						fastify.log.error(err);
-						return reply.send({ success: false, code: 500, source: "/cdn/delete", error: 'Failed to delete file' });
-					}
-				});
-			} catch (err) {
-				fastify.log.error(err);
-				return reply.send({ success: false, code: 500, source: "/cdn/delete", error: 'Failed to delete file' });
-			}
-		}
-		return reply.send({ success: true });
-	});
+	// fastify.post("/delete", async (req, reply) => {
+	// 	const { file } = req.body;
+	// 	if (!file)
+	// 		return reply.send({ success: false, code: 400, source: "/cdn/delete", error: 'Missing file parameter'});
+	// 	const new_file = path.join(process.cwd(), 'public', file);
+	// 	if (fs.existsSync(new_file)) {
+	// 		try {
+	// 			fs.unlink(new_file, (err) => {
+	// 				if (err) {
+	// 					console.error('Error deleting file:', err);
+	// 					fastify.log.error(err);
+	// 					return reply.send({ success: false, code: 500, source: "/cdn/delete", error: 'Failed to delete file' });
+	// 				}
+	// 			});
+	// 		} catch (err) {
+	// 			fastify.log.error(err);
+	// 			return reply.send({ success: false, code: 500, source: "/cdn/delete", error: 'Failed to delete file' });
+	// 		}
+	// 	}
+	// 	return reply.send({ success: true });
+	// });
 
 	fastify.post("/avatars", async (req, reply) => {
 		const { url } = req.body;
