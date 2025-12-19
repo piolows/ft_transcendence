@@ -95,6 +95,8 @@ export class Router {
 	private errpage: DefaultErrorPage;
 	private loader: Loading;
 	private presence_interval_id: number | null = null;
+	last_path: string|null = "";
+	history_len: number = 1;
 	auth_route: boolean = false;
 	app: HTMLDivElement | HTMLElement;
 	login_info: any = null;
@@ -325,6 +327,10 @@ export class Router {
 			}
 			if (route?.auth == false && this.loggedin)
 				return ;
+			if (this.currpage) {
+				this.last_path = this.currpage.real_path;
+				this.history_len = history.length;
+			}
 			this.auth_route = route?.auth;
 			if ((!this.currpage && push == true) || route.type == "overlay")
 				push = false;

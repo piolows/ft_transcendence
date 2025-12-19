@@ -106,7 +106,7 @@ export default class Pong extends Component {
 		// back
 		const backbtn = document.getElementById('back_btn')!;
 		backbtn.onclick = () => {
-			if (history.length > 2) {
+			if (this.router.last_path && history.length > this.router.history_len) {
 				history.back();
 			} else {
 				this.router.route(this.back_url, "replace");

@@ -260,7 +260,7 @@ export default class PongRoom extends Component {
 		// back button
 		const backbtn = document.getElementById('back_btn')!;
 		backbtn.onclick = () => {
-			if (history.length > 2) {
+			if (this.router.last_path && history.length > this.router.history_len) {
 				history.back();
 			} else {
 				this.router.route("/pong/menu", "replace");
