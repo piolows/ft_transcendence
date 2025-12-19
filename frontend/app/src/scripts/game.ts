@@ -59,7 +59,8 @@ export class Player {
 	paddle: Paddle;
 	type = "player";
 
-	constructor(name: string = "", paddle: Paddle) {
+	constructor(name: string, paddle: Paddle) {
+		console.log(name);
 		if (name != "")
 			this.name = name;
 		this.paddle = paddle;
@@ -427,6 +428,7 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 						headers: {"Content-Type": "application/json"},
 						body: JSON.stringify ({
 							game: "pong",
+							op_name: right_player.name,
 							op_id: router.login_info.id,
 							winner_id: -1,
 							time: time,

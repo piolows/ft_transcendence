@@ -72,7 +72,7 @@ export default class Pong extends Component {
 							<div class="pixel-box bg-blue-900 p-8 text-center">
 								<h2 id="overlay-title" class="text-3xl font-pixelify mb-6">READY TO PLAY?</h2>
 								<p id="overlay-message" class="font-silkscreen text-lg mb-8 text-white"></p>
-								<button id="overlay-button" class="pixel-box bg-green-500 px-8 py-4 text-white hover:bg-green-600 font-pixelify text-xl clicky">
+								<button id="overlay-button" class="pixel-box bg-green-500 px-8 py-4 text-white hover:bg-green-600 text-xl clicky">
 									START GAME
 								</button>
 							</div>
@@ -183,6 +183,12 @@ export default class Pong extends Component {
 			rcontrols.style.display = 'block';
 		}
 
+		// overlay
+		const overlay = document.getElementById('game-overlay')!;
+		const overlayTitle = document.getElementById('overlay-title')!;
+		const overlayMessage = document.getElementById('overlay-message')!;
+		const overlayButton = document.getElementById('overlay-button')!;
+
 		const cv = document.getElementById("gameCanvas") as HTMLCanvasElement;
 		const context = cv.getContext('2d')!;
 		const p1_score = document.getElementById("p1_score")! as HTMLDivElement;
@@ -191,8 +197,8 @@ export default class Pong extends Component {
 		const ball = new Ball(cv.width / 2, cv.height / 2, ball_speed, ball_radius, 'white');
 		const left_paddle = new Paddle(paddle_height, paddle_width, paddle_width, (cv.height - paddle_height) / 2, paddle_speed, 'orange');
 		const right_paddle = new Paddle(paddle_height, paddle_width, cv.width - (paddle_width * 2), (cv.height - paddle_height) / 2, paddle_speed, 'red');
-		let player1 = null;
-		let player2 = null;
+		let player1: Player | Bot | null = null;
+		let player2: Player | Bot | null = null;
 		let tournament: Tournament | null = null;
 		if (isTournament !== null && isTournament === "true") {
 			const tournament_string = sessionStorage.getItem("tournament");
@@ -209,15 +215,49 @@ export default class Pong extends Component {
 			player1 = currentMatch?.player1.isBot == true ? new Bot(currentMatch?.player1.name, left_paddle, cv, Math.floor(Math.random() * difficultyNames.length)) : new Player(currentMatch?.player1.name!, left_paddle);
 			player2 = currentMatch?.player2.isBot == true ? new Bot(currentMatch?.player2.name, right_paddle, cv, Math.floor(Math.random() * difficultyNames.length)) : new Player(currentMatch?.player2.name!, right_paddle);
 		} else {
-			player1 = new Player("Player 1", left_paddle);
-			player2 = (op == "bot") ? new Bot("AI Bot", right_paddle, cv, difficulty) : new Player("Player 2", right_paddle);
+			const p2Name = sessionStorage.getItem("p2Name");
+			if (p2Name === null && op !== "bot" && isTournament !== "true") {
+				// add an input box to the overlay if player name doesn't exist
+				const form = document.createElement("form");
+				// overlayMessage.appendChild(form);
+				overlayButton.className += " hidden";
+				overlayMessage.after(form);
+				const p2NameInput = document.createElement("input");
+				p2NameInput.id = "p2-name";
+				p2NameInput.type = "text";
+				overlayMessage.innerText = "Please enter Player 2's name";
+				p2NameInput.className = "w-[50%] px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323";
+				const submit = document.createElement("button");
+				let name: string | null = null;
+				submit.type = "submit";
+				submit.innerText = "OK!";
+				submit.className = "pixel-box bg-green-500 px-4 py-2 text-white hover:bg-green-600 ml-4 clicky";
+				form.appendChild(p2NameInput);
+				form.appendChild(submit);
+				submit.onclick = (e) => {
+					e.preventDefault();
+					name = p2NameInput.value
+					if (name === "") {
+						alert("Please enter a valid name for Player 2!");
+						return;
+					}
+					sessionStorage.setItem("p2Name", name);
+					form.removeChild(submit);
+					form.removeChild(p2NameInput);
+					overlayMessage.innerText = `${this.router.login_info.username} VS ${name}!`;
+					// player1 = new Player("Player 1", left_paddle);
+					player1 = new Player(this.router.login_info.username, left_paddle);
+					player2 = (op == "bot") ? new Bot("AI Bot", right_paddle, cv, difficulty) : new Player(name === null ? "" : name, right_paddle);
+					overlayButton.className = overlayButton.className.replace(" hidden", "");
+				};
+			} else {
+				if (op !== "bot" && isTournament !== "true")
+					overlayMessage.innerText = `${this.router.login_info.username} VS ${p2Name}!`;
+				// this.router.login_info.avatarURL
+				player1 = new Player(this.router.login_info.username, left_paddle);
+				player2 = (op == "bot") ? new Bot("AI Bot", right_paddle, cv, difficulty) : new Player(p2Name!, right_paddle);
+			}
 		}
-
-		// overlay
-		const overlay = document.getElementById('game-overlay')!;
-		const overlayTitle = document.getElementById('overlay-title')!;
-		const overlayMessage = document.getElementById('overlay-message')!;
-		const overlayButton = document.getElementById('overlay-button')!;
 
 		// game end callback
 		const endOverlay = isTournament !== "true" ? (winner: string, p1Score: number, p2Score: number) => {
@@ -225,6 +265,16 @@ export default class Pong extends Component {
 			overlayTitle.textContent = winner === 'draw' ? 'DRAW!' : `${winner} WINS!`;
 			overlayMessage.textContent = `Final Score: ${p1Score} - ${p2Score}`;
 			overlayButton.textContent = 'REMATCH';
+			if (op !== "bot" && isTournament !== "true") {
+				const changeOp = overlayButton.cloneNode(true) as HTMLButtonElement;
+				changeOp.onclick = () => {
+					sessionStorage.removeItem("p2Name");
+					window.location.reload();
+				}
+				changeOp.textContent = "NEW OP";
+				overlayButton.after(changeOp);
+			}
+				
 			overlayButton.onclick = () => window.location.reload();
 		} : (winner: TournamentPlayer, p1Score: number, p2Score: number) => {
 			overlay.style.display = 'flex';
@@ -249,6 +299,7 @@ export default class Pong extends Component {
 	}
 
 	unload() {
+		sessionStorage.removeItem("p2Name");
 		this.end_game();
 	}
 }

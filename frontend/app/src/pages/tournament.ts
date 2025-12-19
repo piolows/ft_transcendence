@@ -304,7 +304,7 @@ export class TournamentPage extends Component {
 		const start = document.createElement("button");
 		start.id = "start-match";
 		start.innerText = "Start Match";
-		start.className = "pixel-box bg-green-500 px-8 py-4 text-white hover:bg-green-600 font-pixelify text-xl clicky w-full";
+		start.className = "pixel-box bg-green-500 px-8 py-4 text-white hover:bg-green-600 text-xl clicky w-full";
     	start.onclick = () => {
         	this.startGames();
     	};
