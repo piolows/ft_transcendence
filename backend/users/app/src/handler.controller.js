@@ -20,8 +20,9 @@ const endpointHandler = (fastify, options, done) => {
 
 	async function addGame(user_id, op_id, info, date) {
 		if ("local_op" in info) {
-			await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, winner_id, local_op, game, p1_score, p2_score, time, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-				.run(user_id, op_id, info.winner_id, info.local_op, info.game, info.p1_score, info.p2_score, info.time, date);
+			console.log("opponent: ", info.op_name);
+			await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, op_name, winner_id, local_op, game, p1_score, p2_score, time, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+				.run(user_id, op_id, info.op_name, info.winner_id, info.local_op, info.game, info.p1_score, info.p2_score, info.time, date);
 			return ;
 		}
 		await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, winner_id, game, p1_score, p2_score, time, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
@@ -140,9 +141,10 @@ const endpointHandler = (fastify, options, done) => {
 			}
 			const OFFSET = (req.query.page - 1) * GAMES_PER_PAGE;
 			const games = await fastify.sqlite.prepare(`SELECT
-				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.winner_id, ${HT}.game, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
+				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.winner_id, ${HT}.game, ${HT}.op_name, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
 				FROM ${HT} JOIN ${UT} ON ${HT}.op_id = ${UT}.id WHERE ${HT}.user_id=? ORDER BY ${HT}.created_at DESC LIMIT ? OFFSET ?`).all(user['id'], GAMES_PER_PAGE, OFFSET);
 			const count = await fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${HT} WHERE user_id=?`).get(user['id'])['COUNT(user_id)'];
+			fastify.log.info(games);
 			return resp.send({ success: true, games: games, user, count });
 		} catch (error) {
 			return resp.send({ success: false, code: 500, source: "/users/:username/history:get", error: error.text() });

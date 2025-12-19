@@ -42,10 +42,12 @@ export default class CreateTournament extends Component {
             const row = document.createElement("div");
             row.className = "pairing p-0 m-0 flex gap-[30px]";
             const first = document.createElement("input");
+            first.maxLength = 15;
             first.placeholder = "Mr. Smith";
             first.className = "player-name left-player w-full px-4 py-2 bg-black border-2 border-green-500 text-white font-vt323 text-base";
             row.appendChild(first);
             const second = document.createElement("input");
+            second.maxLength = 15;
             second.placeholder = "Mr. Smith";
             second.className = "player-name right-player w-full px-4 py-2 bg-black border-2 border-green-500 text-white font-vt323 text-base";
             row.appendChild(second);
@@ -56,7 +58,7 @@ export default class CreateTournament extends Component {
         submit_button.id = "start-tournament";
         submit_button.innerText = "Start Tournament"
         // submit_button.className = "pixel-box clicky p-4 bg-green-500";
-        submit_button.className = "pixel-box bg-green-500 px-8 py-4 text-white hover:bg-green-600 font-pixelify text-xl clicky";
+        submit_button.className = "pixel-box bg-green-500 px-8 py-4 text-white hover:bg-green-600 text-xl clicky";
         submit_button.type = "submit";
         input_container.appendChild(submit_button);
         main_container.appendChild(input_container);
