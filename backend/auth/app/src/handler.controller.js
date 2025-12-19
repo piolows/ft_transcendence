@@ -25,7 +25,7 @@ const endpointHandler = (fastify, options, done) => {
 				return reply.send({ success: false, code: 404, source: "/auth/login", error: "User not found" });
 			}
 			if (user['password'] == null) {
-				return reply.send({ success: false, code: 403, source: "/auth/login", error: "Account only registered through google sign-in, try signing up with the same email" });
+				return reply.send({ success: false, code: 403, source: "/auth/login", error: "Google-login or Signup required for password" });
 			}
 			if (!await argon2.verify(user['password'], req.body.password)) {
 				return reply.send({ success: false, code: 403, source: "/auth/login", error: "Wrong password" });
