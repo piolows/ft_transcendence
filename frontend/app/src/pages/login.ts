@@ -65,7 +65,7 @@ export default class Login extends Component {
 					this.router.route(history.state?.route, "replace");
 				} else {
 					if (!data)
-						errtext.textContent = "Error: Connection issue";
+						errtext.textContent = "Error: Connection failure";
 					else
 						errtext.textContent = data.error;
 				}
