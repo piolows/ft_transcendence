@@ -68,7 +68,7 @@ const endpointHandler = (fastify, options, done) => {
 			}
 			return resp.send({ success: true });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, source: "/users", error: error });
+			return resp.send({ success: false, code: 500, source: "/users", error: error.message });
 		}
 	});
 
@@ -88,7 +88,7 @@ const endpointHandler = (fastify, options, done) => {
 			await fastify.sqlite.prepare(`DELETE FROM ${UT} WHERE username=?`).run(req.body.username);
 			return reply.send({ success: true });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, source: "/users/delete", error: error });
+			return reply.send({ success: false, code: 500, source: "/users/delete", error: error.message });
 		}
 	});
 
@@ -125,7 +125,7 @@ const endpointHandler = (fastify, options, done) => {
 			}
 			return resp.send({ success: true, user, friend_cnt, stats, game_cnt, games, is_friend, online, last_seen });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, source: "/users/:username", error: error });
+			return resp.send({ success: false, code: 500, source: "/users/:username", error: error.message });
 		}
 	});
 
@@ -145,7 +145,7 @@ const endpointHandler = (fastify, options, done) => {
 			const count = await fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${HT} WHERE user_id=?`).get(user['id'])['COUNT(user_id)'];
 			return resp.send({ success: true, games: games, user, count });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, source: "/users/:username/history:get", error: error });
+			return resp.send({ success: false, code: 500, source: "/users/:username/history:get", error: error.message });
 		}
 	});
 
@@ -187,7 +187,7 @@ const endpointHandler = (fastify, options, done) => {
 			addGame(req.body.op_id, user['id'], req.body, date);
 			return resp.send({ success: true });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, source: "/users/:username/history:post", error: error });
+			return resp.send({ success: false, code: 500, source: "/users/:username/history:post", error: error.message });
 		}
 	});
 
@@ -208,7 +208,7 @@ const endpointHandler = (fastify, options, done) => {
 
 			return resp.send({ success: true, last_seen: now });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, source: "/users/status", error: error });
+			return resp.send({ success: false, code: 500, source: "/users/status", error: error.message });
 		}
 	});
 
@@ -233,7 +233,7 @@ const endpointHandler = (fastify, options, done) => {
 			}
 			return resp.send({ success: true, online, last_seen });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, source: "/users/status/:username", error: error });
+			return resp.send({ success: false, code: 500, source: "/users/status/:username", error: error.message });
 		}
 	});
 	// AGG [WIP]
@@ -253,7 +253,7 @@ const endpointHandler = (fastify, options, done) => {
 					JOIN ${UT} ON ${ST}.user_id = ${UT}.id ORDER BY ${ST}.points DESC LIMIT ? OFFSET ?`).all(PLAYERS_PER_PAGE, OFFSET);
 			return resp.send({ success: true, top_players, player_count });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, source: "/users/top", error: error });
+			return resp.send({ success: false, code: 500, source: "/users/top", error: error.message });
 		}
 	});
 
@@ -266,7 +266,7 @@ const endpointHandler = (fastify, options, done) => {
 	// 		const stats = await fastify.sqlite.prepare(`SELECT * FROM ${ST} WHERE user_id=?`).get(user['id']);
 	// 		return resp.send({ success: true, stats: stats });
 	// 	} catch (error) {
-	// 		return resp.send({ success: false, code: 500, source: "/users/:username/stats", error: error });
+	// 		return resp.send({ success: false, code: 500, source: "/users/:username/stats", error: error.message });
 	// 	}
 	// });
 
@@ -302,7 +302,7 @@ const endpointHandler = (fastify, options, done) => {
 				return resp.send({ success: true, friends: friends, user, count });
 			}
 		} catch (error) {
-			return resp.send({ success: false, code: 500, source: "/users/:username/friends:get", error: error });
+			return resp.send({ success: false, code: 500, source: "/users/:username/friends:get", error: error.message });
 		}
 	});
 
@@ -331,7 +331,7 @@ const endpointHandler = (fastify, options, done) => {
 				await fastify.sqlite.prepare(`INSERT INTO ${FT} (user_id, friend_id) VALUES (?, ?)`).run(req.body.user_id, user['id']);
 			return resp.send({ success: true });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, source: "/users/:username/friends:post", error: error });
+			return resp.send({ success: false, code: 500, source: "/users/:username/friends:post", error: error.message });
 		}
 	});
 
@@ -360,7 +360,7 @@ const endpointHandler = (fastify, options, done) => {
 				await fastify.sqlite.prepare(`DELETE FROM ${FT} WHERE user_id=? AND friend_id=?`).run(req.body.user_id, user['id']);
 			return resp.send({ success: true });
 		} catch (error) {
-			return resp.send({ success: false, code: 500, source: "/users/:username/friends:delete", error: error });
+			return resp.send({ success: false, code: 500, source: "/users/:username/friends:delete", error: error.message });
 		}
 	});
 

@@ -16,7 +16,7 @@ const endpointHandler = (fastify, options, done) => {
 			return reply.send({ success: false, code: 400, source: "/auth/login", error: "Empty body" });
 		if (req.session && req.session.user)
 			return reply.send({ success: false, code: 403, source: "/auth/login", error: "Already logged in. Logout first" });
-		// try {
+		try {
 			if (!req.session) {
 				req.session.init();
 			}
@@ -38,9 +38,9 @@ const endpointHandler = (fastify, options, done) => {
 				body: JSON.stringify(req.session.user)
 			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
-		// } catch (error) {
-		// 	return reply.send({ success: false, code: 500, source: "/auth/login", error: error });
-		// }
+		} catch (error) {
+			return reply.send({ success: false, code: 500, source: "/auth/login", error: error.message });
+		}
 	});
 
 	fastify.post("/register", registerSchema, async (req, reply) => {
@@ -85,7 +85,7 @@ const endpointHandler = (fastify, options, done) => {
 			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, source: "/auth/register", error: error });
+			return reply.send({ success: false, code: 500, source: "/auth/register", error: error.message });
 		}
 	});
 
@@ -111,7 +111,7 @@ const endpointHandler = (fastify, options, done) => {
 				return reply.send(valReg);
 
 			const username = req.body.username?.value ?? user['username'];
-			const password = req.body.newpassword?.value ?? user['password'];
+			const password = req.body.newpassword?.value ? await hash(req.body.newpassword?.value) : user['password'];
 			
 			let newUrl = "";
 			if (req.file() && req.file().size > 0)
@@ -153,7 +153,7 @@ const endpointHandler = (fastify, options, done) => {
 			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, source: "/auth/update", error: error });
+			return reply.send({ success: false, code: 500, source: "/auth/update", error: error.message });
 		}
 	});
 
@@ -192,7 +192,7 @@ const endpointHandler = (fastify, options, done) => {
 			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, source: "/auth/google-login", error: error });
+			return reply.send({ success: false, code: 500, source: "/auth/google-login", error: error.message });
 		}
 	});
 
@@ -210,7 +210,7 @@ const endpointHandler = (fastify, options, done) => {
 			req.session.destroy();
 			return reply.send({ success: true });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, source: "/auth/logout", error: error });
+			return reply.send({ success: false, code: 500, source: "/auth/logout", error: error.message });
 		}
 	});
 
@@ -226,7 +226,7 @@ const endpointHandler = (fastify, options, done) => {
 			await fastify.sqlite.prepare(`DELETE FROM ${process.env.USERS_TABLE} WHERE username=?`).run(req.body.username);
 			return reply.send({ success: true });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, source: "/auth/delete", error: error });
+			return reply.send({ success: false, code: 500, source: "/auth/delete", error: error.message });
 		}
 	});
 
