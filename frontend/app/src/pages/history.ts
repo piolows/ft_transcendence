@@ -36,8 +36,8 @@ export default class History extends Component {
 			console.log(game);
 			const info = { op_uname: game.username, op_pfp:
 			 backend_url + game.avatarURL, op_email: game.email,
-				result: game.winner_id == this.profile_info.id ? 'WIN' : 'LOSS', score: `${game.p1_score} - ${game.p2_score}`, op_name: game.op_name };
-			console.log("testing: ", info.op_name);
+				result: game.winner_id == this.profile_info.id ? 'WIN' : 'LOSS', score: `${game.p1_score} - ${game.p2_score}`, op_name: game.local_op };
+			console.log("testing: ", info);
 			const row = [];
 			row.push({ value: `<a href="/profile/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity flex flex-row overflow-hidden">
 				<img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>

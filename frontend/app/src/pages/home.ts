@@ -24,9 +24,10 @@ export default class Homepage extends Component {
 
 		card = new MenuCard(this.router, "ULTIMATE TIC-TAC-TOE", "DO WHAT IT TAKES TO BECOME AN ULTIMATE TIC-TAC-TOE LEGEND", "yellow");
 		card.add_button("PLAY", "/tictactoe");
+		card.add_button("START TOURNAMENT", "/tictactoe/tournament");
 		this.menu.add_card(card);
 
-		card = new MenuCard(this.router, "TOURNAMENT", "FIGHT IN A BRACKET-STYLE TOURNAMENT AND BE CROWNED THE ULTIMATE WINNER", "pink");
+		card = new MenuCard(this.router, "PONG TOURNAMENT", "FIGHT IN A BRACKET-STYLE TOURNAMENT AND BE CROWNED THE ULTIMATE WINNER", "pink");
 		card.add_button("START TOURNAMENT", "/tournament/create");
 		this.menu.add_card(card);
 	}
