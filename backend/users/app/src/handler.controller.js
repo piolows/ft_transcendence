@@ -20,9 +20,9 @@ const endpointHandler = (fastify, options, done) => {
 
 	async function addGame(user_id, op_id, info, date) {
 		if ("local_op" in info) {
-			console.log("opponent: ", info.op_name);
-			await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, op_name, winner_id, local_op, game, p1_score, p2_score, time, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-				.run(user_id, op_id, info.op_name, info.winner_id, info.local_op, info.game, info.p1_score, info.p2_score, info.time, date);
+			console.log("opponent: ", info.local_op);
+			await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, winner_id, local_op, game, p1_score, p2_score, time, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+				.run(user_id, op_id, info.winner_id, info.local_op, info.game, info.p1_score, info.p2_score, info.time, date);
 			return ;
 		}
 		await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, winner_id, game, p1_score, p2_score, time, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
@@ -112,7 +112,7 @@ const endpointHandler = (fastify, options, done) => {
 			const stats = await fastify.sqlite.prepare(`SELECT * FROM ${ST} WHERE user_id=?`).get(user['id']);
 			const game_cnt = stats.wins + stats.losses;
 			const games = await fastify.sqlite.prepare(`SELECT
-				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.winner_id, ${HT}.game, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
+				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.winner_id, ${HT}.game, ${HT}.local_op, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
 				FROM ${HT} JOIN ${UT} ON ${HT}.op_id = ${UT}.id WHERE ${HT}.user_id=? AND ${HT}.created_at > datetime('now', '-24 hour')
 				ORDER BY ${HT}.created_at DESC LIMIT 3 OFFSET 0`).all(user['id']);
 			let online = false;
@@ -141,7 +141,7 @@ const endpointHandler = (fastify, options, done) => {
 			}
 			const OFFSET = (req.query.page - 1) * GAMES_PER_PAGE;
 			const games = await fastify.sqlite.prepare(`SELECT
-				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.winner_id, ${HT}.game, ${HT}.op_name, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
+				${UT}.username, ${UT}.email, ${UT}.avatarURL, ${HT}.winner_id, ${HT}.game, ${HT}.local_op, ${HT}.p1_score, ${HT}.p2_score, ${HT}.time, ${HT}.created_at
 				FROM ${HT} JOIN ${UT} ON ${HT}.op_id = ${UT}.id WHERE ${HT}.user_id=? ORDER BY ${HT}.created_at DESC LIMIT ? OFFSET ?`).all(user['id'], GAMES_PER_PAGE, OFFSET);
 			const count = await fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${HT} WHERE user_id=?`).get(user['id'])['COUNT(user_id)'];
 			fastify.log.info(games);
@@ -172,6 +172,7 @@ const endpointHandler = (fastify, options, done) => {
 				return resp.send({ success: false, code: 404, source: "/users/:username/history:post", error: "User not found" });
 			}
 			if (user['id'] == req.body.op_id) {
+				console.log("local_op: ", req.body.local_op);
 				if (!("local_op" in req.body))
 					req.body["local_op"] = "Player 2";
 			}

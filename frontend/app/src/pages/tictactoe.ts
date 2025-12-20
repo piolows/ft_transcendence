@@ -1,6 +1,6 @@
 import Component from "../scripts/router";
 import NavBar from "../components/nav_bar";
-import Router from "../scripts/router";
+import { backend_url, Router } from "../scripts/router";
 
 type Cell = "" | "X" | "O";
 type SmallBoard = Cell[][];
@@ -12,7 +12,10 @@ export default class TicTacToePage extends Component {
     private largeBoard: LargeBoard = [];
     private trueLargeBoard: Cell[][] = [];
     private lastMove: HTMLDivElement | null = null;
-    private app: HTMLDivElement | HTMLElement | null = null;
+    private p1Name: string | null = null;
+    private p2Name: string | null = null;
+    private gameTime: number = 0;
+    private interval: number | null = null;
 
     private createSmallBoard(): SmallBoard {
         return Array.from({ length: 3}, () => 
@@ -45,29 +48,25 @@ export default class TicTacToePage extends Component {
         return false;
     }
 
-    // get the lrow and lcol to lock to
-    // private lockBoards(lrow: number, lcol: number, largeBoardCell: HTMLDivElement) {
-    //     // if the board is already won, do nothing
-    //     if (this.trueLargeBoard[lrow][lcol] !== "") {
-    //         if (this.lastMove) this.lastMove.classList.remove("bg-purple-800");
-    //         this.lastMove = null;
-    //         return ;
-    //     }
-    //     const boards = document.querySelectorAll(".small-board") as NodeListOf<HTMLDivElement>;
-    //     boards.forEach((board) => {
-    //         // this means that this is the only board that can move
-    //         if (board.dataset.lrow === lrow.toString() && board.dataset.lcol === lcol.toString()) {
-    //             const large_board_cell = board.parentElement as HTMLDivElement;
-    //             large_board_cell.classList.add("bg-purple-800");    // add the purple background to indicate that the board is active
-    //             if (this.lastMove === null) {
-    //                 this.lastMove = large_board_cell;
-    //             } else {
-    //                 if (this.lastMove !== large_board_cell) this.lastMove.classList.remove("bg-purple-800");
-    //                 this.lastMove = large_board_cell;
-    //             }
-    //         }
-    //     });
-    // }
+    private updateInfo(currentMove: string, currentPlayer: string) {
+        const game_info = document.getElementById("game-info") as HTMLDivElement;
+        const current_move_icon = game_info.querySelector("#current-move-icon") as HTMLSpanElement;
+        const current_move_text = game_info.querySelector("#current-move-text");
+        // const time = game_info.querySelector("#time");
+
+        if (currentMove === "X")
+        {
+            current_move_icon.classList!.remove("text-red-600");
+            current_move_icon.classList!.add("text-blue-600");
+        }
+        else
+        {
+            current_move_icon.classList!.remove("text-blue-600");
+            current_move_icon.classList!.add("text-red-600");
+        }
+        if (current_move_icon) current_move_icon.textContent = currentMove;
+        if (current_move_text) current_move_text.textContent = `${currentMove}'s Turn (${currentPlayer})`;
+    }
 
     private lockBoards(lrow: number, lcol: number, largeBoardCell: HTMLDivElement) {
         // if the board is already won, do nothing
@@ -119,61 +118,18 @@ export default class TicTacToePage extends Component {
         });
     }
 
-    // private buildBoard(app: HTMLDivElement | HTMLElement) {
-    //     app.innerHTML += `
-    //     <div id="main-container" class="flex flex-col items-center pt-8 h-screen">
-    //         <div id="game-info" class="flex justify-center items-center pixel-box w-[30vh] max-w-[40vh] h-15 md:h-10">
-    //             <p id="current-move" class="text-[15px] lg:text-[1rem]">${this.currentMove}'s turn</p>
-    //         </div>
-    //     <div id="tictactoe-board" class="overflow-hidden mt-6 grid grid-cols-3 pixel-box border-5 border-red-500 w-[70%] max-w-[100%] md:w-full md:max-w-[65vh] bg-blue-900"></div>
-    //     </div>`;
-    //     const board = document.getElementById("tictactoe-board")!;
-    //     for (let i = 0; i < 3; i++) {
-    //         // for each row, create 3 divs which represents each element
-    //         for (let j = 0; j < 3; j++) {
-    //             const large_board_cell = document.createElement("div");
-    //             large_board_cell.className = "cell flex justify-center items-center p-1 md:p-3 h-full w-full aspect-square";
-    //             large_board_cell.dataset.lrow = i.toString();
-    //             large_board_cell.dataset.lcol = j.toString();
-    //             board.appendChild(large_board_cell);
-    //             if (i > 0 && i < 3) {
-    //                 large_board_cell.style.borderTop = "5px solid black";
-    //                 large_board_cell.style.marginBottom = "5px";
-    //             }
-    //             if (j > 0 && j < 3) {
-    //                 large_board_cell.style.borderLeft = "5px solid black";
-    //             }
-    //             const small_board_container = document.createElement("div");
-    //             small_board_container.className = "small-board grid grid-cols-3 w-[100%] h-full";
-    //             large_board_cell.appendChild(small_board_container);
-    //             small_board_container.dataset.lrow = i.toString();
-    //             small_board_container.dataset.lcol = j.toString();
-    //             for (let sr = 0; sr < 3; sr++) {
-    //                 for (let sc = 0; sc < 3; sc++) {
-    //                     const small_board = document.createElement("button");
-    //                     small_board.className = "\
-    //                     small-board-cell flex justify-center items-center h-[100%] aspect-square hover:bg-blue-300 hover:cursor-pointer";
-    //                     small_board.dataset.lrow = i.toString();
-    //                     small_board.dataset.lcol = j.toString();
-    //                     small_board.dataset.srow = sr.toString();
-    //                     small_board.dataset.scol = sc.toString();
-    //                     if (sr > 0 && sr < 3) small_board.style.borderTop = "2px solid black";
-    //                     if (sc > 0 && sc < 3) small_board.style.borderLeft = "2px solid black";
-    //                     small_board_container.appendChild(small_board);
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-
     private buildBoard(app: HTMLDivElement | HTMLElement) {
         app.innerHTML += `
         <div id="main-container" class="flex flex-col items-center min-h-screen p-4">
-            <div id="game-info" class="pixel-box bg-gradient-to-r from-purple-600 to-blue-600 p-4 mb-6 w-full max-w-md text-center shadow-lg">
-                <p id="current-move" class="text-xl md:text-2xl font-bold text-white">
-                    <span class="inline-block w-8 h-8 leading-8 bg-white text-purple-600 rounded mr-2">${this.currentMove}</span>
-                    ${this.currentMove}'s Turn
-                </p>
+            <div id="game-info" class="pixel-box bg-gradient-to-r from-purple-600 to-blue-600 p-4 mb-6 max-w-md w-full text-center shadow-lg">
+                <div id="current-move" class="text-xl md:text-2xl font-bold text-white">
+                    <span id="current-move-icon" class="inline-block w-8 h-8 leading-8 bg-white text-blue-600 rounded mr-2">${this.currentMove}</span>
+                    <span id="current-move-text" class="font-size-2">${this.currentMove}'s Turn</span>
+                    <div class="text-sm flex justify-center" id="time">Time: 
+                        <span id="minutes">00:</span>
+                        <span id="seconds" class="p-0 m-0">00</span>
+                    </div>
+                </div>
             </div>
             <div id="tictactoe-board" class="grid grid-cols-3 gap-3 p-4 pixel-box bg-gray-800 w-full max-w-[min(90vw,60vh)] aspect-square shadow-2xl"></div>
         </div>`;
@@ -251,42 +207,38 @@ export default class TicTacToePage extends Component {
         this.currentMove = "X";
         this.buildBoard(app);
         this.initializeBoard("enable");
+        const move_container = document.getElementById("current-move-text");
+        const text = move_container?.textContent;
+        const newMoveText: string = `${text} (${this.p1Name})`;
+        if (move_container) move_container.textContent = newMoveText;
+        this.gameTime = 0;
     }
 
-    // private winnerModal(winner: string)
-    // {
-    //     const app = document.getElementById("app") as HTMLDivElement | HTMLElement;
+    private async updateHistory(p1Name: string, p2Name: string, winner: string) {
+        try {
+            const res = await fetch(`${backend_url}/users/${this.p1Name}/history`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify ({
+                    game: "tictactoe",
+                    local_op: this.p2Name,
+                    op_id: this.router.login_info.id,
+                    winner_id: -1,
+                    // time: time,
+                    p1_score: 0,
+                    p2_score: 0,
+                }),
+            });
+            const data = await res.json();
+            console.log(data);
+        } catch (error) {
+            console.log(error);
+        }
+        return ;
+    }
 
-    //     this.initializeBoard("disable");    // to disable the cells from being clicked
-    //     const background = document.createElement("div");
-    //     const main_screen = document.createElement("div");
-    //     main_screen.id = "modal-container";
-    //     main_screen.className = `fixed inset-0 z-50 flex items-center justify-center`;
-    //     app?.appendChild(main_screen);
-    //     background.id = "backscreen";
-    //     background.className = "fixed inset-0 bg-black opacity-80 flex justify-center items-center";
-    //     const modal = document.createElement("div");
-    //     modal.id = "winner-modal";
-    //     modal.className = "pixel-box relative bg-blue-900 p-8 w-96 text-white";
-    //     const text = document.createElement("h2");
-    //     text.innerText = `${winner} wins the game!`;
-    //     text.className = "text-2xl font-pixelify mb-6 rainbow text-center";
-    //     modal.appendChild(text);
-    //     main_screen.appendChild(background);
-    //     main_screen.appendChild(modal);
-
-    //     const retry_button = document.createElement("button");
-    //     retry_button.id = "retry-button";
-    //     retry_button.className = "pixel-box bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mx-auto block cursor-pointer";
-    //     retry_button.innerText = "Play Again";
-    //     modal.appendChild(retry_button);
-
-    //     retry_button.onclick = (event) => {
-    //         this.reset_state();
-    //     };
-    // }
-
-    private winnerModal(winner: string) {
+    private async winnerModal(winner: string) {
+        // await this.updateHistory();
         const app = document.getElementById("app") as HTMLDivElement | HTMLElement;
 
         this.initializeBoard("disable");
@@ -346,43 +298,6 @@ export default class TicTacToePage extends Component {
         };
     }
 
-    // private makeMove(lrow: number, lcol: number, srow: number, scol: number, current_move: HTMLParagraphElement, cell: HTMLDivElement) {
-    //     if (this.largeBoard[lrow][lcol][srow][scol] !== "") {
-    //         console.log("Cell is already filled");
-    //         return ;
-    //     }
-    //     if (this.lastMove !== null) {
-    //         const parentCell = cell.parentElement?.parentElement;
-    //         if (parentCell !== this.lastMove) {
-    //             console.log("this board cannot move");
-    //             return ;
-    //         }
-    //     }
-    //     this.largeBoard[lrow][lcol][srow][scol] = this.currentMove;
-    //     // cell.innerText = this.currentMove;
-    //     const move = document.createElement("p");
-    //     move.className = "text-[0.5rem] md:text-[1rem]";
-    //     move.innerText = this.currentMove;
-    //     cell.appendChild(move);
-    //     if (this.checkBoardWin(this.largeBoard[lrow][lcol])) {
-    //         const largeCell = document.querySelector(`div.cell[data-lrow='${lrow}'][data-lcol='${lcol}']`) as HTMLDivElement;
-    //         const winner = document.createElement("div");
-    //         winner.className = "large-board-winner flex justify-center items-center aspect-square";
-    //         const winnerText = document.createElement("p");
-    //         winnerText.innerText = this.currentMove;
-    //         winnerText.className = "text-[2rem]";
-    //         winner.appendChild(winnerText);
-    //         largeCell.removeChild(largeCell.firstChild!);
-    //         largeCell.appendChild(winner);
-    //         largeCell.classList.remove("bg-purple-800");
-    //         this.trueLargeBoard[lrow][lcol] = this.currentMove;
-    //     }
-    //     if (this.checkBoardWin(this.trueLargeBoard)) this.winnerModal(this.currentMove);
-    //     this.currentMove = this.currentMove === "X" ? "O" : "X";
-    //     current_move.innerText = `${this.currentMove} to move`;
-    //     this.lockBoards(srow, scol, cell);
-    // }
-
     private makeMove(lrow: number, lcol: number, srow: number, scol: number, current_move: HTMLParagraphElement, cell: HTMLDivElement) {
     if (this.largeBoard[lrow][lcol][srow][scol] !== "") {
         return;
@@ -397,7 +312,7 @@ export default class TicTacToePage extends Component {
     this.largeBoard[lrow][lcol][srow][scol] = this.currentMove;
     
     const move = document.createElement("p");
-    move.className = `text-2xl md:text-3xl font-bold ${this.currentMove === 'X' ? 'text-blue-400' : 'text-red-400'}`;
+    move.className = `text-2xl md:text-3xl p-0 m-0 font-bold ${this.currentMove === 'X' ? 'text-blue-400' : 'text-red-400'}`;
     move.innerText = this.currentMove;
     cell.appendChild(move);
     cell.classList.remove("hover:bg-blue-500", "hover:scale-105");
@@ -421,13 +336,18 @@ export default class TicTacToePage extends Component {
     if (this.checkBoardWin(this.trueLargeBoard)) this.winnerModal(this.currentMove);
     
     this.currentMove = this.currentMove === "X" ? "O" : "X";
-    current_move.innerHTML = `
-        <span class="inline-block w-8 h-8 leading-8 bg-white ${this.currentMove === 'X' ? 'text-blue-600' : 'text-red-600'} rounded mr-2">${this.currentMove}</span>
-        ${this.currentMove}'s Turn
-    `;
+    this.updateInfo(this.currentMove, (this.currentMove === "X" ? this.p1Name : this.p2Name)!);
+    // const move_container = document.getElementById("current-move-text");
+    // const text = move_container?.textContent;
+    // const newMoveText: string = `${text} (${this.p2Name})`;
+    // if (move_container) move_container.textContent = newMoveText;
+    // current_move.innerHTML = `
+    //     <span class="inline-block w-8 h-8 leading-8 bg-white ${this.currentMove === 'X' ? 'text-blue-600' : 'text-red-600'} rounded mr-2">${this.currentMove}</span>
+    //     ${this.currentMove}'s (${this.currentMove === "X" ? this.p1Name : this.p2Name}) Turn
+    // `;
     
     this.lockBoards(srow, scol, cell);
-}
+    }
 
     async load(app: HTMLDivElement | HTMLElement) {
         await this.navbar.load(app);
@@ -435,12 +355,88 @@ export default class TicTacToePage extends Component {
         this.buildBoard(app);
     }
 
-    async init() {
-        this.navbar.init();
-        this.initializeBoard("enable");
+    private updateTime() {
+        this.gameTime += 1;
+        console.log(this.gameTime);
+        const time_display = document.getElementById("time") as HTMLSpanElement;
+        const seconds = this.gameTime % 60;
+        const minutes = Math.floor(this.gameTime / 60) % 60;
+        const mins = document.getElementById("minutes");
+        const secs = document.getElementById("seconds");
+        mins!.textContent = minutes < 10 ? `0${minutes}` : `${minutes}`;
+        mins!.textContent += ":";
+        secs!.textContent = seconds < 10 ? `0${seconds}` : `${seconds}`;
     }
 
+    async init() {
+        this.navbar.init();
+        // console.log("user info: ", this.router.login_info);
+        this.p1Name = this.router.login_info.username;
+        this.initializeBoard("enable");
+        const app = document.getElementById("app") as HTMLDivElement;
+        const params = new URLSearchParams();
+        const isTournament = params.get("tournament");
+        if (!(sessionStorage.getItem("tictactoe-tournament") === null && isTournament !== null && isTournament !== "true"))
+        {
+            // prompt for the second user's name
+            const main_screen = document.createElement("div");
+            main_screen.id = "modal-container";
+            main_screen.className = "fixed z-50 flex inset-0 items-center justify-center p-4";
+            app?.appendChild(main_screen);
+            
+            const background = document.createElement("div");
+            background.id = "backscreen";
+            background.className = "absolute inset-0 bg-black opacity-90";
+            // main_screen.appendChild(background);
+            
+            const modal = document.createElement("div");
+            modal.id = "p2Name-input";
+            modal.className = "pixel-box relative z-10 bg-gradient-to-b from-purple-600 to-blue-700 p-8 max-w-md w-full mx-4 text-center animate-bounce-in";
+            modal.textContent = "Please enter Player 2's name";
+
+            const form = document.createElement("form");
+            const input = document.createElement("input");
+            const submit = document.createElement("button");
+            submit.className = "pixel-box bg-green-500 px-8 py-2 text-white hover:bg-green-600 text-xl cursor-pointer";
+            input.className = "w-[50%] px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323";
+            input.maxLength = 15;
+            submit.textContent = "OK!";
+
+            submit.onclick = (e) => {
+                e.preventDefault();
+                const name = input.value;
+                if (name == "")
+                {
+                    const invalid_elem = modal.querySelector("#invalid-name");
+                    if (invalid_elem) modal.removeChild(invalid_elem);
+                    const invalid = document.createElement("p");
+                    invalid.textContent = "Please enter a valid name";
+                    invalid.className = "text-red-500 text-xs h-4 text-center";
+                    invalid.id = "invalid-name";
+                    form.before(invalid);
+                    return ;
+                }
+                sessionStorage.setItem("tictactoe-p2", name);
+                this.p2Name = name;
+                app?.removeChild(main_screen);
+                const move_container = document.getElementById("current-move-text");
+                const text = move_container?.textContent;
+                const newMoveText: string = `${text} (${this.p1Name})`;
+                if (move_container) move_container.textContent = newMoveText;
+                // update time
+                this.interval = setInterval(() => {this.updateTime()}, 1000);
+            };
+            
+            form.appendChild(input);
+            form.appendChild(submit);
+            main_screen.appendChild(modal);
+            modal.appendChild(form);
+            app.appendChild(main_screen);
+        }
+    }
+    
     unload() {
+        clearInterval(this.interval!);
         this.reset_state();
     }
 }

@@ -1,5 +1,6 @@
 import { backend_url, Router } from "./router";
 import { TournamentPlayer } from "../pages/tournament_init";
+
 export class Ball
 {
 	x: number;
@@ -428,7 +429,7 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 						headers: {"Content-Type": "application/json"},
 						body: JSON.stringify ({
 							game: "pong",
-							op_name: right_player.name,
+							local_op: right_player.name,
 							op_id: router.login_info.id,
 							winner_id: -1,
 							time: time,

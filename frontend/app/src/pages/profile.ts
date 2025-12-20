@@ -497,7 +497,8 @@ export default class Profile extends Component {
 		if (recentGames && this.last_matches.length > 0) {
 			const games = [];
 			for (let game of this.last_matches) {
-				games.push({ op_uname: game.username, op_pfp: backend_url + game.avatarURL, op_email: game.email,
+				console.log("game: ", game);
+				games.push({ op_uname: game.local_op ? game.local_op : game.username, op_pfp: backend_url + game.avatarURL, op_email: game.email,
 					result: game.winner_id == this.profile_info.id ? 'WIN' : 'LOSS', score: `${game.p1_score} - ${game.p2_score}` });
 			}
 	
