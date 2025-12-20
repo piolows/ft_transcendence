@@ -99,7 +99,7 @@ const pongHandler = (fastify, options, done) => {
 				id = uuid;
 			} catch (error) {
 				fastify.log.error(`error fetching tournament info: ${error.message}`);
-				return resp.send({ success: false, code: 500, source: "/pong/new", error: error.text() });
+				return resp.send({ success: false, code: 500, source: "/pong/new", error: error });
 			}
 		}
 		// const game = new Game(login_data.user, req.body.tournament_id);

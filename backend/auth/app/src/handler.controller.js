@@ -16,7 +16,7 @@ const endpointHandler = (fastify, options, done) => {
 			return reply.send({ success: false, code: 400, source: "/auth/login", error: "Empty body" });
 		if (req.session && req.session.user)
 			return reply.send({ success: false, code: 403, source: "/auth/login", error: "Already logged in. Logout first" });
-		try {
+		// try {
 			if (!req.session) {
 				req.session.init();
 			}
@@ -38,9 +38,9 @@ const endpointHandler = (fastify, options, done) => {
 				body: JSON.stringify(req.session.user)
 			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
-		} catch (error) {
-			return reply.send({ success: false, code: 500, source: "/auth/login", error: error.text() });
-		}
+		// } catch (error) {
+		// 	return reply.send({ success: false, code: 500, source: "/auth/login", error: error });
+		// }
 	});
 
 	fastify.post("/register", registerSchema, async (req, reply) => {
@@ -85,7 +85,7 @@ const endpointHandler = (fastify, options, done) => {
 			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, source: "/auth/register", error: error.text() });
+			return reply.send({ success: false, code: 500, source: "/auth/register", error: error });
 		}
 	});
 
@@ -97,17 +97,22 @@ const endpointHandler = (fastify, options, done) => {
 				return reply.send({ success: false, code: 400, source: "/auth/update", error: "Must include email in body" });
 			if (req.body.email.value != req.session.user.email)
 				return reply.send({ success: false, code: 403, source: "/auth/update", error: "Can only update own account" });
+			if (req.body.newpassword && !req.body.password)
+				return reply.send({ success: false, code: 403, source: "/auth/update", error: "Old password required for password update" });
 			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email.value);
-			if (!user) {
+			if (!user)
 				return reply.send({ success: false, code: 404, source: "/auth/update", error: "User not found" });
-			}
+			if (req.body.password && !await argon2.verify(user['password'], req.body.password.value))
+				return reply.send({ success: false, code: 403, source: "/auth/update", error: "Wrong password provided" });
 
-			// const valReg = validate_registration(user, req, true);
-			// if (valReg)
-			// 	return reply.send(valReg);
+
+			const valReg = validate_registration(user, req, true);
+			if (valReg)
+				return reply.send(valReg);
 
 			const username = req.body.username?.value ?? user['username'];
-			const password = req.body.password?.value ?? user['password'];
+			const password = req.body.newpassword?.value ?? user['password'];
+			
 			let newUrl = "";
 			if (req.file() && req.file().size > 0)
 			{
@@ -133,7 +138,7 @@ const endpointHandler = (fastify, options, done) => {
 					newUrl = data.public_url;
 				} catch (error) {
 					console.error(error.message);
-					return reply.send({ success: false, code: 500, source: "/auth/update", error: `Unexpected error while trying to save uploaded file: ${error.text()}` });
+					return reply.send({ success: false, code: 500, source: "/auth/update", error: `Unexpected error while trying to save uploaded file: ${error}` });
 				}
 			}
 			const avatarURI = newUrl != "" ? newUrl : (req.body.avatarURL?.value && req.body.avatarURL?.value != "" ? await save_pfp(req.body.avatarURL?.value) : user['avatarURL']);
@@ -148,7 +153,7 @@ const endpointHandler = (fastify, options, done) => {
 			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, source: "/auth/update", error: error.text() });
+			return reply.send({ success: false, code: 500, source: "/auth/update", error: error });
 		}
 	});
 
@@ -187,7 +192,7 @@ const endpointHandler = (fastify, options, done) => {
 			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, source: "/auth/google-login", error: error.text() });
+			return reply.send({ success: false, code: 500, source: "/auth/google-login", error: error });
 		}
 	});
 
@@ -205,7 +210,7 @@ const endpointHandler = (fastify, options, done) => {
 			req.session.destroy();
 			return reply.send({ success: true });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, source: "/auth/logout", error: error.text() });
+			return reply.send({ success: false, code: 500, source: "/auth/logout", error: error });
 		}
 	});
 
@@ -221,7 +226,7 @@ const endpointHandler = (fastify, options, done) => {
 			await fastify.sqlite.prepare(`DELETE FROM ${process.env.USERS_TABLE} WHERE username=?`).run(req.body.username);
 			return reply.send({ success: true });
 		} catch (error) {
-			return reply.send({ success: false, code: 500, source: "/auth/delete", error: error.text() });
+			return reply.send({ success: false, code: 500, source: "/auth/delete", error: error });
 		}
 	});
 

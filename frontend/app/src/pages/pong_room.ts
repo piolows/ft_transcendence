@@ -213,7 +213,7 @@ export default class PongRoom extends Component {
 					draw_frame(this.elements, msg, this);
 				}
 			} catch (error: any) {
-				console.error(error.status, error.text);
+				console.error(error.status, error);
 				console.error("Unexpected communication from server.", message);
 			}
 		};

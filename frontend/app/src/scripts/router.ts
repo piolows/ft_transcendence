@@ -367,7 +367,7 @@ export class Router {
 				await this.loader.load(this.app);
 				return ;
 			}
-			console.error(error.status, error.text);
+			console.error(error.status, error);
 		}
 		this.start_presence_heartbeat();
 		this.loading(false);

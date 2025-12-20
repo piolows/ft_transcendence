@@ -103,7 +103,7 @@ export default class ListView extends Component {
 		const classes = `pixel-box mx-auto ${mid} ${ofy} ${this.bg_color} ${this.text_color}`;
 		const table_contents = this.rows.length == 0 ?
 			`<div class="h-full w-full flex justify-center items-center">
-				<p class="text-center font-silkscreen">No more ${this.items_str}</p>
+				<p class="text-center font-silkscreen">No ${this.items_str}</p>
 			</div>` : this.get_list();
 		this.max_page = Math.max(1, this.max_page);
 		this.page = this.page < 1 ? 1 : (this.page > this.max_page ? this.max_page : this.page);

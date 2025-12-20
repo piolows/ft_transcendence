@@ -180,13 +180,13 @@ export default class Profile extends Component {
 						<input name="email" value="${this.router.login_info.email}" hidden />
 						<div>
 							<label class="block font-silkscreen mb-2">CURRENT PASSWORD</label>
-							<input name="currentPassword" type="password" 
+							<input name="password" type="password" 
 								class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323"
 								required>
 						</div>
 						<div>
 							<label class="block font-silkscreen mb-2">NEW PASSWORD</label>
-							<input name="newPassword" type="password" 
+							<input name="newpassword" type="password" 
 								class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323"
 								required>
 						</div>
@@ -261,8 +261,38 @@ export default class Profile extends Component {
 			return ;
 		this.navbar.init();
 
-		//  username modal
+		const updateFormsHandler = async (e: Event, form: HTMLFormElement) => {
+				e.preventDefault();
+				const formData = new FormData(form);
+				try {
+					const resp = await fetch(`${backend_url}/auth/update`, {
+						method: 'POST',
+						credentials: "include",
+						body: formData
+					});
+					if (!resp.ok) {
+						console.error(`Error: Connection failure`);
+						return false;
+					}
+					const data = await resp.json();
+					if (!data) {
+						console.error(`Error: Connection failure`);
+						return false;
+					}
+					if (!data.success) {
+						console.error(data.error);
+						return false;
+					}
+					this.router.route(this.real_path);
+				} catch (error: any) {
+					console.error(error.message);
+					return false;
+				}
+				return true;
+			};
+
 		if (this.profile_info.id == this.router.login_info.id) {
+			//  username modal
 			const editUsernameBtn = document.getElementById('edit-username-btn');
 			const editUsernameModal = document.getElementById('edit-username-modal')!;
 			const closeUsernameModal = document.getElementById('close-username-modal')!;
@@ -278,9 +308,10 @@ export default class Profile extends Component {
 				editUsernameModal.classList.add('hidden');
 			};
 
-			editUsernameForm.onsubmit = (e) => {
-				// emad do stuff
-				editUsernameModal.classList.add('hidden');
+			editUsernameForm.onsubmit = async (e) => {
+				const success = await updateFormsHandler(e, editUsernameForm);
+				if (success)
+					this.router.route("/profile");
 			};
 
 			// pfp modal
@@ -302,9 +333,6 @@ export default class Profile extends Component {
 			editAvatarForm.onsubmit = async (e) => {
 				e.preventDefault();
 				const formData = new FormData(editAvatarForm);
-				for (const [key, value] of formData.entries()) {
-					console.log('key:', key, 'value:', value, 'isFile:', value instanceof File);
-				}
 				try {
 					const resp = await fetch(`${backend_url}/auth/update`, {
 						method: 'POST',
@@ -346,9 +374,19 @@ export default class Profile extends Component {
 				changePasswordModal.classList.add('hidden');
 			};
 
-			changePasswordForm.onsubmit = (e) => {
-				// emad do stuff
-				changePasswordModal.classList.add('hidden');
+			changePasswordForm.onsubmit = async (e) => {
+				const formData = new FormData(changePasswordForm);
+				const pass = formData.get('newpassword');
+				const conf = formData.get('confirmPassword');
+				formData.delete('confirmPassword');
+				if (pass != conf) {
+					e.preventDefault();
+					console.error(`Password mismatch`);
+					return ;
+				}
+				const success = await updateFormsHandler(e, changePasswordForm);
+				if (success)
+					changePasswordModal.classList.add('hidden');
 			};
 
 			// close modals when clicking on background

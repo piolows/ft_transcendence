@@ -65,7 +65,7 @@ export default async function endpointHandler(fastify) {
 			return reply.send({ success: true, filename, public_url });
 		} catch (error) {
 			console.log(error);
-			return reply.send({ success: false, code: 500, source: "/cdn/upload-image", error: error.text });
+			return reply.send({ success: false, code: 500, source: "/cdn/upload-image", error: error });
 		}
 	});
 
