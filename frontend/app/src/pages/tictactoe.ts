@@ -214,7 +214,7 @@ export default class TicTacToePage extends Component {
         this.gameTime = 0;
     }
 
-    private async updateHistory(p1Name: string, p2Name: string, winner: string) {
+    private async updateHistory(winner: string) {
         try {
             const res = await fetch(`${backend_url}/users/${this.p1Name}/history`, {
                 method: "POST",
@@ -223,8 +223,8 @@ export default class TicTacToePage extends Component {
                     game: "tictactoe",
                     local_op: this.p2Name,
                     op_id: this.router.login_info.id,
-                    winner_id: -1,
-                    // time: time,
+                    winner_id: winner === this.p1Name ? this.router.login_info.id : -1,
+                    time: this.gameTime,
                     p1_score: 0,
                     p2_score: 0,
                 }),
@@ -238,7 +238,7 @@ export default class TicTacToePage extends Component {
     }
 
     private async winnerModal(winner: string) {
-        // await this.updateHistory();
+        await this.updateHistory(winner);
         const app = document.getElementById("app") as HTMLDivElement | HTMLElement;
 
         this.initializeBoard("disable");
