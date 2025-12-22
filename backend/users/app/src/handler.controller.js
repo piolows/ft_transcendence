@@ -20,7 +20,6 @@ const endpointHandler = (fastify, options, done) => {
 
 	async function addGame(user_id, op_id, info, date) {
 		if ("local_op" in info) {
-			console.log("opponent: ", info.local_op);
 			await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, winner_id, local_op, game, p1_score, p2_score, time, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
 				.run(user_id, op_id, info.winner_id, info.local_op, info.game, info.p1_score, info.p2_score, info.time, date);
 			return ;
@@ -187,7 +186,8 @@ const endpointHandler = (fastify, options, done) => {
 			let tmp = req.body.p1_score;
 			req.body.p1_score = req.body.p2_score;
 			req.body.p2_score = tmp;
-			addGame(req.body.op_id, user['id'], req.body, date);
+			if (!req.body.local_op)
+				addGame(req.body.op_id, user['id'], req.body, date);
 			return resp.send({ success: true });
 		} catch (error) {
 			return resp.send({ success: false, code: 500, source: "/users/:username/history:post", error: error.message });

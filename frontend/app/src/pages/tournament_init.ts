@@ -12,10 +12,17 @@ export interface TournamentPlayer {
 
 export default class CreateTournament extends Component {
     private navbar = new NavBar(this.router);
+    private pairings: number = 4;
     private players: Array<TournamentPlayer> = [];
+    private game: string | null = null;
 
     async load(app: HTMLDivElement | HTMLElement) {
+
         await this.navbar.load(app);
+        const parameters = new URLSearchParams(window.location.search);
+        this.game = parameters.get("game");
+        if (this.game && this.game === "tictactoe") this.pairings = 2;
+        else this.pairings = 4;
         // make a main container
         const main_container = document.createElement("div");
         main_container.className = "container mx-auto w-[80%]";
@@ -38,13 +45,15 @@ export default class CreateTournament extends Component {
         const form = document.createElement("form");
         form.id = "participants";
         form.className = "grid grid-auto-rows items-center justify-items-center";
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < this.pairings; i++) {
             const row = document.createElement("div");
             row.className = "pairing p-0 m-0 flex gap-[30px]";
             const first = document.createElement("input");
             first.maxLength = 15;
             first.placeholder = "Mr. Smith";
             first.className = "player-name left-player w-full px-4 py-2 bg-black border-2 border-green-500 text-white font-vt323 text-base";
+            if (this.game === "tictactoe") first.setAttribute("required", "");
+            first.setAttribute
             row.appendChild(first);
             const second = document.createElement("input");
             second.maxLength = 15;
@@ -73,12 +82,28 @@ export default class CreateTournament extends Component {
             // for every pairing, get each value in the input box
             const players = document.querySelectorAll(".player-name");
             for (const player of players) {
+                console.log(`Player: ${(player as HTMLInputElement).value}`);
                 if (this.players.map(p => p.name).find(name => name === (player as HTMLInputElement).value)) {
                     alert("Duplicate player names are not allowed!");
                     this.players = [];
                     return;
                 }
                 if ((player as HTMLInputElement).value === "") {
+                    if (this.game === "tictactoe") {
+                        const main_container = document.getElementById("main-container") as HTMLDivElement;
+                        if (main_container.querySelector("#warning") !== null) {
+                            const to_remove = main_container.querySelector("#warning");
+                            to_remove?.remove();
+                        }
+                        const warning = document.createElement("p");
+                        warning.id = "warning";
+                        warning.textContent = "Everyone must have a name!";
+                        warning.className = "text-red-500";
+                        const submit_button = document.getElementById("start-tournament");
+                        submit_button?.before(warning);
+                        this.players = [];
+                        return ;
+                    }
                     this.players.push({
                         name: faker.person.firstName() + "(bot)",
                         isBot: true
@@ -92,13 +117,16 @@ export default class CreateTournament extends Component {
                     });
                 }
             }
-            if (sessionStorage.getItem("tournament") !== null) {
-                console.log('deleting old tournament object');
-                sessionStorage.removeItem("touranment");
+            if (this.game === "tictactoe") {
+                if (sessionStorage.getItem("tictactoe-tournament") !== null)
+                    sessionStorage.removeItem("tictactoe-tournament");
+            } else {
+                if (sessionStorage.getItem("tournament") !== null)
+                    sessionStorage.removeItem("touranment");
             }
             const tournament = new Tournament(this.players);
-            sessionStorage.setItem("tournament", JSON.stringify(tournament));
-            this.router.route(`/tournament`);
+            sessionStorage.setItem(this.game === "tictactoe" ? "tictactoe-tournament" : "tournament", JSON.stringify(tournament));
+            this.router.route(`/tournament?game=${this.game}`);
         };
     }
 

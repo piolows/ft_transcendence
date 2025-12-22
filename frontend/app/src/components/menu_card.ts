@@ -28,6 +28,7 @@ export default class MenuCard extends Component {
 	}
 
 	add_button(text: string, url: string, id?: string) {
+		console.log(`pushed ${text} ${url} ${id}`);
 		this.buttons.push([text, url, id ?? ""]);
 	}
 
@@ -43,9 +44,12 @@ export default class MenuCard extends Component {
 						</button>
 					</a>` :
 					`
-					<button id=${ this.buttons[i][2] } class="${ colors[this.color][2] } text-white px-6 py-3 rounded clicky font-pixelify group-hover:animate-pulse">
-						${ this.buttons[i][0] }
-					</button>`;
+					<a href="${this.buttons[i][1]}" router-link>
+						<button id=${ this.buttons[i][2] } class="${ colors[this.color][2] } text-white px-6 py-3 rounded clicky font-pixelify group-hover:animate-pulse">
+							${ this.buttons[i][0] }
+						</button>
+					</a>`;
+					
 		}
 		html += `</div>`;
 		return html;

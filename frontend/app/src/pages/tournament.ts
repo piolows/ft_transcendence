@@ -56,7 +56,7 @@ export class Tournament {
 	}
 
 	// Save tournament state to local storage
-	private saveToLocalStorage(): void {
+	private saveToLocalStorage(game?: string): void {
 		const tournamentData = {
 			players_: this.players_,
 			status_: this.status_,
@@ -65,11 +65,11 @@ export class Tournament {
 			currentMatchIndex_: this.currentMatchIndex_,
 			winner_: this.winner_
 		};
-		sessionStorage.setItem('tournament', JSON.stringify(tournamentData));
+		sessionStorage.setItem(game && game === 'tictactoe' ? 'tictactoe-tournament' : 'tournament', JSON.stringify(tournamentData));
 	}
 
-	public static loadFromLocalStorage(): Tournament | null {
-		const data = sessionStorage.getItem('tournament');
+	public static loadFromLocalStorage(game?: string): Tournament | null {
+		const data = sessionStorage.getItem(game && game === "tictactoe" ? "tictactoe-tournament" : "tournament");
 		if (!data) {
 			return null;
 		}
@@ -88,9 +88,8 @@ export class Tournament {
 		}
 	}
 
-	private advanceToNextRound(): void {
-		const currentRoundMatches = this.matches_.filter(m => m.round === this.round_);
-		console.log("testing: ", currentRoundMatches);
+	private advanceToNextRound(game?: string): void {
+		const currentRoundMatches = this.matches_.filter(m => m.round === this.round_);	
 		const winners: Array<TournamentPlayer> = [];
 		for (const match of currentRoundMatches) {
 			console.log("match: ", match);
@@ -105,7 +104,7 @@ export class Tournament {
 			this.status_ = "completed";
 			this.winner_ = winners[0].name;
 			console.log(`${this.winner} wins`)
-			this.saveToLocalStorage();
+			this.saveToLocalStorage(game);
 			return;
 		}
 
@@ -122,10 +121,10 @@ export class Tournament {
 				winner: null
 			});
 		}
-		this.saveToLocalStorage();
+		this.saveToLocalStorage(game);
 	}
 
-	public recordMatch(player1: TournamentPlayer, player2: TournamentPlayer, winner: TournamentPlayer) {
+	public recordMatch(player1: TournamentPlayer, player2: TournamentPlayer, winner: TournamentPlayer, game?: string) {
 		const match = this.currentMatch;
 		console.log(match);
 		if (!match) {
@@ -142,18 +141,18 @@ export class Tournament {
 		const allRoundMatchesComplete = roundMatches.every(m => m.winner !== null);
 
 		if (allRoundMatchesComplete) {
-			console.log("creating next bracket");
-			this.advanceToNextRound();
+			console.log("advancing to next round");
+			this.advanceToNextRound(game);
 		}
 
-		this.saveToLocalStorage();
+		this.saveToLocalStorage(game);
 	}
 
-	public clearTournament() {
-		sessionStorage.removeItem("tournament");
+	public clearTournament(game: string) {
+		sessionStorage.removeItem(game === "tictactoe" ? "tictactoe-tournament" : "tournament");
 	}
 
-	public startTournament() {
+	public startTournament(game?: string) {
 		// shuffle the players
 		const shuffled = [...this.players_];
 		for (let i = shuffled.length - 1; i > 0; i--) {
@@ -161,7 +160,7 @@ export class Tournament {
 			[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
 		}
 		// create a match for every pair of shuffled players
-		for (let i = 0; i < 4; i++) {
+		for (let i = 0; i < this.players.length / 2; i++) {
 			this.matches_.push({
 				id: i,
 				round: this.round_,
@@ -170,16 +169,20 @@ export class Tournament {
 				winner: null
 			});
 		}
+		for (const match of this.matches) {
+			console.log("Pushed: ", match);
+		}
 		this.status_ = "ongoing";
 		this.round_ = 1;
 		this.currentMatchIndex_ = 0;
-		this.saveToLocalStorage();
+		this.saveToLocalStorage(game);
 	}
 }
 
 export class TournamentPage extends Component {
 	private navbar = new NavBar(this.router);
 	private tournament: Tournament | null = null;
+	private game: string | null = null;
 
 	async load(app: HTMLDivElement | HTMLElement) {
 		await this.navbar.load(app);
@@ -197,15 +200,18 @@ export class TournamentPage extends Component {
 	}
 
 	private startGames() {
-		console.log("starting match: ", this.tournament?.currentMatch);
 		// redirect to game page with tournament flag as true
-		this.router.route(`/pong/game?tournament=true`);
+		if (this.game === "tictactoe") this.router.route("/tictactoe?tournament=true");
+		else this.router.route(`/pong/game?tournament=true`);
 	}
 
 	async init() {
 		await this.navbar.init();
+		const params = new URLSearchParams(window.location.search);
+		this.game = params.get("game");
+		console.log(this.game);
 		const app = document.getElementById("app") as HTMLDivElement;
-		this.tournament = Tournament.loadFromLocalStorage();
+		this.tournament = Tournament.loadFromLocalStorage(this.game as string);
 		if (this.tournament?.winner !== null) {
 			const winnerOverlay = document.createElement("div");
 			winnerOverlay.className = "fixed inset-0 z-50 flex items-center justify-center";
@@ -236,7 +242,7 @@ export class TournamentPage extends Component {
 			back_button.className = "pixel-box clicky bg-green-500 hover:bg-green-600 text-white px-8 py-3 text-lg font-bold w-full";
 			back_button.innerText = "BACK TO MENU";
 			back_button.onclick = () => {
-				this.tournament?.clearTournament();
+				this.tournament?.clearTournament(this.game as string);
 				this.router.route("/");
 			};
 			info_box.appendChild(back_button);
@@ -247,7 +253,7 @@ export class TournamentPage extends Component {
 		const round: number = this.tournament?.currentRound as number;
 		if (this.tournament === null)
 			await this.router.route_error(this.real_path, 404, " No tournament found. Please create a tournament first.");
-		if (this.tournament?.status !== "ongoing") this.tournament?.startTournament();
+		if (this.tournament?.status !== "ongoing") this.tournament?.startTournament(this.game as string);
 		const info_container = document.getElementById("matches-info") as HTMLDivElement;
 		const matchesGrid = document.createElement("div");
     	matchesGrid.className = "grid gap-4 mb-8";
@@ -276,7 +282,7 @@ export class TournamentPage extends Component {
         playersContainer.className = "flex items-center justify-between mb-4";
         
         const player1 = document.createElement("div");
-        player1.className = `flex-1 text-center py-3 px-4 ${match.winner?.name === match.player1.name ? 'bg-green-500 text-white font-bold' : 'bg-purple-800 text-gray-300'}`;
+        player1.className = `flex-1 text-center py-3 px-4 ${match.winner !== null && match.winner?.name === match.player1.name ? 'bg-green-500 text-white font-bold' : 'bg-purple-800 text-gray-300'}`;
         player1.innerText = match.player1.name;
         
         const vs = document.createElement("div");
@@ -284,7 +290,7 @@ export class TournamentPage extends Component {
         vs.innerText = "VS";
         
         const player2 = document.createElement("div");
-        player2.className = `flex-1 text-center  py-3 px-4 ${match.winner?.name === match.player2.name ? 'bg-green-500 text-white font-bold' : 'bg-blue-800 text-gray-300'}`;
+        player2.className = `flex-1 text-center  py-3 px-4 ${match.winner !== null && match.winner?.name === match.player2.name ? 'bg-green-500 text-white font-bold' : 'bg-blue-800 text-gray-300'}`;
         player2.innerText = match.player2.name;
         
         playersContainer.appendChild(player1);
@@ -313,6 +319,7 @@ export class TournamentPage extends Component {
 	}
 
 	unload() {
-
+		const app = document.getElementById("app") as HTMLDivElement;
+		app.querySelector("#main-container")?.remove();
 	}
 }

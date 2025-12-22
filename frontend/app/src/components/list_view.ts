@@ -125,7 +125,7 @@ export default class ListView extends Component {
 					${larrow}${pager}${rarrow}
 				</div>` : '';
 		return `
-			<div class="${classes}" style="width: 100%; display: flex; flex-direction: column; min-height: 500px; max-width: 900px;">
+			<div class="${classes}" style="width: 100%; display: flex; flex-direction: column; min-height: 500px; max-width: 90vw;">
 				<div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
 					${table_contents}
 				</div>
