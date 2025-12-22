@@ -21,3 +21,12 @@ Piolo:
 
 New issues:
 [ ] Auto-reconnect attempt in game rooms
+
+Things to test:
+Remote players (adding to history, winning/losing games, matchmatking)
+Input box sanitization
+
+Pierce ToDo:
+- sanitize input boxes (later)
+- create tictactoe tournament
+- match in history adding twice (change addGame to not call itself again for the opponent when the opponent is local)

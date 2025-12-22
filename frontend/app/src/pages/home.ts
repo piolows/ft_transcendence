@@ -5,6 +5,7 @@ import TopPlayers from "../components/top_players";
 import MainTitle from "../components/main_title";
 import Menu from "../components/menu";
 import MenuCard from "../components/menu_card";
+import { _ } from "@faker-js/faker/dist/airline-DF6RqYmq";
 
 export default class Homepage extends Component {
 	private navbar = new NavBar(this.router);
@@ -27,8 +28,9 @@ export default class Homepage extends Component {
 		card.add_button("START TOURNAMENT", "/tictactoe/tournament");
 		this.menu.add_card(card);
 
-		card = new MenuCard(this.router, "PONG TOURNAMENT", "FIGHT IN A BRACKET-STYLE TOURNAMENT AND BE CROWNED THE ULTIMATE WINNER", "pink");
-		card.add_button("START TOURNAMENT", "/tournament/create");
+		card = new MenuCard(this.router, "TOURNAMENTS", "FIGHT IN A BRACKET-STYLE TOURNAMENT AND BE CROWNED THE ULTIMATE WINNER", "pink");
+		card.add_button("PONG", "/tournament/create?game=pong", "create-pong-tournament");
+		card.add_button("TICTACTOE", "/tournament/create?game=tictactoe", "create-tictactoe-tournament");
 		this.menu.add_card(card);
 	}
 
@@ -40,24 +42,32 @@ export default class Homepage extends Component {
 
 	async init() {
 		this.navbar.init();
+		// if a pong tournamnent exists, add a button next to it to go back to the tournament page
 		if (sessionStorage.getItem("tournament") !== null) {
-			const menuCards = document.querySelectorAll(".menu-card") as NodeListOf<HTMLDivElement>;
-			let i = 0;
-			for (;i < menuCards.length; i++) {
-				const title = menuCards[i].querySelector("#card-title") as HTMLHeadElement;
-				if (title.innerText === "TOURNAMENT") break ;
+			const create_pong_tournament = document.getElementById("create-pong-tournament")?.parentElement;
+			if (create_pong_tournament) {
+				const href = document.createElement("a");
+				href.href = "/tournament?game=pong";
+				const back_to_tournament = document.createElement("button");
+				back_to_tournament.id = "pong-tournament";
+				back_to_tournament.textContent = "BACK TO PONGAMENT";
+				back_to_tournament.className = "bg-pink-500 text-white px-6 py-3 rounded clicky font-pixelify group-hover:animate-pulse";
+				href.appendChild(back_to_tournament);
+				create_pong_tournament.after(href);
 			}
-			const href = document.createElement("a");
-			href.href = "/tournament";
-			const button = document.createElement("button");
-			button.className = "bg-pink-500 text-white px-6 py-3 rounded clicky font-pixelify group-hover:animate-pulse";
-			button.innerText = "GO TO TOURNAMENT";
-			href.appendChild(button);
-			menuCards[i].appendChild(href);
-			// card.add_button("GO TO TOURNAMENT", "/tournament");
-			// <button id=${ this.buttons[i][2] } class="${ colors[this.color][2] } text-white px-6 py-3 rounded clicky font-pixelify group-hover:animate-pulse">
-			// 			${ this.buttons[i][0] }
-			// 		</button>`;
+		}
+		if (sessionStorage.getItem("tictactoe-tournament") !== null) {
+			const create_pong_tournament = document.getElementById("create-tictactoe-tournament")?.parentElement;
+			if (create_pong_tournament) {
+				const href = document.createElement("a");
+				href.href = "/tournament?game=tictactoe";
+				const back_to_tournament = document.createElement("button");
+				back_to_tournament.id = "pong-tournament";
+				back_to_tournament.textContent = "BACK TO TICTACTOURNAMENT";
+				back_to_tournament.className = "bg-pink-500 text-white px-6 py-3 rounded clicky font-pixelify group-hover:animate-pulse";
+				href.appendChild(back_to_tournament);
+				create_pong_tournament.after(href);
+			}
 		}
 		this.topPlayers.init();
 	}

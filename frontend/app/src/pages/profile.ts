@@ -462,22 +462,23 @@ export default class Profile extends Component {
 			const games = [];
 			for (let game of this.last_matches) {
 				console.log("game: ", game);
-				games.push({ op_uname: game.local_op ? game.local_op : game.username, op_pfp: backend_url + game.avatarURL, op_email: game.email,
-					result: game.winner_id == this.profile_info.id ? 'WIN' : 'LOSS', score: `${game.p1_score} - ${game.p2_score}` });
+				games.push({ op_uname: game.local_op ? game.local_op : game.username, op_pfp: backend_url + game.avatarURL, local_game: game.local_op !== null, op_email: game.email,
+					result: game.winner_id == this.profile_info.id ? 'WIN' : 'LOSS', score: `${game.p1_score} - ${game.p2_score}`, game: game.game });
 			}
 	
 			recentGames.innerHTML = `
 				<div class="grid md:grid-cols-14 grid-cols-10 gap-y-5">
 					${games.map(game => `
-						<a href="/profile/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity flex-row col-span-4 overflow-hidden hidden md:flex"><img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
+						<a href="/profile/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity flex-row col-span-3 overflow-hidden hidden md:flex"><img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
 							<span class="w-35 overflow-hidden" style="padding-top: 5px; padding-left: 7px;">${this.profile_info.username}</span>
 						</a>
 						<div class="flex col-span-1"><span style="padding-top: 7px;">VS</span></div>
-						<a href="/profile/${game.op_uname}" router-link class="hover:opacity-80 transition-opacity flex flex-row col-span-4"><img src="${game.op_pfp}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
+						<a href="/profile/${game.local_game ? this.profile_info.username : game.op_uname}" router-link class="hover:opacity-80 transition-opacity flex flex-row col-span-3"><img src="${game.op_pfp}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
 							<span class="w-35 overflow-hidden" style="padding-top: 5px; padding-left: 7px;">${game.op_uname}</span>
 						</a>
-						<div class="flex col-span-2"><span style="padding-top: 5px;" class="w-full text-right pr-4 ${game.result === 'WIN' ? 'text-green-400' : 'text-red-400'}">${game.result}</span></div>
+						<div class="flex col-span-2"><span style="padding-top: 5px;" class="w-full text-right pr-4 ${game.result === 'WIN' ? 'text-green-400' : game.local_game !== true ? 'text-red-400' : ''}">${game.local_game === true ? "Local" : game.result}</span></div>
 						<div class="flex col-span-3"><span style="padding-top: 5px;">${game.score}</span></div>
+						<div class="flex col-span-1"><span style="padding-top: 5px;">${game.game}</span></div>
 					`).join('')}
 				</div>`;
 		}
