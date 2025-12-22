@@ -1,8 +1,8 @@
 import path from "path";
-import { promises as fs } from "fs";
-import fetch from "node-fetch";
-import { randomUUID } from "crypto";
 import { pipeline } from "stream/promises";
+import { writeFile } from "fs/promises";
+import { randomUUID } from "crypto";
+import fetch from "node-fetch";
 
 export function extType(contentType) {
 	let ext = ".png";
@@ -48,20 +48,22 @@ export default async function endpointHandler(fastify) {
 	// 	return reply.code(404).send({ error: 'Avatar not found' });
 	// 	}
 	// });
-
+		
 	fastify.post('/upload-image', async (req, reply) => {
 		try {
-			const file = await req.file();
-			if (!file)
-				return reply.send({ success: false, code: 400, source: "/cdn/upload-image", error: 'No file uploaded' });
-			const ext = extType(file.mimetype);
+			const buffer = req.body;
+			console.log(req.headers);
+			console.log(req.body);
+			if (!Buffer.isBuffer(buffer)) {
+				return reply.send({ success: false, code: 400, error: 'Invalid body' });
+			}
+			const ext = extType(req.headers['content-type']);
 			const filename = `${randomUUID().replace(/-/g, "").slice(0, 16)}${ext}`;
 			const avatarDir = path.join(process.cwd(), "public", "uploads", "avatars");
-			await pipeline(file.file, fs.createWriteStream(path.join(avatarDir, filename)));
-
+			await writeFile(path.join(avatarDir, filename), buffer);
+			
 			const public_url = `/cdn/avatars/${filename}`;
 			fastify.log.info(`Saved avatar as ${public_url}`);
-
 			return reply.send({ success: true, filename, public_url });
 		} catch (error) {
 			console.log(error);
@@ -109,7 +111,7 @@ export default async function endpointHandler(fastify) {
 			const filename = `${randomUUID().replace(/-/g, "").slice(0, 16)}${ext}`;
 			const avatarDir = path.join(process.cwd(), "public", "uploads", "avatars");
 			const buffer = Buffer.from(await response.arrayBuffer());
-			await fs.writeFile(path.join(avatarDir, filename), buffer);
+			fs.writeFile(path.join(avatarDir, filename), buffer);
 
 			const public_url = `/cdn/avatars/${filename}`;
 			fastify.log.info(`Saved avatar as ${public_url}`);

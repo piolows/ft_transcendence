@@ -112,23 +112,29 @@ const endpointHandler = (fastify, options, done) => {
 
 			const username = req.body.username?.value ?? user['username'];
 			const password = req.body.newpassword?.value ? await hash(req.body.newpassword?.value) : user['password'];
-			
 			let newUrl = "";
-			if (req.file() && req.file().size > 0)
+			if (req.body.avatarFile && !req.body.avatarFile.truncated)
 			{
-				reply.send({success: true});
 				try {
+					const file = req.body.avatarFile;
+					const buffer = await file.toBuffer();
+
 					const resp = await fetch(`${process.env.CDN_URL}/upload-image`, {
 						method: 'POST',
-						body: req.body
+						body: buffer,
+						headers: {
+							'content-type': file.mimetype,
+							'content-length': buffer.length.toString(),
+							'x-filename': file.filename,
+						},
 					});
 					if (!resp.ok) {
-						console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
+						console.error(`Avatar upload failed1: ${resp.status} - ${resp.message}`);
 						return reply.send({ success: false, code: 500, source: "/auth/update", error: "Unexpected error while trying to save uploaded file." });
 					}
 					const data = await resp.json();
 					if (!data) {
-						console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
+						console.error(`Avatar upload failed2: ${resp.status} - ${resp.message}`);
 						return reply.send({ success: false, code: 500, source: "/auth/update", error: "Unexpected error while trying to save uploaded file." });
 					}
 					if (!data.success) {

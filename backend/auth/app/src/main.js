@@ -1,7 +1,6 @@
 import Fastify from "fastify";
 import endpointHandler from "./handler.controller.js";
 import sqlite from './plugins/fastify-sqlite.js';
-import formBody from '@fastify/formbody';
 import fastifyMultipart from '@fastify/multipart';
 import fastifyCookie from "@fastify/cookie";
 import fastifyCors from '@fastify/cors';
@@ -44,12 +43,10 @@ async function startSever() {
 		allowedHeaders: ['Content-Type', 'Authorization'],
 	});
 
-	await fastify.register(formBody);
-
 	await fastify.register(fastifyMultipart, {
     	attachFieldsToBody: true,
 		limits: {
-			fileSize: 5 * 1024 * 1024,
+			fileSize: 50 * 1024 * 1024,
 			files: 1
 		}
 	});

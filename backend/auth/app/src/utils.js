@@ -111,13 +111,15 @@ export function validate_registration(user, req, update = false) {
 			return { success: false, code: 400, source: "/auth:validate_registration", error: 'Unsafe password: Must contain at least 1 Small letter, 1 Capital letter, 1 Digit and 1 Symbol' };
 		}
 	}
-
-	const url_regex = /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp|svg)(\?.*)?)$/i;
-	if (req.body.avatarURL?.value && !url_regex.test(req.body.avatarURL?.value)) {
-		return { success: false, code: 400, source: "/auth:validate_registration", error: 'Invalid email' };
-	}
-	else if (req.body.avatarURL && !url_regex.test(req.body.avatarURL)) {
-		return { success: false, code: 400, source: "/auth:validate_registration", error: 'Invalid email' };
+	if (!req.body.avatarFile || req.body.avatarFile.truncated) {
+		const url_regex = /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp|svg)(\?.*)?)$/i;
+		if (req.body.avatarURL?.value) {
+			if (!url_regex.test(req.body.avatarURL?.value))
+				return { success: false, code: 400, source: "/auth:validate_registration", error: 'Invalid image URL' };
+		}
+		else if (req.body.avatarURL && !url_regex.test(req.body.avatarURL)) {
+			return { success: false, code: 400, source: "/auth:validate_registration", error: 'Invalid image URL' };
+		}
 	}
 	return null;
 }
