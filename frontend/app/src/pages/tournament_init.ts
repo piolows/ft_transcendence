@@ -2,6 +2,7 @@ import Component from "../scripts/router";
 import NavBar from "../components/nav_bar";
 import { Tournament } from "./tournament";
 import { faker } from '@faker-js/faker';
+import Footer from "../components/footer";
 import { Player, Bot } from "../scripts/game";
 import { T } from "@faker-js/faker/dist/airline-DF6RqYmq";
 
@@ -15,6 +16,7 @@ export default class CreateTournament extends Component {
     private pairings: number = 4;
     private players: Array<TournamentPlayer> = [];
     private game: string | null = null;
+    private footer = new Footer(this.router);
 
     async load(app: HTMLDivElement | HTMLElement) {
 
@@ -71,6 +73,7 @@ export default class CreateTournament extends Component {
         submit_button.type = "submit";
         input_container.appendChild(submit_button);
         main_container.appendChild(input_container);
+        app.innerHTML += this.footer.get_html();
     }
     async init() {
         await this.navbar.init();
