@@ -49,7 +49,7 @@ export default class Homepage extends Component {
 				href.href = "/tournament?game=pong";
 				const back_to_tournament = document.createElement("button");
 				back_to_tournament.id = "pong-tournament";
-				back_to_tournament.textContent = "BACK TO PONGAMENT";
+				back_to_tournament.textContent = "RESUME PONG";
 				back_to_tournament.className = "bg-pink-500 text-white px-6 py-3 rounded clicky font-pixelify group-hover:animate-pulse";
 				href.appendChild(back_to_tournament);
 				create_pong_tournament.after(href);
@@ -62,7 +62,7 @@ export default class Homepage extends Component {
 				href.href = "/tournament?game=tictactoe";
 				const back_to_tournament = document.createElement("button");
 				back_to_tournament.id = "pong-tournament";
-				back_to_tournament.textContent = "BACK TO TICTACTOURNAMENT";
+				back_to_tournament.textContent = "RESUME TICTACTOE";
 				back_to_tournament.className = "bg-pink-500 text-white px-6 py-3 rounded clicky font-pixelify group-hover:animate-pulse";
 				href.appendChild(back_to_tournament);
 				create_pong_tournament.after(href);

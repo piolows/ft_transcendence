@@ -2,6 +2,7 @@ import Component from "../scripts/router";
 import NavBar from "../components/nav_bar";
 import { HighlightSpanKind } from "typescript";
 import { TournamentPlayer } from "./tournament_init";
+import Footer from "../components/footer";
 
 export interface Match {
 	id: number;
@@ -183,6 +184,7 @@ export class TournamentPage extends Component {
 	private navbar = new NavBar(this.router);
 	private tournament: Tournament | null = null;
 	private game: string | null = null;
+	private footer = new Footer(this.router);
 
 	async load(app: HTMLDivElement | HTMLElement) {
 		await this.navbar.load(app);
@@ -197,6 +199,7 @@ export class TournamentPage extends Component {
 		const info = document.createElement("div");
 		info.id = "matches-info";
 		main_container.appendChild(info);
+		app.innerHTML += this.footer.get_html();
 	}
 
 	private startGames() {

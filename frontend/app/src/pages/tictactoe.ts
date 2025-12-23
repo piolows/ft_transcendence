@@ -351,7 +351,7 @@ export default class TicTacToePage extends Component {
         this.trueLargeBoard[lrow][lcol] = this.currentMove;
     }
     
-    if (!this.checkBoardWin(this.trueLargeBoard)) this.winnerModal(this.currentMove);
+    if (this.checkBoardWin(this.trueLargeBoard)) this.winnerModal(this.currentMove);
     
     this.currentMove = this.currentMove === "X" ? "O" : "X";
     this.updateInfo(this.currentMove, (this.currentMove === "X" ? this.p1Name : this.p2Name)!);
