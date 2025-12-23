@@ -1,6 +1,7 @@
 import path from "path";
 import { pipeline } from "stream/promises";
 import { writeFile } from "fs/promises";
+import * as fs from "fs";
 import { randomUUID } from "crypto";
 import fetch from "node-fetch";
 
@@ -52,8 +53,6 @@ export default async function endpointHandler(fastify) {
 	fastify.post('/upload-image', async (req, reply) => {
 		try {
 			const buffer = req.body;
-			console.log(req.headers);
-			console.log(req.body);
 			if (!Buffer.isBuffer(buffer)) {
 				return reply.send({ success: false, code: 400, error: 'Invalid body' });
 			}
