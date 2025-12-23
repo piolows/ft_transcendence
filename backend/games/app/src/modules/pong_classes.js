@@ -397,19 +397,18 @@ export class Bot extends Player {
 
 function game_state(gameObj) {
 	const game = gameObj.setup;
-	let players = [];
-	for (let player of Object.values(gameObj.players)) {
-		players.push(player.user_info);
-	}
-	console.log(players);
+	const lp = gameObj.getPlayer("left");
+	const rp = gameObj.getPlayer("right");
+	console.log("\n\n", lp?.user_info);
+	console.log("\n\n", rp?.user_info);
 	return {
 		started: gameObj.started,
 		game_over: game.game_over,
 		full: (gameObj.player_count() == 2),
 		winner: gameObj.winner,
 		time: game.time,
-		left_player: players[0] && players[0].is_left ? players[0] : players[1],
-		right_player: players[0] && players[0].is_left ? players[1] : players[0],
+		left_player: lp?.user_info,
+		right_player: rp?.user_info,
 		timeout: game.timeout,
 		reset: game.reset,
 		p1_score: game.p1_score,
