@@ -1,3 +1,5 @@
 4- Game end in multiplayer games
 3- Editing username (or any text) to HTML
 6- Editing username (or any text) to a link
+
+Last Seen always null for google accounts (and also shows up on your own profile when signed in (for google accounts))

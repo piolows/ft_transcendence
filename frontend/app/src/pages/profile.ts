@@ -128,7 +128,7 @@ export default class Profile extends Component {
 								placeholder="${this.profile_info.username}"
 								required>
 						</div>
-						<p id="username-errmsg" class="text-red-500 text-xs h-4 pb-3 text-center"></p>
+						<p id="username-errmsg" class="text-red-500 text-xs pb-3 text-center"></p>
 						<button type="submit" 
 							class="w-full bg-blue-500 text-white py-3 pixel-box font-pixelify hover:bg-blue-600 clicky">
 							UPDATE USERNAME
@@ -160,7 +160,7 @@ export default class Profile extends Component {
 							<input name="avatarFile" type="file" accept="image/*"
 								class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323">
 						</div>
-						<p id="avatar-errmsg" class="text-red-500 text-xs h-4 pb-3 text-center"></p>
+						<p id="avatar-errmsg" class="text-red-500 text-xs pb-3 text-center"></p>
 						<button type="submit" 
 							class="w-full bg-blue-500 text-white py-3 pixel-box font-pixelify hover:bg-blue-600 clicky">
 							UPDATE PICTURE
@@ -198,7 +198,7 @@ export default class Profile extends Component {
 								class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323"
 								required>
 						</div>
-						<p id="password-errmsg" class="text-red-500 text-xs h-4 pb-3 text-center"></p>
+						<p id="password-errmsg" class="text-red-500 text-xs pb-3 text-center"></p>
 						<button type="submit" 
 							class="w-full bg-blue-500 text-white py-3 pixel-box font-pixelify hover:bg-blue-600 clicky">
 							UPDATE PASSWORD

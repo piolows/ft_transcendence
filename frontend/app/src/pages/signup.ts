@@ -54,7 +54,7 @@ export default class SignUp extends Component {
                             </div>
                         </div>
                     </div>
-                    <p id="errmsg" class="text-red-500 text-xs h-4 pb-3 text-center"></p>
+                    <p id="errmsg" class="text-red-500 text-xs pb-3 text-center"></p>
                     <button type="submit" 
                         class="w-full bg-green-500 text-white py-3 pixel-box font-pixelify hover:bg-green-600 clicky">
                         CREATE ACCOUNT

@@ -21,7 +21,7 @@ export default class Login extends Component {
                         <input name="password" type="password" 
                             class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323"
                             required>
-						<p id="errmsg" class="text-red-500 text-xs h-4 pt-3 pb-3 text-center"></p>
+						<p id="errmsg" class="text-red-500 text-xs pt-3 pb-3 text-center"></p>
                     </div>
                     <button type="submit"
                         class="w-full bg-blue-500 text-white py-3 pixel-box font-pixelify hover:bg-blue-600 clicky">
