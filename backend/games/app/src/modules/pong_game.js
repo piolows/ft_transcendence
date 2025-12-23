@@ -106,14 +106,13 @@ export default function update_game(game) {
 	// Game over condition
 	if (game.time >= game.max_time || p1_score >= game.max_score || p2_score >= game.max_score) {
 		game.winner = (p1_score > p2_score ? 1 : (p1_score < p2_score ? -1 : 0));
-		game.end_game();
-		return ;
+		return false;
 	}
 
 	// Game is put in timeout (typically for resetting ball)
 	if (game.timeout > 0) {
 		ball.moving = false;
-		return ;
+		return true;
 	}
 	else if (!ball.moving && game.reset == 0) {
 		const angle = (Math.random() * Math.PI / 4) - (Math.PI / 8); // -22.5° to +22.5°
@@ -134,7 +133,7 @@ export default function update_game(game) {
 	if (right_paddle.down)
 		right_paddle.y = Math.min(right_paddle.y + right_paddle.speed, arena_height - right_paddle.height);
 	if (game.reset > 0)
-		return ;
+		return true;
 	ball.x += ball.xVel;
 	ball.y += ball.yVel;
 
@@ -154,5 +153,6 @@ export default function update_game(game) {
 		game.p1_score += 1;
 		resetBall(game, ball);
 	}
+	return true;
 }
 

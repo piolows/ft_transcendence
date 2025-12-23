@@ -59,8 +59,8 @@ const pongHandler = (fastify, options, done) => {
 			time: games[room_code].setup.time,
 			full: (games[room_code].player_count() == 2),
 			admin: games[room_code].admin_info,
-			left_player: games[room_code].getPlayer('left'),
-			right_player: games[room_code].getPlayer('right'),
+			left_player: games[room_code].getPlayer('left')?.user_info,
+			right_player: games[room_code].getPlayer('right')?.user_info,
 			canvas_info: {
 				width: games[room_code].setup.arena_width,
 				height: games[room_code].setup.arena_height,

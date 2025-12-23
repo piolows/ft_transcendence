@@ -104,7 +104,10 @@ const endpointHandler = (fastify, options, done) => {
 				return reply.send({ success: false, code: 404, source: "/auth/update", error: "User not found" });
 			if (req.body.password && !await argon2.verify(user['password'], req.body.password.value))
 				return reply.send({ success: false, code: 403, source: "/auth/update", error: "Wrong password provided" });
-
+			if (req.body.username?.value == user['username'])
+				return reply.send({ success: false, code: 400, source: "/auth/update", error: "Same as old username" });
+			if (req.body.newpassword && await argon2.verify(user['password'], req.body.newpassword.value))
+				return reply.send({ success: false, code: 400, source: "/auth/update", error: "Same as old password" });
 
 			const valReg = validate_registration(user, req, true);
 			if (valReg)

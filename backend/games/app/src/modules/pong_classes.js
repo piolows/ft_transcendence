@@ -74,7 +74,7 @@ class Setup {
 	timeout = 0;
 	game_over = false;
 
-	constructor(width = 800, height = 600, max_score = 10, max_time = 600, ball = null, lplayer = null, rplayer = null) {
+	constructor(width = 800, height = 600, max_score = 5, max_time = 600, ball = null, lplayer = null, rplayer = null) {
 		this.arena_width = width;
 		this.arena_height = height;
 		this.max_score = max_score;
@@ -234,10 +234,10 @@ export class Game {
 			throw new Error("Game already over");
 		if ((pref == "left" && this.getPlayer("left")) || (pref == "right" && this.getPlayer("right")))
 			throw new Error("Seat already taken");
-		if (!this.getPlayer("left")) {
+		if (pref == "left" || !this.getPlayer("left")) {
 			player.is_left = true;
 		}
-		else if (!this.getPlayer("right")) {
+		else if (pref == "right" || !this.getPlayer("right")) {
 			player.is_left = false;
 		}
 		player.is_player = true;
@@ -399,8 +399,6 @@ function game_state(gameObj) {
 	const game = gameObj.setup;
 	const lp = gameObj.getPlayer("left");
 	const rp = gameObj.getPlayer("right");
-	console.log("\n\n", lp?.user_info);
-	console.log("\n\n", rp?.user_info);
 	return {
 		started: gameObj.started,
 		game_over: game.game_over,
@@ -448,8 +446,7 @@ function game_frame(gameObj, frame_start) {
 			game.right_player.update(gameState);
 	}
 	const ended = game.game_over;
-	update_game(game);
-	if (!ended && game.game_over) {
+	if (!update_game(game)) {
 		gameObj.stop_game();
 	}
 }
