@@ -14,9 +14,9 @@ export default class SignUp extends Component {
                         <div class="space-y-3">
                             <div>
                                 <label class="block font-silkscreen mb-2">USERNAME</label>
-                                <input name="username" type="text" 
+                                <input id="username" name="username" type="text" 
                                     class="w-full px-4 py-2 bg-black border-2 border-green-500 text-white font-vt323 text-base"
-                                    maxlength="15" required>
+                                    maxlength="20" required>
                             </div>
                             <div>
                                 <label class="block font-silkscreen mb-2">EMAIL</label>
@@ -73,34 +73,8 @@ export default class SignUp extends Component {
 	}
 
 	async init() {
-		// editAvatarForm.onsubmit = async (e) => {
-		// 	e.preventDefault();
-		// 	const formData = new FormData(editAvatarForm);
-		// 	try {
-		// 		const resp = await fetch(`${backend_url}/auth/update`, {
-		// 			method: 'POST',
-		// 			credentials: "include",
-		// 			body: formData
-		// 		});
-		// 		if (!resp.ok) {
-		// 			console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
-		// 			return ;
-		// 		}
-		// 		const data = await resp.json();
-		// 		if (!data) {
-		// 			console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
-		// 		}
-		// 		if (!data.success) {
-		// 			console.error(`Error while sending request: ${data.code} - ${data.source} - ${data.error}`);
-		// 			return ;
-		// 		}
-		// 		this.router.route(this.real_path);
-		// 	} catch (error: any) {
-		// 		console.error(error.message);
-		// 	}
-		// 	editAvatarModal.classList.add('hidden');
-		// };
 		const form = document.getElementById("registerForm") as HTMLFormElement;
+		document.getElementById("username")?.focus();
 		const errtxt = document.getElementById('errmsg')!;
 		form.addEventListener("submit", async (event) => {
 			event.preventDefault();

@@ -12,9 +12,9 @@ export default class Login extends Component {
                 <form id="loginForm" class="space-y-6">
                     <div>
                         <label class="block font-silkscreen mb-2">USERNAME</label>
-                        <input name="username" type="text" 
+                        <input id="username" name="username" type="text" 
                             class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323"
-                            maxlength="15" required>
+                            maxlength="20" required>
                     </div>
                     <div>
                         <label class="block font-silkscreen mb-2">PASSWORD</label>
@@ -42,6 +42,7 @@ export default class Login extends Component {
 
 	async init() {
 		const form = document.getElementById("loginForm") as HTMLFormElement;
+		document.getElementById("username")?.focus();
 		const errtext = document.getElementById('errmsg')!;
 		form.addEventListener("submit", async (event) => {
 			event.preventDefault();
