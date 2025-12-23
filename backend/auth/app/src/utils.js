@@ -111,7 +111,7 @@ export function validate_registration(user, req, update = false) {
 			return { success: false, code: 400, source: "/auth:validate_registration", error: 'Unsafe password: Must contain at least 1 Small letter, 1 Capital letter, 1 Digit and 1 Symbol' };
 		}
 	}
-	if (!req.body.avatarFile || req.body.avatarFile.truncated) {
+	if (!req.body.avatarFile || !req.body.avatarFile.file.bytesRead) {
 		const url_regex = /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp|svg)(\?.*)?)$/i;
 		if (req.body.avatarURL?.value) {
 			if (!url_regex.test(req.body.avatarURL?.value))

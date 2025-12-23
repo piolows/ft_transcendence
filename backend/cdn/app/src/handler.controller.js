@@ -1,7 +1,6 @@
 import path from "path";
 import { pipeline } from "stream/promises";
 import { writeFile } from "fs/promises";
-import * as fs from "fs";
 import { randomUUID } from "crypto";
 import fetch from "node-fetch";
 
@@ -110,7 +109,7 @@ export default async function endpointHandler(fastify) {
 			const filename = `${randomUUID().replace(/-/g, "").slice(0, 16)}${ext}`;
 			const avatarDir = path.join(process.cwd(), "public", "uploads", "avatars");
 			const buffer = Buffer.from(await response.arrayBuffer());
-			fs.writeFile(path.join(avatarDir, filename), buffer);
+			await writeFile(path.join(avatarDir, filename), buffer);
 
 			const public_url = `/cdn/avatars/${filename}`;
 			fastify.log.info(`Saved avatar as ${public_url}`);

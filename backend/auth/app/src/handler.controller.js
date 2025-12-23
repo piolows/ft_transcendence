@@ -121,7 +121,7 @@ const endpointHandler = (fastify, options, done) => {
 			const username = req.body.username?.value ?? user['username'];
 			const password = req.body.newpassword?.value ? await hash(req.body.newpassword?.value) : user['password'];
 			let newUrl = "";
-			if (req.body.avatarFile && !req.body.avatarFile.truncated)
+			if (req.body.avatarFile && req.body.avatarFile.file.bytesRead > 0)
 			{
 				try {
 					const file = req.body.avatarFile;
