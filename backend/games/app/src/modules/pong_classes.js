@@ -234,7 +234,7 @@ export class Game {
 			throw new Error("Game already over");
 		if ((pref == "left" && this.getPlayer("left")) || (pref == "right" && this.getPlayer("right")))
 			throw new Error("Seat already taken");
-		if (pref == "left" || !this.getPlayer("left")) {
+		if (pref == "left" || (pref != "right" && !this.getPlayer("left"))) {
 			player.is_left = true;
 		}
 		else if (pref == "right" || !this.getPlayer("right")) {
