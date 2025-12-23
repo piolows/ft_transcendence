@@ -234,22 +234,18 @@ export class Game {
 			throw new Error("Game already over");
 		if ((pref == "left" && this.getPlayer("left")) || (pref == "right" && this.getPlayer("right")))
 			throw new Error("Seat already taken");
-		
+		if (!this.getPlayer("left")) {
+			player.is_left = true;
+		}
+		else if (!this.getPlayer("right")) {
+			player.is_left = false;
+		}
 		player.is_player = true;
 		player.game = this;
 		delete this.specs[player.user_info.username];
 		this.players[player.user_info.username] = player;
 		this.all[player.user_info.username] = player;
-		if (!this.getPlayer("left")) {
-			player.is_left = true;
-			return true;
-		}
-		else if (!this.getPlayer("right")) {
-			player.is_left = false;
-			return false;
-		}
-		else
-			throw new Error("Max players in current game");
+		return player.is_player;
 	}
 
 	spec_join(spec) {
