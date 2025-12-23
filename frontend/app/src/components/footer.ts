@@ -10,13 +10,13 @@ export default class Footer extends Component {
 		<footer class="py-16 mt-20 text-center border-t border-blue-800">
 			<div class="container mx-auto">
 				<p class="font-silkscreen text-sm mb-6 rainbow">&copy; 2025 PONGOID | NO RIGHTS RESERVED AT ALL</p>
-				<div class="flex justify-center space-x-8">
+				<!-- div class="flex justify-center space-x-8">
 					<a href="/dev" router-link>
 						<button class="pixel-box bg-purple-900 p-4 font-pixelify clicky wiggler blinker">
 							DEV MODE
 						</button>
 					</a>
-				</div>
+				</div -->
 			</div>
 		</footer>`;
 	}
