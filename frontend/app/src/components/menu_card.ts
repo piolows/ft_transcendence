@@ -45,7 +45,7 @@ export default class MenuCard extends Component {
 					</a>` :
 					`
 					<a href="${this.buttons[i][1]}" router-link>
-						<button id=${ this.buttons[i][2] } class="${ colors[this.color][2] } text-white px-6 py-3 rounded clicky font-pixelify group-hover:animate-pulse">
+						<button id=${ this.buttons[i][2] } class="${ colors[this.color][2] } mb-4 text-white px-6 py-3 rounded clicky font-pixelify group-hover:animate-pulse">
 							${ this.buttons[i][0] }
 						</button>
 					</a>`;
