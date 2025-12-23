@@ -164,8 +164,10 @@ export default class Pong extends Component {
 		const params = new URLSearchParams(window.location.search);
 		const op = params.get("op");
 		const isTournament = params.get("tournament");
-		const difficulty = parseInt(params.get("difficulty") ?? "1");
-		
+		const diff = params.get("difficulty");
+		let difficulty = 1;
+		if (diff && diff in ["0", "1", "2"])
+			difficulty = parseInt(diff);
 		// const gamemodeLabel = document.getElementById('gamemode')!;
 		const modeDisplay = document.getElementById('mode-display')!;
 		const rcontrols = document.getElementById('right-controls')!;

@@ -131,6 +131,8 @@ export default class PongRoom extends Component {
 	async get_info() {
 		const params = new URLSearchParams(window.location.search);
 		this.preference = params.get('pref') ?? "SPEC";
+		if (!(this.preference in ['SPEC', 'PLAY', 'EITHER', 'LPLAY', 'RPLAY']))
+			this.preference = 'SPEC';
 		const root_len = "/pong/room".length;
 		const uri_len = this.real_path?.length;
 		if (!uri_len || uri_len < root_len) {
