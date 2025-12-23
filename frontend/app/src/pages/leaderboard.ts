@@ -99,5 +99,18 @@ export default class Leaderboard extends Component {
 
     async init() {
         this.navbar.init();
+
+		const left = document.getElementById('prev_btn');
+		if (left) {
+			left.onclick = () => this.router.route(`/leaderboard?page=${this.page - 1}`);
+		}
+		const right = document.getElementById('next_btn');
+		if (right) {
+			right.onclick = () => this.router.route(`/leaderboard?page=${this.page + 1}`);
+		}
+		const pager = document.getElementById('pager') as HTMLSelectElement | null;
+		if (pager) {
+			pager.onchange = () => this.router.route(`/leaderboard?page=${pager.value}`);
+		}
     }
 }
