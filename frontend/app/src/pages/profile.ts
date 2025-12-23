@@ -128,6 +128,7 @@ export default class Profile extends Component {
 								placeholder="${this.profile_info.username}"
 								required>
 						</div>
+						<p id="username-errmsg" class="text-red-500 text-xs h-4 pb-3 text-center"></p>
 						<button type="submit" 
 							class="w-full bg-blue-500 text-white py-3 pixel-box font-pixelify hover:bg-blue-600 clicky">
 							UPDATE USERNAME
@@ -159,6 +160,7 @@ export default class Profile extends Component {
 							<input name="avatarFile" type="file" accept="image/*"
 								class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323">
 						</div>
+						<p id="avatar-errmsg" class="text-red-500 text-xs h-4 pb-3 text-center"></p>
 						<button type="submit" 
 							class="w-full bg-blue-500 text-white py-3 pixel-box font-pixelify hover:bg-blue-600 clicky">
 							UPDATE PICTURE
@@ -196,6 +198,7 @@ export default class Profile extends Component {
 								class="w-full px-4 py-2 bg-black border-2 border-blue-500 text-white font-vt323"
 								required>
 						</div>
+						<p id="password-errmsg" class="text-red-500 text-xs h-4 pb-3 text-center"></p>
 						<button type="submit" 
 							class="w-full bg-blue-500 text-white py-3 pixel-box font-pixelify hover:bg-blue-600 clicky">
 							UPDATE PASSWORD
@@ -259,8 +262,9 @@ export default class Profile extends Component {
 			return ;
 		this.navbar.init();
 
-		const updateFormsHandler = async (e: Event, form: HTMLFormElement) => {
+		const updateFormsHandler = async (e: Event, form: HTMLFormElement, errElement: HTMLElement) => {
 				e.preventDefault();
+				errElement.textContent = '';
 				const formData = new FormData(form);
 				try {
 					const resp = await fetch(`${backend_url}/auth/update`, {
@@ -269,21 +273,21 @@ export default class Profile extends Component {
 						body: formData
 					});
 					if (!resp.ok) {
-						console.error(`Error: Connection failure`);
+						errElement.textContent = 'Error: Connection failure';
 						return false;
 					}
 					const data = await resp.json();
 					if (!data) {
-						console.error(`Error: Connection failure`);
+						errElement.textContent = 'Error: Connection failure';
 						return false;
 					}
 					if (!data.success) {
-						console.error(data.error);
+						errElement.textContent = data.error;
 						return false;
 					}
 					this.router.route(this.real_path);
 				} catch (error: any) {
-					console.error(error.message);
+					errElement.textContent = error.message;
 					return false;
 				}
 				return true;
@@ -295,9 +299,11 @@ export default class Profile extends Component {
 			const editUsernameModal = document.getElementById('edit-username-modal')!;
 			const closeUsernameModal = document.getElementById('close-username-modal')!;
 			const editUsernameForm = document.getElementById('edit-username-form') as HTMLFormElement;
+			const usernameErrMsg = document.getElementById('username-errmsg')!;
 
 			if (editUsernameBtn) {
 				editUsernameBtn.onclick = () => {
+					usernameErrMsg.textContent = '';
 					editUsernameModal.classList.remove('hidden');
 				};
 			}
@@ -307,7 +313,7 @@ export default class Profile extends Component {
 			};
 
 			editUsernameForm.onsubmit = async (e) => {
-				const success = await updateFormsHandler(e, editUsernameForm);
+				const success = await updateFormsHandler(e, editUsernameForm, usernameErrMsg);
 				if (success)
 					this.router.route("/profile");
 			};
@@ -317,9 +323,11 @@ export default class Profile extends Component {
 			const editAvatarModal = document.getElementById('edit-avatar-modal')!;
 			const closeAvatarModal = document.getElementById('close-avatar-modal')!;
 			const editAvatarForm = document.getElementById('edit-avatar-form') as HTMLFormElement;
+			const avatarErrMsg = document.getElementById('avatar-errmsg')!;
 
 			if (avatarContainer) {
 				avatarContainer.onclick = () => {
+					avatarErrMsg.textContent = '';
 					editAvatarModal.classList.remove('hidden');
 				};
 			}
@@ -330,6 +338,7 @@ export default class Profile extends Component {
 
 			editAvatarForm.onsubmit = async (e) => {
 				e.preventDefault();
+				avatarErrMsg.textContent = '';
 				const formData = new FormData(editAvatarForm);
 				try {
 					const resp = await fetch(`${backend_url}/auth/update`, {
@@ -338,22 +347,22 @@ export default class Profile extends Component {
 						body: formData
 					});
 					if (!resp.ok) {
-						console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
+						avatarErrMsg.textContent = 'Avatar upload failed';
 						return ;
 					}
 					const data = await resp.json();
 					if (!data) {
-						console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
+						avatarErrMsg.textContent = 'Avatar upload failed';
+						return ;
 					}
 					if (!data.success) {
-						console.error(`Error while sending request: ${data.code} - ${data.source} - ${data.error}`);
+						avatarErrMsg.textContent = data.error;
 						return ;
 					}
 					this.router.route(this.real_path);
 				} catch (error: any) {
-					console.error(error.message);
+					avatarErrMsg.textContent = error.message;
 				}
-				editAvatarModal.classList.add('hidden');
 			};
 
 			// password modal
@@ -361,9 +370,11 @@ export default class Profile extends Component {
 			const changePasswordModal = document.getElementById('change-password-modal')!;
 			const closePasswordModal = document.getElementById('close-password-modal')!;
 			const changePasswordForm = document.getElementById('change-password-form') as HTMLFormElement;
+			const passwordErrMsg = document.getElementById('password-errmsg')!;
 
 			if (changePasswordBtn) {
 				changePasswordBtn.onclick = () => {
+					passwordErrMsg.textContent = '';
 					changePasswordModal.classList.remove('hidden');
 				};
 			}
@@ -373,38 +384,20 @@ export default class Profile extends Component {
 			};
 
 			changePasswordForm.onsubmit = async (e) => {
+				passwordErrMsg.textContent = '';
 				const formData = new FormData(changePasswordForm);
 				const pass = formData.get('newpassword');
 				const conf = formData.get('confirmPassword');
 				formData.delete('confirmPassword');
 				if (pass != conf) {
 					e.preventDefault();
-					console.error(`Password mismatch`);
+					passwordErrMsg.textContent = 'Password and confirmation password mismatch';
 					return ;
 				}
-				const success = await updateFormsHandler(e, changePasswordForm);
+				const success = await updateFormsHandler(e, changePasswordForm, passwordErrMsg);
 				if (success)
 					changePasswordModal.classList.add('hidden');
 			};
-
-			// close modals when clicking on background
-			// editUsernameModal.onclick = (e) => {
-			// 	if (e.target === editUsernameModal) {
-			// 		editUsernameModal.classList.add('hidden');
-			// 	}
-			// };
-
-			// editAvatarModal.onclick = (e) => {
-			// 	if (e.target === editAvatarModal) {
-			// 		editAvatarModal.classList.add('hidden');
-			// 	}
-			// };
-
-			// changePasswordModal.onclick = (e) => {
-			// 	if (e.target === changePasswordModal) {
-			// 		changePasswordModal.classList.add('hidden');
-			// 	}
-			// };
 		}
 
 		const fa = document.getElementById('follow_area')!;
@@ -412,9 +405,12 @@ export default class Profile extends Component {
 			fa.innerHTML = `
 				<button id="followbtn" class="bg-green-600 text-white py-3 pixel-box font-pixelify hover:bg-green-700 clicky w-50">
 					+ FOLLOW
-				</button>`;
+				</button>
+				<p id="follow-errmsg" class="text-red-500 text-xs h-4 pt-1 text-center"></p>`;
 			const fb = document.getElementById('followbtn')!;
+			const followErrMsg = document.getElementById('follow-errmsg')!;
 			fb.onclick = async () => {
+				followErrMsg.textContent = '';
 				try {
 					const resp = await fetch(`${backend_url}/users/${this.profile_info.username}/friends`, {
 						method: "POST",
@@ -424,30 +420,33 @@ export default class Profile extends Component {
 						})
 					});
 					if (!resp.ok) {
-						console.error(`Error while sending request: ${resp.status} - ${resp.text}`);
+						followErrMsg.textContent = 'Failed to follow user';
 						return ;
 					}
 					const data = await resp.json();
 					if (!data) {
-						console.error(`Error while sending request: 500 - Received invalid response`);
+						followErrMsg.textContent = 'Failed to follow user';
 						return ;
 					}
 					if (!data.success) {
-						console.error(`Error while sending request: ${data.code} - ${data.source} - ${data.error}`);
+						followErrMsg.textContent = data.error;
 						return ;
 					}
 					this.router.route(this.real_path, false);
 				} catch (error: any) {
-					console.error(error.message);
+					followErrMsg.textContent = error.message;
 				}
 			};
 		} else if (this.is_friends == true) {
 			fa.innerHTML = `
 				<button id="followbtn" class="bg-red-600 text-white py-3 pixel-box font-pixelify hover:bg-red-700 clicky w-50 glitch">
 					- UNFOLLOW
-				</button>`;
+				</button>
+				<p id="follow-errmsg" class="text-red-500 text-xs h-4 pt-1 text-center"></p>`;
 			const fb = document.getElementById('followbtn')!;
+			const followErrMsg = document.getElementById('follow-errmsg')!;
 			fb.onclick = async () => {
+				followErrMsg.textContent = '';
 				try {
 					const resp = await fetch(`${backend_url}/users/${this.profile_info.username}/friends`, {
 						method: "DELETE",
@@ -457,21 +456,21 @@ export default class Profile extends Component {
 						})
 					});
 					if (!resp.ok) {
-						console.error(`Error while sending request: ${resp.status} - ${resp.text}`);
+						followErrMsg.textContent = 'Failed to unfollow user';
 						return ;
 					}
 					const data = await resp.json();
 					if (!data) {
-						console.error(`Error while sending request: 500 - Received invalid response`);
+						followErrMsg.textContent = 'Failed to unfollow user';
 						return ;
 					}
 					if (!data.success) {
-						console.error(`Error while sending request: ${data.code} - ${data.source} - ${data.error}`);
+						followErrMsg.textContent = data.error;
 						return ;
 					}
 					this.router.route(this.real_path, false);
 				} catch (error: any) {
-					console.error(error.message);
+					followErrMsg.textContent = error.message;
 				}
 			};
 		}
@@ -497,7 +496,6 @@ export default class Profile extends Component {
 		if (recentGames && this.last_matches.length > 0) {
 			const games = [];
 			for (let game of this.last_matches) {
-				console.log("game: ", game);
 				games.push({ op_uname: game.local_op ? game.local_op : game.username, op_pfp: backend_url + game.avatarURL, local_game: game.local_op !== null, op_email: game.email,
 					result: game.winner_id == this.profile_info.id ? 'WIN' : 'LOSS', score: `${game.p1_score} - ${game.p2_score}`, game: game.game });
 			}
