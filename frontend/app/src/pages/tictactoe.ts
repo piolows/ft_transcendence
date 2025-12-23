@@ -3,7 +3,7 @@ import NavBar from "../components/nav_bar";
 import { backend_url, Router } from "../scripts/router";
 import { Tournament } from "./tournament";
 
-type Cell = "" | "X" | "O";
+type Cell = "" | "X" | "O" | "D";
 type SmallBoard = Cell[][];
 type LargeBoard = SmallBoard[][]; 
 
@@ -33,19 +33,32 @@ export default class TicTacToePage extends Component {
     private checkBoardWin(board: SmallBoard): boolean {
         // check if the board is fully filled
         for (let i = 0; i < 3; i++) {
+            if (board[i][0] == 'D' || board[i][1] == 'D' || board[i][2] == 'D')
+                continue ;
             if (board[i][0] !== "" && board[i][0] === board[i][1] && board[i][1] === board[i][2]) {
                 return true;
             }
         }
         for (let i = 0; i < 3; i++) {
+            if (board[0][i] === "D" || board[1][i] == "D" || board[2][i] == "D")
+                continue ;
             if (board[0][i] !== "" && board[0][i] === board[1][i] && board[1][i] === board[2][i]) {
                 return true;
             }
         }
-        if (board[0][0] !== "" && board[0][0] === board[1][1] && board[1][1] === board[2][2]) {
+
+        // if (board[0][0] !== "D" && board[0][0] !== "" && board[0][0] === board[1][1] && board[1][1] === board[2][2]) {
+        //     return true;
+        // }
+        // if (board[0][0] !== "D" && board[0][2] !== "" && board[0][2] === board[1][1] && board[1][1] === board[2][0]) {
+        //     return true;
+        // }
+        if (board[0][0] !== "D" && board[1][1] !== "D" && board[2][2] !== "D" &&
+            board[0][0] !== "" && board[0][0] === board[1][1] && board[1][1] === board[2][2]) {
             return true;
         }
-        if (board[0][2] !== "" && board[0][2] === board[1][1] && board[1][1] === board[2][0]) {
+        if (board[0][2] !== "D" && board[1][1] !== "D" && board[2][0] !== "D" &&
+            board[0][2] !== "" && board[0][2] === board[1][1] && board[1][1] === board[2][0]) {
             return true;
         }
         return false;
@@ -68,7 +81,7 @@ export default class TicTacToePage extends Component {
             current_move_icon.classList!.add("text-red-600");
         }
         if (current_move_icon) current_move_icon.textContent = currentMove;
-        if (current_move_text) current_move_text.textContent = `${currentMove}'s Turn (${currentPlayer})`;
+        if (current_move_text) current_move_text.textContent = `${currentPlayer}'s Turn`;
     }
 
     private lockBoards(lrow: number, lcol: number, largeBoardCell: HTMLDivElement) {
@@ -127,7 +140,7 @@ export default class TicTacToePage extends Component {
             <div id="game-info" class="pixel-box bg-gradient-to-r from-purple-600 to-blue-600 p-4 mb-6 max-w-md w-full text-center shadow-lg">
                 <div id="current-move" class="text-xl md:text-2xl font-bold text-white">
                     <span id="current-move-icon" class="inline-block w-8 h-8 leading-8 bg-white text-blue-600 rounded mr-2">${this.currentMove}</span>
-                    <span id="current-move-text" class="font-size-2">${this.currentMove}'s Turn</span>
+                    <span id="current-move-text" class="font-size-2">${this.currentMove === 'X' ? this.p1Name : this.p2Name}'s Turn</span>
                     <div class="text-sm flex justify-center" id="time">Time: 
                         <span id="minutes">00:</span>
                         <span id="seconds" class="p-0 m-0">00</span>
@@ -210,12 +223,43 @@ export default class TicTacToePage extends Component {
         this.currentMove = "X";
         this.buildBoard(app);
         this.initializeBoard("enable");
-        const move_container = document.getElementById("current-move-text");
-        const text = move_container?.textContent;
-        const newMoveText: string = `${text} (${this.p1Name})`;
-        if (move_container) move_container.textContent = newMoveText;
-        this.gameTime = 0;
     }
+
+    private isBoardFull(board: SmallBoard): boolean {
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (board[i][j] === "") {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private isBoardDrawn(board: SmallBoard): boolean {
+        return this.isBoardFull(board) && !this.checkBoardWin(board);
+    }
+
+    private isLargeBoardFull(): boolean {
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (this.trueLargeBoard[i][j] === "") {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private isGameDrawn(): boolean {
+       return this.isLargeBoardFull() && !this.checkBoardWin(this.trueLargeBoard);
+    }
+    //     const move_container = document.getElementById("current-move-text");
+    //     const text = move_container?.textContent;
+    //     const newMoveText: string = `${text} (${this.p1Name})`;
+    //     if (move_container) move_container.textContent = newMoveText;
+    //     this.gameTime = 0;
+    // }
 
     private async updateHistory(winner: string) {
         try {
@@ -282,6 +326,7 @@ export default class TicTacToePage extends Component {
         const retry_button = document.createElement("button");
         retry_button.id = "retry-button";
         retry_button.className = "pixel-box clicky bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded text-lg transition-all";
+        console.log("winner: ", winner);
         if (!(this.isTournament && this.tournament !== null)) {
             retry_button.innerText = "Play Again";
             buttonContainer.appendChild(retry_button);
@@ -298,7 +343,7 @@ export default class TicTacToePage extends Component {
             retry_button.textContent = "BACK TO TOURNAMENT";
             buttonContainer.appendChild(retry_button);
             const currentMatch = this.tournament!.currentMatch;
-            this.tournament!.recordMatch(currentMatch.player1, currentMatch.player2, winner === currentMatch.player1.name ? currentMatch.player1 : currentMatch.player2, "tictactoe");
+            this.tournament!.recordMatch(currentMatch.player1, currentMatch.player2, winner === "X" ? currentMatch.player1 : currentMatch.player2, "tictactoe");
         }
         
         modal.appendChild(buttonContainer);
@@ -313,6 +358,70 @@ export default class TicTacToePage extends Component {
                 this.router.route("/tournament?game=tictactoe");
             }
         };
+    }
+
+    private drawModal() {
+        if (this.isTournament) {
+            const currentMatch = this.tournament?.currentMatch;
+            const randomWinner = Math.random() < 0.5 ? currentMatch?.player1 : currentMatch?.player2;
+            this.winnerModal(randomWinner!.name);
+            this.tournament!.recordMatch(currentMatch!.player1, currentMatch!.player2, randomWinner!, "tictactoe");
+            return;
+        }
+        const app = document.getElementById("app") as HTMLDivElement | HTMLElement;
+
+        this.initializeBoard("disable");
+        
+        const main_screen = document.createElement("div");
+        main_screen.id = "modal-container";
+        main_screen.className = "fixed inset-0 z-50 flex items-center justify-center p-4";
+        app?.appendChild(main_screen);
+        
+        const background = document.createElement("div");
+        background.id = "backscreen";
+        background.className = "absolute inset-0 bg-black opacity-90";
+        main_screen.appendChild(background);
+        
+        const modal = document.createElement("div");
+        modal.id = "draw-modal";
+        modal.className = "pixel-box relative z-10 bg-gradient-to-b from-gray-600 to-gray-800 p-8 max-w-md w-full mx-4 text-center animate-bounce-in";
+        
+        const handshake = document.createElement("div");
+        handshake.className = "text-6xl mb-4 animate-bounce";
+        handshake.innerText = "🤝";
+        modal.appendChild(handshake);
+        
+        const text = document.createElement("h2");
+        text.innerText = "IT'S A DRAW!";
+        text.className = "text-4xl font-bold mb-4 text-yellow-300 retro-shadow";
+        modal.appendChild(text);
+        
+        const message = document.createElement("p");
+        message.className = "text-xl text-white mb-6";
+        message.innerText = "Well played!";
+        modal.appendChild(message);
+        
+        const buttonContainer = document.createElement("div");
+        buttonContainer.className = "flex flex-col sm:flex-row gap-4 justify-center";
+        
+        const retry_button = document.createElement("button");
+        retry_button.id = "retry-button";
+        retry_button.className = "pixel-box clicky bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded text-lg transition-all";
+        retry_button.innerText = "Play Again";
+        retry_button.onclick = () => this.reset_state();
+        buttonContainer.appendChild(retry_button);
+        
+        const menu_button = document.createElement("button");
+        menu_button.className = "pixel-box clicky bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded text-lg transition-all";
+        menu_button.innerText = "Main Menu";
+        menu_button.onclick = () => {
+            this.reset_state();
+            this.router.route("/");
+        };
+        buttonContainer.appendChild(menu_button);
+        
+        modal.appendChild(buttonContainer);
+        main_screen.appendChild(modal);
     }
 
     private makeMove(lrow: number, lcol: number, srow: number, scol: number, cell: HTMLDivElement) {
@@ -349,9 +458,32 @@ export default class TicTacToePage extends Component {
         largeCell.appendChild(winner);
         largeCell.classList.remove("active-board", "ring-4", "ring-yellow-400", "shadow-[0_0_20px_rgba(250,204,21,0.5)]");
         this.trueLargeBoard[lrow][lcol] = this.currentMove;
+    } else if (this.isBoardDrawn(this.largeBoard[lrow][lcol])) {
+        // Handle small board draw
+        const largeCell = document.querySelector(`div.cell[data-lrow='${lrow}'][data-lcol='${lcol}']`) as HTMLDivElement;
+        const drawOverlay = document.createElement("div");
+        drawOverlay.className = "absolute inset-0 flex justify-center items-center bg-gradient-to-br from-gray-500 to-gray-700 rounded-lg z-10";
+        
+        const drawText = document.createElement("p");
+        drawText.innerText = "D";
+        drawText.className = "text-3xl md:text-5xl font-bold text-white retro-shadow opacity-80";
+        drawOverlay.appendChild(drawText);
+        
+        largeCell.appendChild(drawOverlay);
+        largeCell.classList.remove("active-board", "ring-4", "ring-yellow-400", "shadow-[0_0_20px_rgba(250,204,21,0.5)]");
+        
+        // Mark as "D" for draw (neutral - counts for neither player)
+        this.trueLargeBoard[lrow][lcol] = "D" as Cell;
     }
     
-    if (this.checkBoardWin(this.trueLargeBoard)) this.winnerModal(this.currentMove);
+    // if (this.checkBoardWin(this.trueLargeBoard)) this.winnerModal(this.currentMove);
+    // Check for big board win or draw
+    if (this.checkBoardWin(this.trueLargeBoard)) {
+        this.winnerModal(this.currentMove);
+    } else if (this.isGameDrawn()) {
+        this.drawModal();
+
+    }
     
     this.currentMove = this.currentMove === "X" ? "O" : "X";
     this.updateInfo(this.currentMove, (this.currentMove === "X" ? this.p1Name : this.p2Name)!);
@@ -364,13 +496,13 @@ export default class TicTacToePage extends Component {
     //     ${this.currentMove}'s (${this.currentMove === "X" ? this.p1Name : this.p2Name}) Turn
     // `;
     
-    this.lockBoards(srow, scol, cell);
+    // this.lockBoards(srow, scol, cell);
     }
 
     async load(app: HTMLDivElement | HTMLElement) {
         await this.navbar.load(app);
         this.largeBoard = this.createlargeBoard();
-        this.buildBoard(app);
+        // this.buildBoard(app);
     }
 
     private updateTime() {
@@ -393,8 +525,9 @@ export default class TicTacToePage extends Component {
         this.isTournament = tournament_strbool !== null && tournament_strbool === "true" ? true : false;
         // console.log("user info: ", this.router.login_info);
         this.p1Name = this.isTournament === true ? this.tournament!.currentMatch.player1.name :this.router.login_info.username;
-        this.initializeBoard("enable");
         const app = document.getElementById("app") as HTMLDivElement;
+        this.buildBoard(app);
+        this.initializeBoard("enable");
         const params = new URLSearchParams(window.location.search);
         const tournament = Tournament.loadFromLocalStorage("tictactoe");
         const isTournament = params.get("tournament") && tournament;
@@ -426,7 +559,8 @@ export default class TicTacToePage extends Component {
             submit.onclick = (e) => {
                 e.preventDefault();
                 const name = input.value;
-                if (name == "")
+                const name_regex = /^[a-zA-Z0-9_-]+$/;
+                if (name == "" || !name_regex.test(name))
                 {
                     const invalid_elem = modal.querySelector("#invalid-name");
                     if (invalid_elem) modal.removeChild(invalid_elem);
@@ -440,10 +574,10 @@ export default class TicTacToePage extends Component {
                 sessionStorage.setItem("tictactoe-p2", name);
                 this.p2Name = name;
                 app?.removeChild(main_screen);
-                const move_container = document.getElementById("current-move-text");
-                const text = move_container?.textContent;
-                const newMoveText: string = `${text} (${this.p1Name})`;
-                if (move_container) move_container.textContent = newMoveText;
+                // const move_container = document.getElementById("current-move-text");
+                // const text = move_container?.textContent;
+                // const newMoveText: string = `${text} ${this.p1Name}`;
+                // if (move_container) move_container.textContent = newMoveText;
                 // update time
                 this.interval = setInterval(() => {this.updateTime()}, 1000);
             }
@@ -456,10 +590,10 @@ export default class TicTacToePage extends Component {
         } else {
             // just begin the game if it is a tournament
             this.p2Name = tournament.currentMatch.player2.name;
-            const move_container = document.getElementById("current-move-text");
-            const text = move_container?.textContent;
-            const newMoveText: string = `${text} (${this.p1Name})`;
-            if (move_container) move_container.textContent = newMoveText;
+            // const move_container = document.getElementById("current-move-text");
+            // const text = move_container?.textContent;
+            // const newMoveText: string = `${text} ${this.p1Name}`;
+            // if (move_container) move_container.textContent = newMoveText;
             // update time
             this.interval = setInterval(() => {this.updateTime()}, 1000);
         }

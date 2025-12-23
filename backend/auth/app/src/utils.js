@@ -25,6 +25,8 @@ export function validate_registration(user, req, update = false) {
 	if (user && user['password'] != null && !update) {
 		return { success: false, code: 403, source: "/auth:validate_registration", error: 'User already exists' };
 	}
+
+	const username_regex = /^[a-zA-Z0-9_-]+$/;
 	if (req.body.username?.value) {
 		if (req.body.username?.value.length < 3) {
 			return { success: false, code: 400, source: "/auth:validate_registration", error: 'Username too short: min 3' };
@@ -32,6 +34,9 @@ export function validate_registration(user, req, update = false) {
 		if (req.body.username?.value.length > 20) {
 			return { success: false, code: 400, source: "/auth:validate_registration", error: 'Username too long: max 20' };
 		}
+		if (!username_regex.test(req.body.username?.value)) {
+            return { success: false, code: 400, source: "/auth:validate_registration", error: 'Invalid username: Only letters, numbers, dashes, and underscores allowed' };
+        }
 	}
 	else if (req.body.username) {
 		if (req.body.username.length < 3) {
@@ -40,13 +45,14 @@ export function validate_registration(user, req, update = false) {
 		if (req.body.username.length > 20) {
 			return { success: false, code: 400, source: "/auth:validate_registration", error: 'Username too long: max 20' };
 		}
+		if (!username_regex.test(req.body.username)) {
+            return { success: false, code: 400, source: "/auth:validate_registration", error: 'Invalid username: Only letters, numbers, dashes, and underscores allowed' };
+        }
 	}
+	
 
 	const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 	if (req.body.email?.value && !email_regex.test(req.body.email?.value) && !update) {
-		return { success: false, code: 400, source: "/auth:validate_registration", error: 'Invalid email format' };
-	}
-	else if (req.body.email && !email_regex.test(req.body.email) && !update) {
 		return { success: false, code: 400, source: "/auth:validate_registration", error: 'Invalid email format' };
 	}
 

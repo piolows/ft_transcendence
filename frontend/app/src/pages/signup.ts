@@ -73,6 +73,33 @@ export default class SignUp extends Component {
 	}
 
 	async init() {
+		// editAvatarForm.onsubmit = async (e) => {
+		// 	e.preventDefault();
+		// 	const formData = new FormData(editAvatarForm);
+		// 	try {
+		// 		const resp = await fetch(`${backend_url}/auth/update`, {
+		// 			method: 'POST',
+		// 			credentials: "include",
+		// 			body: formData
+		// 		});
+		// 		if (!resp.ok) {
+		// 			console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
+		// 			return ;
+		// 		}
+		// 		const data = await resp.json();
+		// 		if (!data) {
+		// 			console.error(`Avatar upload failed: ${resp.status} - ${resp.text}`);
+		// 		}
+		// 		if (!data.success) {
+		// 			console.error(`Error while sending request: ${data.code} - ${data.source} - ${data.error}`);
+		// 			return ;
+		// 		}
+		// 		this.router.route(this.real_path);
+		// 	} catch (error: any) {
+		// 		console.error(error.message);
+		// 	}
+		// 	editAvatarModal.classList.add('hidden');
+		// };
 		const form = document.getElementById("registerForm") as HTMLFormElement;
 		const errtxt = document.getElementById('errmsg')!;
 		form.addEventListener("submit", async (event) => {
@@ -87,12 +114,18 @@ export default class SignUp extends Component {
 				return ;
 			}
 			const body = JSON.stringify(Object.fromEntries(formData.entries()));
+			console.log("body: ", body);
+			for (let [key, value] of formData.entries()) {
+  				console.log(`${key}: ${value}`);
+			}
 			try {
 				const response = await fetch(`${backend_url}/auth/register`, {
 					method: "POST",
 					credentials: "include",
-					headers: { "Content-Type": "application/json", "Content-Length": body.length.toString() },
-					body: body
+					// headers: { "Content-Type": "application/json", "Content-Length": body.length.toString() },
+					// headers: { "Content-Type": "application/json" },
+					// body: body
+					body: formData
 				});
 
 				const data = response.ok ? await response.json() : null;

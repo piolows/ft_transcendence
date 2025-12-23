@@ -340,6 +340,9 @@ export default class Profile extends Component {
 				e.preventDefault();
 				avatarErrMsg.textContent = '';
 				const formData = new FormData(editAvatarForm);
+				for (let [key, value] of formData.entries()) {
+  					console.log(`${key}: ${value}`);
+				}
 				try {
 					const resp = await fetch(`${backend_url}/auth/update`, {
 						method: 'POST',

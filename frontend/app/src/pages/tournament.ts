@@ -127,12 +127,6 @@ export class Tournament {
 
 	public recordMatch(player1: TournamentPlayer, player2: TournamentPlayer, winner: TournamentPlayer, game?: string) {
 		const match = this.currentMatch;
-		console.log(match);
-		if (!match) {
-			throw new Error("No current match to record winner for");
-		}
-
-		console.log(winner);
 
 		match.winner = winner;
 		this.currentMatchIndex_++;

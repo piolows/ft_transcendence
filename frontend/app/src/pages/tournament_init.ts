@@ -84,12 +84,38 @@ export default class CreateTournament extends Component {
             console.log("Starting tournament");
             // for every pairing, get each value in the input box
             const players = document.querySelectorAll(".player-name");
+            const name_regex = /^[a-zA-Z0-9_-]+$/;
             for (const player of players) {
-                console.log(`Player: ${(player as HTMLInputElement).value}`);
-                if (this.players.map(p => p.name).find(name => name === (player as HTMLInputElement).value)) {
-                    alert("Duplicate player names are not allowed!");
+                if (!name_regex.test((player as HTMLInputElement).value))
+                {
+                    const main_container = document.getElementById("main-container") as HTMLDivElement;
+                    if (main_container.querySelector("#warning") !== null) {
+                        const to_remove = main_container.querySelector("#warning");
+                        to_remove?.remove();
+                    }
+                    const warning = document.createElement("p");
+                    warning.id = "warning";
+                    warning.textContent = "No invalid symbols!";
+                    warning.className = "text-red-500";
+                    const submit_button = document.getElementById("start-tournament");
+                    submit_button?.before(warning);
                     this.players = [];
-                    return;
+                    return ;
+                }
+                if (this.players.map(p => p.name).find(name => name === (player as HTMLInputElement).value)) {
+                    const main_container = document.getElementById("main-container") as HTMLDivElement;
+                    if (main_container.querySelector("#warning") !== null) {
+                        const to_remove = main_container.querySelector("#warning");
+                        to_remove?.remove();
+                    }
+                    const warning = document.createElement("p");
+                    warning.id = "warning";
+                    warning.textContent = "No duplicate players allowed!";
+                    warning.className = "text-red-500";
+                    const submit_button = document.getElementById("start-tournament");
+                    submit_button?.before(warning);
+                    this.players = [];
+                    return ;
                 }
                 if ((player as HTMLInputElement).value === "") {
                     if (this.game === "tictactoe") {

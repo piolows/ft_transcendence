@@ -236,16 +236,29 @@ export default class Pong extends Component {
 				submit.className = "pixel-box bg-green-500 px-4 py-2 text-white hover:bg-green-600 ml-4 clicky";
 				form.appendChild(p2NameInput);
 				form.appendChild(submit);
+				
+				const errorMsg = document.createElement("p");
+				form.appendChild(errorMsg);
+				errorMsg.id = "name-error";
+				errorMsg.className = "text-red-500 text-sm mt-2 font-silkscreen hidden";
+				errorMsg.innerText = "Invalid name! Use only letters, numbers, dashes, and underscores.";
 				submit.onclick = (e) => {
 					e.preventDefault();
 					name = p2NameInput.value
-					if (name === "") {
-						alert("Please enter a valid name for Player 2!");
+					// regex name to check
+					const name_regex = /^[a-zA-Z0-9_-]+$/;
+					if (name === "" || !name_regex.test(name)) {
+						// alert("Please enter a valid name for Player 2!");
+						errorMsg.classList.remove("hidden");
+						p2NameInput.classList.remove("border-blue-500");
+						p2NameInput.classList.add("border-red-500");
+						p2NameInput.focus();
 						return;
 					}
 					sessionStorage.setItem("p2Name", name);
 					form.removeChild(submit);
 					form.removeChild(p2NameInput);
+    				form.removeChild(errorMsg);
 					overlayMessage.innerText = `${this.router.login_info.username} VS ${name}!`;
 					// player1 = new Player("Player 1", left_paddle);
 					player1 = new Player(this.router.login_info.username, left_paddle);
@@ -278,9 +291,16 @@ export default class Pong extends Component {
 			}
 				
 			overlayButton.onclick = () => window.location.reload();
-		} : (winner: TournamentPlayer, p1Score: number, p2Score: number) => {
+		} : (winner: TournamentPlayer | string, p1Score: number, p2Score: number) => {
 			overlay.style.display = 'flex';
-			overlayTitle.textContent = `${winner.name} WINS!`;
+			const match = tournament?.currentMatch;
+			let trueWinner: TournamentPlayer | null = null;
+			if (typeof winner === "string") {
+				if (winner === "draw") {
+					trueWinner = Math.random() < 0.5 ? { name: match?.player1.name, isBot: match?.player1.isBot } : { name: match?.player2.name, isBot: match?.player2.isBot };
+					overlayTitle.textContent = `DRAW THEREFORE ${trueWinner.name} wins`;
+				}
+			} else overlayTitle.textContent = `${winner.name} WINS!`;
 			overlayMessage.textContent = `Final Score: ${p1Score} - ${p2Score}`;
 			overlayButton.textContent = 'BACK TO TOURNAMENT';
 			overlayButton.onclick = () => {
@@ -288,7 +308,7 @@ export default class Pong extends Component {
 				console.log(`player1: ${player1}, player2: ${player2}, winner: ${winner}`);
 				const currentMatch = tournament?.currentMatch;
 				// tournament?.recordMatch(player1!.name, player2!.name, winner === 'draw' ? "none" : (winner === "AI Bot" ? "bot" : winner));
-				tournament?.recordMatch(currentMatch?.player1!, currentMatch?.player2!, winner);
+				tournament?.recordMatch(currentMatch?.player1!, currentMatch?.player2!, trueWinner !== null ? trueWinner : winner);
 				this.router.route("/tournament");
 			};
 		};
@@ -296,7 +316,7 @@ export default class Pong extends Component {
 		// start game button
 		overlayButton.onclick = () => {
 			overlay.style.display = 'none';
-			this.end_game = start_game(cv, ball, player1, player2, p1_score, p2_score, timer, this.router, endOverlay);
+			this.end_game = start_game(cv, ball, player1!, player2!, p1_score, p2_score, timer, this.router, endOverlay);
 		};
 	}
 

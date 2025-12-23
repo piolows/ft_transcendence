@@ -20,7 +20,7 @@ export default class History extends Component {
 		this.listview.bg_color = "bg-blue-800";
 		this.listview.text_color = "text-white";
 		this.listview.items_str = "games";
-		this.listview.col_sets = "grid-cols-10 lg:grid-cols-14";
+		this.listview.col_sets = "grid-cols-7 lg:grid-cols-7";
 	}
 
 	async load(app: HTMLDivElement | HTMLElement) {

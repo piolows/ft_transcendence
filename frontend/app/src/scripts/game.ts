@@ -396,7 +396,7 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 	async function draw(currentTime: number)
 	{
 		// GAME HAS ENDED PIOLO LOOK
-		if (time >= 300 || parseInt(p1_score.textContent!) >= 1 || parseInt(p2_score.textContent!) >= 1) {
+		if (time >= 5 || parseInt(p1_score.textContent!) >= 1 || parseInt(p2_score.textContent!) >= 1) {
 			end_game();
 			// check winner
 			const p1Final = parseInt(p1_score.textContent || '0');
@@ -411,9 +411,16 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 					winner = { name: left_player.name, isBot: left_player instanceof Bot };
 				} else if (p2Final > p1Final) {
 					winner = { name: right_player.name, isBot: right_player instanceof Bot };
+				} else {
+					winner = "draw";
 				}
 			} else {
-				winner = p1Final > p2Final ? left_player.name : right_player.name;
+				if (p1Final > p2Final)
+					winner = left_player.name;
+				else if (p1Final < p2Final)
+					winner = right_player.name;
+				else
+					winner = "draw";
 			}
 
 			if (endOverlay) {
