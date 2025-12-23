@@ -28,7 +28,6 @@ export default class MenuCard extends Component {
 	}
 
 	add_button(text: string, url: string, id?: string) {
-		console.log(`pushed ${text} ${url} ${id}`);
 		this.buttons.push([text, url, id ?? ""]);
 	}
 
