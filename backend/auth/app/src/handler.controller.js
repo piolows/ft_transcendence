@@ -70,7 +70,7 @@ const endpointHandler = (fastify, options, done) => {
 		
 		// Handle file upload if present
 		let avatarURI = process.env.DEFAULT_PIC;
-		if (avatarFile && !avatarFile.truncated) {
+		if (avatarFile && avatarFile.file.bytesRead > 0) {
 			try {
 				const file = avatarFile;
 				const buffer = await file.toBuffer();
