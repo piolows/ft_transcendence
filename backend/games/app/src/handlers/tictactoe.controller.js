@@ -77,7 +77,7 @@ const pongHandler = (fastify, options, done) => {
 				r: games[room_code].setup.ball.r,
 			},
 			spec_count: games[room_code].spec_count(),
-			tournament_id: games[room_code].tournament_id,
+			// tournament_id: games[room_code].tournament_id,
 		});
 	});
 
@@ -90,18 +90,18 @@ const pongHandler = (fastify, options, done) => {
 		if (admins[login_data.user.username])
 			return resp.send({ success: false, code: 403, source: "/tictactoe/new", error: "User already has an open room" });
 		let id = -1;
-		if (typeof req.body !== 'undefined' && typeof req.body.tournament_id !== "undefined") {
-			try {
-				fastify.log.info(`sending fetch request to ${process.env.TOURNAMENT_URL}/${req.body.tournament_id}`);
-				const result = await fetch(`${process.env.TOURNAMENT_URL}/${req.body.tournament_id}`);
-				const data = await result.json();
-				const { uuid, game_uuid } = data;
-				id = uuid;
-			} catch (error) {
-				fastify.log.error(`error fetching tournament info: ${error.message}`);
-				return resp.send({ success: false, code: 500, source: "/tictactoe/new", error: error.message });
-			}
-		}
+		// if (typeof req.body !== 'undefined' && typeof req.body.tournament_id !== "undefined") {
+		// 	try {
+		// 		fastify.log.info(`sending fetch request to ${process.env.TOURNAMENT_URL}/${req.body.tournament_id}`);
+		// 		const result = await fetch(`${process.env.TOURNAMENT_URL}/${req.body.tournament_id}`);
+		// 		const data = await result.json();
+		// 		const { uuid, game_uuid } = data;
+		// 		id = uuid;
+		// 	} catch (error) {
+		// 		fastify.log.error(`error fetching tournament info: ${error.message}`);
+		// 		return resp.send({ success: false, code: 500, source: "/tictactoe/new", error: error.message });
+		// 	}
+		// }
 		// const game = new Game(login_data.user, req.body.tournament_id);
 		const game = new Game(login_data.user, id);
 		games[game.uuid] = game;
@@ -193,17 +193,14 @@ const pongHandler = (fastify, options, done) => {
 								const ret = member.join(games[game_id]);
 								if (ret == true) {
 									socket.send(JSON.stringify({ success: true, role: "left_player" }));
-									// socket.send(`Joined game #${game_id} as the left player!`);
 									console.log(`User ${member.user_info.username} - ${member.user_info.email} joined game #${game_id} as the left player`);
 								}
 								else if (ret == false) {
 									socket.send(JSON.stringify({ success: true, role: "right_player" }));
-									// socket.send(`Joined game #${game_id} as the right player!`);
 									console.log(`User ${member.user_info.username} - ${member.user_info.email} joined game #${game_id} as the right player`);
 								}
 								else {
 									socket.send(JSON.stringify({ success: true, role: "spectator" }));
-									// socket.send(`Joined game #${game_id} as a spectator!`);
 									console.log(`User ${member.user_info.username} - ${member.user_info.email} joined game #${game_id} as a player`);
 								}
 							}

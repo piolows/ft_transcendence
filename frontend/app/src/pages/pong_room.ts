@@ -4,7 +4,7 @@ import { Ball, Paddle, draw_frame } from "../scripts/server_game";
 
 export default class PongRoom extends Component {
 	// private navbar = new NavBar(this.router);
-	private preferance = "SPEC";
+	private preference = "SPEC";
 	private game_id: string = "";
 	private game_over: boolean = false;
 	private socket: WebSocket | null = null;
@@ -91,7 +91,7 @@ export default class PongRoom extends Component {
 							</div>
 							<div class="pixel-box bg-blue-800 p-3 text-center">
 								<p class="text-xs font-pixelify text-gray-300 mb-2">CREATED BY</p>
-								<div class="flex flex-row justify-center items-center space-y-2">
+								<div class="flex flex-col justify-center items-center space-y-2">
 									<img src="${ backend_url + this.admin.avatarURL }" class="w-10 h-10 rounded-full pixel-box mr-3" alt="Admin">
 									<p class="text-xs text-white">${ this.admin.username }</p>
 								</div>
@@ -106,7 +106,9 @@ export default class PongRoom extends Component {
 
 					<!-- right sidebar -->
 					<div class="w-72 bg-blue-900 border-l-2 border-blue-700 p-4 flex flex-col justify-between overflow-hidden">
-						<div id="playersInfo" class="flex flex-col">
+						<div class="flex flex-col">
+							<div id="playersInfo" class="flex flex-col">
+							</div>
 							<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
 								<p class="text-xs font-pixelify text-gray-300 mb-2">SPECTATORS</p>
 								<p id="spectators" class="text-white text-lg font-bold">0</p>
@@ -127,6 +129,8 @@ export default class PongRoom extends Component {
 	}
 
 	async get_info() {
+		const params = new URLSearchParams(window.location.search);
+		this.preference = params.get('pref') ?? "SPEC";
 		const root_len = "/pong/room".length;
 		const uri_len = this.real_path?.length;
 		if (!uri_len || uri_len < root_len) {
@@ -136,8 +140,7 @@ export default class PongRoom extends Component {
 		let room = this.real_path.substring(root_len);
 		if (room.length >= 1 && room[0] == "/")
 			room = room.substring(1);
-		if (room.indexOf("?") != -1)
-			[room, this.preferance] = room.split("?");
+		room = room.split("?")[0];
 		const slash_at = room.indexOf("/");
 		if ((slash_at != -1 && slash_at != room.length - 1) || room.length <= 1) {
 			await this.router.route_error(this.real_path, 404);
@@ -150,6 +153,10 @@ export default class PongRoom extends Component {
 			const response = await fetch(`${sockets_url}/pong/room/${this.game_id}`, {
 				credentials: "include",
 			});
+			if (!response.ok) {
+				await this.router.route_error(this.real_path, response.status, response.statusText);
+				return ;
+			}
 			const data = await response.json();
 			if (!data.success) {
 				await this.router.route_error(this.real_path, data.code, data.error);
@@ -167,7 +174,7 @@ export default class PongRoom extends Component {
 		};
 	}
 
-	setupElements() {
+	async setupElements() {
 		const parent = document.getElementById('parent-container')!;
 		parent.innerHTML = `<canvas id="gameCanvas" width="${this.canvas.width}" height="${this.canvas.height}" style="background-color: black; border: 3px solid #1e40af;"></canvas>`;
 		this.elements.canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
@@ -182,24 +189,23 @@ export default class PongRoom extends Component {
 			this.elements.ball = new Ball(this.ball.x, this.ball.y, this.ball.r, 'white');
 			this.elements.left_paddle = new Paddle(this.paddle.height, this.paddle.width, this.paddle.x, this.paddle.y, 'orange');
 			this.elements.right_paddle = new Paddle(this.paddle.height, this.paddle.width, this.canvas.width - this.paddle.x - this.paddle.width, this.paddle.y, 'red');
-			draw_frame(this.elements, null, this);
 		}
 	}
 
-	setupSocket() {
+	async setupSocket() {
 		this.socket = new WebSocket(backend_websocket + "/pong");
-		this.socket.onopen = () => {
-			this.setupElements();
-			if (this.preferance == "SPEC" || this.preferance == "EITHER")
-				this.socket?.send(JSON.stringify({game_id: this.game_id, action: "JOIN", param: this.preferance}));
-			else if (this.preferance == "PLAY")
-				this.socket?.send(JSON.stringify({game_id: this.game_id, action: "PLAY"}));
-			else
-				this.socket?.send(JSON.stringify({game_id: this.game_id, action: "JOIN", param: "SPEC"}));
+		this.socket.onopen = async () => {
+			await this.setupElements();
+			await draw_frame(this.elements, null, this);
+			if (this.preference == "SPEC" || this.preference == "EITHER")
+				this.socket?.send(JSON.stringify({game_id: this.game_id, action: "JOIN", param: this.preference}));
+			else if (this.preference == "PLAY" || this.preference == "LPLAY" || this.preference == "RPLAY")
+				this.socket?.send(JSON.stringify({game_id: this.game_id, action: "PLAY", param: (this.preference == "PLAY" ? undefined : (this.preference == "LPLAY" ? "LEFT" : "RIGHT"))}));
 		};
-		this.socket.onmessage = (message) => {
+		this.socket.onmessage = async (message) => {
 			try {
 				const msg = JSON.parse(message.data);
+				console.log(msg);
 				if (msg.exit) {
 					this.game_over = true;
 				}
@@ -210,7 +216,7 @@ export default class PongRoom extends Component {
 						this.right_player = this.router.login_info;
 				}
 				else {
-					draw_frame(this.elements, msg, this);
+					await draw_frame(this.elements, msg, this);
 				}
 			} catch (error: any) {
 				console.error(error.status, error);
@@ -226,8 +232,8 @@ export default class PongRoom extends Component {
 			parent && (parent.innerHTML = this.retry_display);
 			const retry_btn = document.getElementById('retry')!;
 			if (retry_btn) {
-				retry_btn.onclick = () => {
-					this.setupSocket();
+				retry_btn.onclick = async () => {
+					await this.setupSocket();
 				}
 			}
 		};
@@ -310,7 +316,7 @@ export default class PongRoom extends Component {
 			};
 		}
 
-		this.setupSocket();
+		await this.setupSocket();
 		document.addEventListener('keyup', this.keyUpHandler, false);
 		document.addEventListener('keydown', this.keyDownHandler, false);
 	}

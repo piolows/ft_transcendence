@@ -44,9 +44,9 @@ export default class PongJoin extends Component {
 			event.preventDefault();
 
 			const formData = new FormData(form);
-			const body = Object.fromEntries(formData.entries());
+			const joinStyle = formData.get('param');
 
-			const game_id_regex = /^[a-zA-Z0-9]{16}$/;
+			const game_id_regex = /^[a-zA-Z0-9]{5}$/;
 			const game_id = formData.get('game_id')?.toString()!;
 			if (!game_id_regex.test(game_id)) {
 				alert(`Error: Invalid room code`);
@@ -54,14 +54,13 @@ export default class PongJoin extends Component {
 			}
 			try {
 				const response = await fetch(`${sockets_url}/pong/room/${game_id}`, {
-					method: "POST",
 					credentials: "include",
 				});
 
 				const data = response.ok ? await response.json() : null;
 
 				if (response.ok && data && data.success) {
-					this.router.route(`/pong/room/${game_id}?pref=${body.param}`);
+					this.router.route(`/pong/room/${game_id}?pref=${joinStyle}`);
 				} else if(data && !data.success) {
 					alert(`Error: ${data.code} - ${data.source} - ${data.error}`);
 				}

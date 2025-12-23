@@ -119,8 +119,10 @@ function timeFormat(time: number) {
 	return "00";
 }
 
-export function draw_frame(elements: any, message: any, room: any) {
+export async function draw_frame(elements: any, message: any, room: any) {
+	// console.log("DRAW");
 	if (message) {
+		// console.log("NOW");
 		elements.p1_score.innerText = message.p1_score;
 		elements.p2_score.innerText = message.p2_score;
 		elements.left_paddle.y = message.left_paddle.y;
@@ -139,7 +141,7 @@ export function draw_frame(elements: any, message: any, room: any) {
 			<div class="pixel-box bg-blue-800 p-3 text-center mb-4"><p class="text-xs font-pixelify text-gray-300 mb-2">Player 1</p>
 			${ room.left_player ?
 			`<div id="player1-info">
-				<div class="flex items-center space-x-4">
+				<div class="flex flex-col items-center space-x-4">
 					<img id="pfp" src="${ backend_url + room.left_player.avatarURL }" class="w-12 h-12 rounded-full pixel-box bg-blue-800" alt="Profile">
 					<div>
 						<h4 id="username" class="crt-text">${ room.left_player.username }</h4>
@@ -150,14 +152,14 @@ export function draw_frame(elements: any, message: any, room: any) {
 			<div class="pixel-box bg-blue-800 p-3 text-center mb-4"><p class="text-xs font-pixelify text-gray-300 mb-2">Player 2</p>
 			${ room.right_player ?
 			`<div id="player2-info">
-				<div class="flex items-center space-x-4">
+				<div class="flex flex-col items-center space-x-4">
 					<img id="pfp" src="${ backend_url + room.right_player.avatarURL }" class="w-12 h-12 rounded-full pixel-box bg-blue-800" alt="Profile">
 					<div>
 						<h4 id="username" class="crt-text">${ room.right_player.username }</h4>
 						<p id="email" class="text-xs font-silkscreen">${ room.right_player.email }</p>
 					</div>
 				</div>
-			</div></div>` : `<div><p class="text-xs text-white">Seat Empty!</p></div><div><button id="take_seat_2" class="bg-blue-500 text-white py-1 mt-5 mb-2 pixel-box font-pixelify hover:bg-blue-600 clicky" style="width: 120px;">TAKE SEAT</button></div></div>`}` + elements.playersInfo.innerHTML;
+			</div></div>` : `<div><p class="text-xs text-white">Seat Empty!</p></div><div><button id="take_seat_2" class="bg-blue-500 text-white py-1 mt-5 mb-2 pixel-box font-pixelify hover:bg-blue-600 clicky" style="width: 120px;">TAKE SEAT</button></div></div>`}`;
 		const ts1 = document.getElementById('take_seat_1')!;
 		if (ts1) {
 			ts1.onclick = () => {

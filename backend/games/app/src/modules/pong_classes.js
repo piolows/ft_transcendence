@@ -123,20 +123,18 @@ export class Game {
 	setup;
 	game_name;
 	admin_info;
-	tournament_id;
 	winner = 0;
 	started = false;
 	players = {};		// username -> Member
 	specs = {};			// username -> Member
 	all = {};			// username -> Member
 
-	constructor(admin_info, game_name = "pong", tournament_id = undefined) {
+	constructor(admin_info, game_name = "pong") {
 		this.uuid = shortUUID();
 		this.admin_info = admin_info;
 		this.game_name = game_name;
 		if (game_name == "pong")
 			this.setup = new Setup();
-		this.tournament_id = tournament_id;
 	}
 
 	getPlayer(side) {
@@ -153,6 +151,7 @@ export class Game {
 			if (players[1] && !players[1].is_left)
 				return players[1];
 		}
+		return undefined;
 	}
 
 	start_game() {
@@ -184,7 +183,7 @@ export class Game {
 						}
 					});
 				} catch (error) {
-					console.log(error);
+					console.error(error);
 				}
 			}
 		}
@@ -192,21 +191,21 @@ export class Game {
 			this.specs[player.user_info.username] = player;
 			delete this.players[player.user_info.username];
 		}
-		if (this.tournament_id) {
-			fetch(`${process.env.TOURNAMENT_URL}/${req.body.tournament_id}`, {
-				method: "POST",
-				body: {
-					game_over: this.setup.game_over,
-					admin: this.admin_info,
-					winner: this.winner,
-					time: this.setup.time,
-					left_player: this.getPlayer('left'),
-					right_player: this.getPlayer('right'),
-					p1_score: this.setup.p1_score,
-					p2_score: this.setup.p2_score,
-				}
-			}).catch(error => console.log(error));
-		}
+		// if (this.tournament_id) {
+		// 	fetch(`${process.env.TOURNAMENT_URL}/${req.body.tournament_id}`, {
+		// 		method: "POST",
+		// 		body: {
+		// 			game_over: this.setup.game_over,
+		// 			admin: this.admin_info,
+		// 			winner: this.winner,
+		// 			time: this.setup.time,
+		// 			left_player: this.getPlayer('left'),
+		// 			right_player: this.getPlayer('right'),
+		// 			p1_score: this.setup.p1_score,
+		// 			p2_score: this.setup.p2_score,
+		// 		}
+		// 	}).catch(error => console.log(error));
+		// }
 	}
 
 	player_count() {
@@ -233,19 +232,20 @@ export class Game {
 			throw new Error("Max players in current game");
 		if (this.game_over)
 			throw new Error("Game already over");
-		if ((pref == "left" && this.lp_member) || (pref == "right" && this.rp_member))
+		if ((pref == "left" && this.getPlayer("left")) || (pref == "right" && this.getPlayer("right")))
 			throw new Error("Seat already taken");
+		
 		player.is_player = true;
 		player.game = this;
 		delete this.specs[player.user_info.username];
 		this.players[player.user_info.username] = player;
 		this.all[player.user_info.username] = player;
-		if (!this.lp_member) {
-			this.lp_member = player;
+		if (!this.getPlayer("left")) {
+			player.is_left = true;
 			return true;
 		}
-		else if (!this.rp_member) {
-			this.rp_member = player;
+		else if (!this.getPlayer("right")) {
+			player.is_left = false;
 			return false;
 		}
 		else
@@ -405,21 +405,22 @@ function game_state(gameObj) {
 	for (let player of Object.values(gameObj.players)) {
 		players.push(player.user_info);
 	}
+	console.log(players);
 	return {
 		started: gameObj.started,
 		game_over: game.game_over,
 		full: (gameObj.player_count() == 2),
 		winner: gameObj.winner,
 		time: game.time,
-		left_player: gameObj.getPlayer('left'),
-		right_player: gameObj.getPlayer('right'),
+		left_player: players[0] && players[0].is_left ? players[0] : players[1],
+		right_player: players[0] && players[0].is_left ? players[1] : players[0],
 		timeout: game.timeout,
 		reset: game.reset,
 		p1_score: game.p1_score,
 		p2_score: game.p2_score,
 		admin: gameObj.admin_info,
 		spec_count: gameObj.spec_count(),
-		tournament_id: gameObj.tournament_id,
+		// tournament_id: gameObj.tournament_id,
 		left_paddle: {
 			y: game.left_player.paddle.y,
 		},

@@ -221,8 +221,6 @@ export default class Profile extends Component {
 		let user = this.real_path.substring(root_len);
 		if (user.length >= 1 && user[0] == "/")
 			user = user.substring(1);
-		if (user.indexOf("?") != -1)
-			user = user.substring(0, user.indexOf("?"));
 		const slash_at = user.indexOf("/");
 		if (slash_at != -1 && slash_at != user.length - 1) {
 			await this.router.route_error(this.real_path, 404);
