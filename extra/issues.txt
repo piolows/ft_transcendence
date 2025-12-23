@@ -1,6 +1,3 @@
-2- Google signup matching names with an existing user
-3- HTML sanitization from text inputs
 4- Game end in multiplayer games
-6- Editing username to a link
-7- Bot difficulty as invalid number
-8- Bot difficulty as non number
+3- Editing username (or any text) to HTML
+6- Editing username (or any text) to a link

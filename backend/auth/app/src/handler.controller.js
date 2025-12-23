@@ -187,10 +187,19 @@ const endpointHandler = (fastify, options, done) => {
 			const payload = ticket.getPayload();
 			if (!payload)
 				return reply.send({ succes: false, code: 500, source: "/auth/google-login", error: "Invalid Google payload"});
-			const { sub, email, name, picture } = payload;
+			let { sub, email, name, picture } = payload;
 
 			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(email);
 			if (!user) {
+				let newuser = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=? AND email!=?`).get(name, email);
+				if (newuser) {
+					let app = 1;
+					while (newuser) {
+						newuser = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=? AND email!=?`).get(`${name}_${app}`, email);
+						app += 1;
+					}
+					name += `_${app - 1}`;
+				}
 				const avatarURI = await save_pfp(picture);
 				await fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username, email, password, avatarURL) VALUES (?, ?, ?, ?)`)
 					.run(name, email, null, avatarURI);
