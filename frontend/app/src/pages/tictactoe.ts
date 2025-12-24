@@ -197,22 +197,14 @@ export default class TicTacToePage extends Component {
         }
     }
 
-    /*
-        this function will create a new true large board and a new large board
-        it will also reset the current move back to X
-        it will then rebuild the frontend for the board by calling the buildBoard function
-        after that, it will re-enable the cells to be clicked
-     */
     private reset_state() {
         const app = document.getElementById("app") as HTMLDivElement | HTMLElement;
         const modal_container = document.getElementById("modal-container");
         const main_container = document.getElementById("main-container");
         main_container?.remove();
         modal_container?.remove();
-        // clean up the true board
-        this.trueLargeBoard = this.createSmallBoard();
-        // clean up the large board
-        this.largeBoard = this.createlargeBoard();
+        this.trueLargeBoard = this.createSmallBoard();  // reset the small board
+        this.largeBoard = this.createlargeBoard();  // reset the large board
         this.lastMove = null;
         this.currentMove = "X";
         this.gameTime = 0;
@@ -346,10 +338,7 @@ export default class TicTacToePage extends Component {
         retry_button.onclick = () => {
             this.reset_state();
             if (this.isTournament && this.tournament)
-            {
-                const currentMatch = this.tournament.currentMatch;
                 this.router.route("/tournament?game=tictactoe");
-            }
         };
     }
 
@@ -359,9 +348,7 @@ export default class TicTacToePage extends Component {
             const currentMatch = this.tournament?.currentMatch;
             const randomWinner = Math.random() < 0.5 ? currentMatch?.player1 : currentMatch?.player2;
             winner = randomWinner?.name;
-            this.winnerModal(randomWinner!.name);
             this.tournament!.recordMatch(currentMatch!.player1, currentMatch!.player2, randomWinner!, "tictactoe");
-            return;
         }
         const app = document.getElementById("app") as HTMLDivElement | HTMLElement;
 
@@ -387,7 +374,10 @@ export default class TicTacToePage extends Component {
         modal.appendChild(handshake);
         
         const text = document.createElement("h2");
-        text.innerText = "IT'S A DRAW!";
+        if (this.isTournament)
+            text.textContent = `IT'S A DRAW THEREFORE ${winner} wins`;
+        else
+            text.textContent = "IT'S A DRAW!";
         text.className = "text-4xl font-bold mb-4 text-yellow-300 retro-shadow";
         modal.appendChild(text);
         
@@ -399,21 +389,34 @@ export default class TicTacToePage extends Component {
         const buttonContainer = document.createElement("div");
         buttonContainer.className = "flex flex-col sm:flex-row gap-4 justify-center";
         
-        const retry_button = document.createElement("button");
-        retry_button.id = "retry-button";
-        retry_button.className = "pixel-box clicky bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded text-lg transition-all";
-        retry_button.innerText = "Play Again";
-        retry_button.onclick = () => this.reset_state();
-        buttonContainer.appendChild(retry_button);
-        
-        const menu_button = document.createElement("button");
-        menu_button.className = "pixel-box clicky bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded text-lg transition-all";
-        menu_button.innerText = "Main Menu";
-        menu_button.onclick = () => {
-            this.reset_state();
-            this.router.route("/");
-        };
-        buttonContainer.appendChild(menu_button);
+        if (!this.isTournament) {
+            this.updateHistory("draw");
+            const retry_button = document.createElement("button");
+            retry_button.id = "retry-button";
+            retry_button.className = "pixel-box clicky bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded text-lg transition-all";
+            retry_button.innerText = "Play Again";
+            retry_button.onclick = () => this.reset_state();
+            buttonContainer.appendChild(retry_button);
+            
+            const menu_button = document.createElement("button");
+            menu_button.className = "pixel-box clicky bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded text-lg transition-all";
+            menu_button.innerText = "Main Menu";
+            menu_button.onclick = () => {
+                this.reset_state();
+                this.router.route("/");
+            };
+            buttonContainer.appendChild(menu_button);
+        } else {
+            const back_button = document.createElement("button");
+            back_button.id = "back-button";
+            back_button.className = "pixel-box clicky bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded text-lg transition-all";
+            back_button.innerText = "BACK TO TOURNAMENT";
+            back_button.onclick = () => {
+                this.reset_state();
+                this.router.route("/tournament?game=tictactoe");
+            }
+            buttonContainer.appendChild(back_button);
+        }
         
         modal.appendChild(buttonContainer);
         main_screen.appendChild(modal);
@@ -476,7 +479,7 @@ export default class TicTacToePage extends Component {
     
         this.currentMove = this.currentMove === "X" ? "O" : "X";
         this.updateInfo(this.currentMove, (this.currentMove === "X" ? this.p1Name : this.p2Name)!);
-        // this.lockBoards(srow, scol, cell);
+        this.lockBoards(srow, scol, cell);
     }
 
     async load(app: HTMLDivElement | HTMLElement) {
