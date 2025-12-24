@@ -147,7 +147,7 @@ export default class TicTacToePage extends Component {
                     </div>
                 </div>
             </div>
-            <div id="tictactoe-board" class="grid grid-cols-3 gap-3 p-4 pixel-box bg-gray-800 w-full max-w-[min(90vw,60vh)] aspect-square shadow-2xl"></div>
+            <div id="tictactoe-board" class="grid grid-cols-3 gap-3 p-4 pixel-box bg-gray-800 w-full max-w-[min(90vw,65vh)] aspect-square shadow-2xl"></div>
         </div>`;
         
         const board = document.getElementById("tictactoe-board")!;
@@ -221,6 +221,7 @@ export default class TicTacToePage extends Component {
         this.largeBoard = this.createlargeBoard();
         this.lastMove = null;
         this.currentMove = "X";
+        this.gameTime = 0;
         this.buildBoard(app);
         this.initializeBoard("enable");
     }
@@ -254,12 +255,6 @@ export default class TicTacToePage extends Component {
     private isGameDrawn(): boolean {
        return this.isLargeBoardFull() && !this.checkBoardWin(this.trueLargeBoard);
     }
-    //     const move_container = document.getElementById("current-move-text");
-    //     const text = move_container?.textContent;
-    //     const newMoveText: string = `${text} (${this.p1Name})`;
-    //     if (move_container) move_container.textContent = newMoveText;
-    //     this.gameTime = 0;
-    // }
 
     private async updateHistory(winner: string) {
         try {
@@ -364,9 +359,11 @@ export default class TicTacToePage extends Component {
     }
 
     private drawModal() {
+        let winner: string | undefined = undefined;
         if (this.isTournament) {
             const currentMatch = this.tournament?.currentMatch;
             const randomWinner = Math.random() < 0.5 ? currentMatch?.player1 : currentMatch?.player2;
+            winner = randomWinner?.name;
             this.winnerModal(randomWinner!.name);
             this.tournament!.recordMatch(currentMatch!.player1, currentMatch!.player2, randomWinner!, "tictactoe");
             return;
@@ -436,76 +433,60 @@ export default class TicTacToePage extends Component {
             const parentCell = cell.parentElement?.parentElement;
             if (parentCell !== this.lastMove) {
                 return;
+            }
         }
-    }
     
-    this.largeBoard[lrow][lcol][srow][scol] = this.currentMove;
+        this.largeBoard[lrow][lcol][srow][scol] = this.currentMove;
+        
+        const move = document.createElement("p");
+        move.className = `text-2xl md:text-3xl p-0 m-0 font-bold ${this.currentMove === 'X' ? 'text-blue-400' : 'text-red-400'}`;
+        move.innerText = this.currentMove;
+        cell.appendChild(move);
+        cell.classList.remove("hover:bg-blue-500", "hover:scale-105");
+        cell.classList.add("cursor-not-allowed", "bg-gray-800");
     
-    const move = document.createElement("p");
-    move.className = `text-2xl md:text-3xl p-0 m-0 font-bold ${this.currentMove === 'X' ? 'text-blue-400' : 'text-red-400'}`;
-    move.innerText = this.currentMove;
-    cell.appendChild(move);
-    cell.classList.remove("hover:bg-blue-500", "hover:scale-105");
-    cell.classList.add("cursor-not-allowed", "bg-gray-800");
-    
-    if (this.checkBoardWin(this.largeBoard[lrow][lcol])) {
-        const largeCell = document.querySelector(`div.cell[data-lrow='${lrow}'][data-lcol='${lcol}']`) as HTMLDivElement;
-        const winner = document.createElement("div");
-        winner.className = `absolute inset-0 flex justify-center items-center bg-gradient-to-br ${this.currentMove === 'X' ? 'from-blue-500 to-blue-700' : 'from-red-500 to-red-700'} rounded-lg z-10`;
-        
-        const winnerText = document.createElement("p");
-        winnerText.innerText = this.currentMove;
-        winnerText.className = "text-6xl md:text-8xl font-bold text-white retro-shadow animate-pulse";
-        winner.appendChild(winnerText);
-        
-        largeCell.appendChild(winner);
-        largeCell.classList.remove("active-board", "ring-4", "ring-yellow-400", "shadow-[0_0_20px_rgba(250,204,21,0.5)]");
-        this.trueLargeBoard[lrow][lcol] = this.currentMove;
-    } else if (this.isBoardDrawn(this.largeBoard[lrow][lcol])) {
-        // Handle small board draw
-        const largeCell = document.querySelector(`div.cell[data-lrow='${lrow}'][data-lcol='${lcol}']`) as HTMLDivElement;
-        const drawOverlay = document.createElement("div");
-        drawOverlay.className = "absolute inset-0 flex justify-center items-center bg-gradient-to-br from-gray-500 to-gray-700 rounded-lg z-10";
-        
-        const drawText = document.createElement("p");
-        drawText.innerText = "D";
-        drawText.className = "text-3xl md:text-5xl font-bold text-white retro-shadow opacity-80";
-        drawOverlay.appendChild(drawText);
-        
-        largeCell.appendChild(drawOverlay);
-        largeCell.classList.remove("active-board", "ring-4", "ring-yellow-400", "shadow-[0_0_20px_rgba(250,204,21,0.5)]");
-        
-        // Mark as "D" for draw (neutral - counts for neither player)
-        this.trueLargeBoard[lrow][lcol] = "D" as Cell;
-    }
-    
-    // if (this.checkBoardWin(this.trueLargeBoard)) this.winnerModal(this.currentMove);
-    // Check for big board win or draw
-    if (this.checkBoardWin(this.trueLargeBoard)) {
-        this.winnerModal(this.currentMove);
-    } else if (this.isGameDrawn()) {
-        this.drawModal();
+        if (this.checkBoardWin(this.largeBoard[lrow][lcol])) {
+            const largeCell = document.querySelector(`div.cell[data-lrow='${lrow}'][data-lcol='${lcol}']`) as HTMLDivElement;
+            const winner = document.createElement("div");
+            winner.className = `absolute inset-0 flex justify-center items-center bg-gradient-to-br ${this.currentMove === 'X' ? 'from-blue-500 to-blue-700' : 'from-red-500 to-red-700'} rounded-lg z-10`;
+            
+            const winnerText = document.createElement("p");
+            winnerText.innerText = this.currentMove;
+            winnerText.className = "text-6xl md:text-8xl font-bold text-white retro-shadow animate-pulse";
+            winner.appendChild(winnerText);
+            
+            largeCell.appendChild(winner);
+            largeCell.classList.remove("active-board", "ring-4", "ring-yellow-400", "shadow-[0_0_20px_rgba(250,204,21,0.5)]");
+            this.trueLargeBoard[lrow][lcol] = this.currentMove;
+        } else if (this.isBoardDrawn(this.largeBoard[lrow][lcol])) {
+            // Handle small board draw
+            const largeCell = document.querySelector(`div.cell[data-lrow='${lrow}'][data-lcol='${lcol}']`) as HTMLDivElement;
+            const drawOverlay = document.createElement("div");
+            drawOverlay.className = "absolute inset-0 flex justify-center items-center bg-gradient-to-br from-gray-500 to-gray-700 rounded-lg z-10";
+            
+            const drawText = document.createElement("p");
+            drawText.innerText = "D";
+            drawText.className = "text-3xl md:text-5xl font-bold text-white retro-shadow opacity-80";
+            drawOverlay.appendChild(drawText);
+            
+            largeCell.appendChild(drawOverlay);
+            largeCell.classList.remove("active-board", "ring-4", "ring-yellow-400", "shadow-[0_0_20px_rgba(250,204,21,0.5)]");
+            
+            // Mark as "D" for draw (neutral - counts for neither player)
+            this.trueLargeBoard[lrow][lcol] = "D" as Cell;
+        }
+        if (this.checkBoardWin(this.trueLargeBoard)) this.winnerModal(this.currentMove);
+        else if (this.isGameDrawn()) this.drawModal();
 
-    }
     
-    this.currentMove = this.currentMove === "X" ? "O" : "X";
-    this.updateInfo(this.currentMove, (this.currentMove === "X" ? this.p1Name : this.p2Name)!);
-    // const move_container = document.getElementById("current-move-text");
-    // const text = move_container?.textContent;
-    // const newMoveText: string = `${text} (${this.p2Name})`;
-    // if (move_container) move_container.textContent = newMoveText;
-    // current_move.innerHTML = `
-    //     <span class="inline-block w-8 h-8 leading-8 bg-white ${this.currentMove === 'X' ? 'text-blue-600' : 'text-red-600'} rounded mr-2">${this.currentMove}</span>
-    //     ${this.currentMove}'s (${this.currentMove === "X" ? this.p1Name : this.p2Name}) Turn
-    // `;
-    
-    // this.lockBoards(srow, scol, cell);
+        this.currentMove = this.currentMove === "X" ? "O" : "X";
+        this.updateInfo(this.currentMove, (this.currentMove === "X" ? this.p1Name : this.p2Name)!);
+        this.lockBoards(srow, scol, cell);
     }
 
     async load(app: HTMLDivElement | HTMLElement) {
         await this.navbar.load(app);
         this.largeBoard = this.createlargeBoard();
-        // this.buildBoard(app);
     }
 
     private updateTime() {
@@ -526,6 +507,9 @@ export default class TicTacToePage extends Component {
         const searchParams = new URLSearchParams(window.location.search);
         const tournament_strbool = searchParams.get("tournament");
         this.isTournament = tournament_strbool !== null && tournament_strbool === "true" ? true : false;
+        if (tournament_strbool === "true" && !this.tournament) {
+            await this.router.route_error(this.real_path, 404, "No existing tictactoe tournament");
+        }
         this.p1Name = this.isTournament === true ? this.tournament!.currentMatch.player1.name :this.router.login_info.username;
         const app = document.getElementById("app") as HTMLDivElement;
         this.buildBoard(app);
@@ -533,7 +517,7 @@ export default class TicTacToePage extends Component {
         const params = new URLSearchParams(window.location.search);
         const tournament = Tournament.loadFromLocalStorage("tictactoe");
         const isTournament = params.get("tournament") && tournament;
-        if (!(isTournament)) {
+        if (!(this.isTournament)) {
             // prompt for the second user's name
             const main_screen = document.createElement("div");
             main_screen.id = "modal-container";
@@ -590,12 +574,7 @@ export default class TicTacToePage extends Component {
             modal.appendChild(form);
             app.appendChild(main_screen);
         } else {
-            // just begin the game if it is a tournament
-            this.p2Name = tournament.currentMatch.player2.name;
-            // const move_container = document.getElementById("current-move-text");
-            // const text = move_container?.textContent;
-            // const newMoveText: string = `${text} ${this.p1Name}`;
-            // if (move_container) move_container.textContent = newMoveText;
+            this.p2Name = tournament?.currentMatch.player2.name;
             // update time
             this.interval = setInterval(() => {this.updateTime()}, 1000);
         }

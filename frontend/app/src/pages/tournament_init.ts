@@ -85,22 +85,7 @@ export default class CreateTournament extends Component {
             const players = document.querySelectorAll(".player-name");
             const name_regex = /^[a-zA-Z0-9_-]+$/;
             for (const player of players) {
-                if (!name_regex.test((player as HTMLInputElement).value))
-                {
-                    const main_container = document.getElementById("main-container") as HTMLDivElement;
-                    if (main_container.querySelector("#warning") !== null) {
-                        const to_remove = main_container.querySelector("#warning");
-                        to_remove?.remove();
-                    }
-                    const warning = document.createElement("p");
-                    warning.id = "warning";
-                    warning.textContent = "No invalid symbols!";
-                    warning.className = "text-red-500";
-                    const submit_button = document.getElementById("start-tournament");
-                    submit_button?.before(warning);
-                    this.players = [];
-                    return ;
-                }
+                let okay: boolean = false;
                 if (this.players.map(p => p.name).find(name => name === (player as HTMLInputElement).value)) {
                     const main_container = document.getElementById("main-container") as HTMLDivElement;
                     if (main_container.querySelector("#warning") !== null) {
@@ -132,6 +117,7 @@ export default class CreateTournament extends Component {
                         this.players = [];
                         return ;
                     }
+                    okay = true;
                     this.players.push({
                         name: faker.person.firstName() + "(bot)",
                         isBot: true
@@ -143,6 +129,22 @@ export default class CreateTournament extends Component {
                         name: (player as HTMLInputElement).value,
                         isBot: false
                     });
+                }
+                if (!okay && !name_regex.test((player as HTMLInputElement).value))
+                {
+                    const main_container = document.getElementById("main-container") as HTMLDivElement;
+                    if (main_container.querySelector("#warning") !== null) {
+                        const to_remove = main_container.querySelector("#warning");
+                        to_remove?.remove();
+                    }
+                    const warning = document.createElement("p");
+                    warning.id = "warning";
+                    warning.textContent = "No invalid symbols!";
+                    warning.className = "text-red-500";
+                    const submit_button = document.getElementById("start-tournament");
+                    submit_button?.before(warning);
+                    this.players = [];
+                    return ;
                 }
             }
             if (this.game === "tictactoe") {

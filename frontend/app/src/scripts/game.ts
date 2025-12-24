@@ -395,7 +395,7 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 	async function draw(currentTime: number)
 	{
 		// GAME HAS ENDED PIOLO LOOK
-		if (time >= 5 || parseInt(p1_score.textContent!) >= 1 || parseInt(p2_score.textContent!) >= 1) {
+		if (time >= 300 || parseInt(p1_score.textContent!) >= 5 || parseInt(p2_score.textContent!) >= 5) {
 			end_game();
 			// check winner
 			const p1Final = parseInt(p1_score.textContent || '0');
