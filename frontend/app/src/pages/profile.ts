@@ -233,6 +233,8 @@ export default class Profile extends Component {
 			user = user.substring(0, user.length - 1);
 		if (user == "")
 			user = this.router.login_info.username;
+		if (user.indexOf("?") != -1)
+			user = user.split("?")[0];
 		try {
 			const response = await fetch(`${backend_url}/users/${user}?id=${this.router.login_info.id}`);
 			if (!response.ok) {
@@ -340,9 +342,6 @@ export default class Profile extends Component {
 				e.preventDefault();
 				avatarErrMsg.textContent = '';
 				const formData = new FormData(editAvatarForm);
-				for (let [key, value] of formData.entries()) {
-  					console.log(`${key}: ${value}`);
-				}
 				try {
 					const resp = await fetch(`${backend_url}/auth/update`, {
 						method: 'POST',

@@ -222,7 +222,7 @@ const pongHandler = (fastify, options, done) => {
 									socket.send(JSON.stringify({ success: false, code: 403, source: "/pong:socket.onmessage", error: "Seat 1 is already taken" }));
 									return ;
 								}
-								member.join(games[game_id], "left");
+								member.play(games[game_id], "left");
 								socket.send(JSON.stringify({ success: true, role: "left_player" }));
 								console.log(`User ${member.user_info.username} - ${member.user_info.email} Joined game #${game_id} as the left player`);
 							}
@@ -231,12 +231,12 @@ const pongHandler = (fastify, options, done) => {
 									socket.send(JSON.stringify({ success: false, code: 403, source: "/pong:socket.onmessage", error: "Seat 2 is already taken" }));
 									return ;
 								}
-								member.join(games[game_id], "right");
+								member.play(games[game_id], "right");
 								socket.send(JSON.stringify({ success: true, role: "right_player" }));
 								console.log(`User ${member.user_info.username} - ${member.user_info.email} Joined game #${game_id} as the right player`);
 							}
 							else {
-								const ret = member.join(games[game_id]);
+								const ret = member.play(games[game_id]);
 								if (ret == true) {
 									socket.send(JSON.stringify({ success: true, role: "left_player" }));
 									console.log(`User ${member.user_info.username} - ${member.user_info.email} joined game #${game_id} as the left player`);

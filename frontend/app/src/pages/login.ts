@@ -62,7 +62,7 @@ export default class Login extends Component {
 				if (response.ok && data && data.success) {
 					this.router.loggedin = true;
 					this.router.login_info = data.user;
-					this.router.start_presence_heartbeat();
+					await this.router.start_presence_heartbeat();
 					this.router.route(history.state?.route, "replace");
 				} else {
 					if (!data)

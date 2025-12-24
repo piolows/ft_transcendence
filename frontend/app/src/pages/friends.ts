@@ -82,6 +82,8 @@ export default class Friends extends Component {
 			user = user.substring(0, user.length - 1);
 		if (user == "")
 			user = this.router.login_info.username;
+		if (user.indexOf("?") != -1)
+			user = user.split("?")[0];
 		const params = new URLSearchParams(window.location.search);
 		try {
 			const page = params.get("page");

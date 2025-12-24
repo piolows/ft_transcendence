@@ -93,18 +93,15 @@ export class Tournament {
 		const currentRoundMatches = this.matches_.filter(m => m.round === this.round_);	
 		const winners: Array<TournamentPlayer> = [];
 		for (const match of currentRoundMatches) {
-			console.log("match: ", match);
 			if (match.winner !== null) {
 				winners.push({name: match.winner.name, isBot: match.winner.isBot} );
 			}
 		}
-		console.log("winners: ", winners);
 
 		// Check if tournament is complete
 		if (winners.length === 1) {
 			this.status_ = "completed";
 			this.winner_ = winners[0].name;
-			console.log(`${this.winner} wins`)
 			this.saveToLocalStorage(game);
 			return;
 		}
@@ -136,7 +133,6 @@ export class Tournament {
 		const allRoundMatchesComplete = roundMatches.every(m => m.winner !== null);
 
 		if (allRoundMatchesComplete) {
-			console.log("advancing to next round");
 			this.advanceToNextRound(game);
 		}
 
@@ -163,9 +159,6 @@ export class Tournament {
 				player2: shuffled[i * 2 + 1],
 				winner: null
 			});
-		}
-		for (const match of this.matches) {
-			console.log("Pushed: ", match);
 		}
 		this.status_ = "ongoing";
 		this.round_ = 1;
@@ -206,7 +199,6 @@ export class TournamentPage extends Component {
 		await this.navbar.init();
 		const params = new URLSearchParams(window.location.search);
 		this.game = params.get("game");
-		console.log(this.game);
 		const app = document.getElementById("app") as HTMLDivElement;
 		this.tournament = Tournament.loadFromLocalStorage(this.game as string);
 		if (this.tournament?.winner !== null) {

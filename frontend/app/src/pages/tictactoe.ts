@@ -276,10 +276,15 @@ export default class TicTacToePage extends Component {
                     p2_score: 0,
                 }),
             });
+            if (!res.ok) {
+                console.error("Unexpected error while attempting to update game history");
+                return ;
+            }
             const data = await res.json();
-            console.log(data);
+            if (!data || !data.success)
+                console.error("Unexpected error while attempting to update game history");
         } catch (error) {
-            console.log(error);
+            console.error("Unexpected error while attempting to update game history");
         }
         return ;
     }
@@ -326,7 +331,6 @@ export default class TicTacToePage extends Component {
         const retry_button = document.createElement("button");
         retry_button.id = "retry-button";
         retry_button.className = "pixel-box clicky bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded text-lg transition-all";
-        console.log("winner: ", winner);
         if (!(this.isTournament && this.tournament !== null)) {
             retry_button.innerText = "Play Again";
             buttonContainer.appendChild(retry_button);
@@ -354,7 +358,6 @@ export default class TicTacToePage extends Component {
             if (this.isTournament && this.tournament)
             {
                 const currentMatch = this.tournament.currentMatch;
-                console.log(currentMatch);
                 this.router.route("/tournament?game=tictactoe");
             }
         };
@@ -523,7 +526,6 @@ export default class TicTacToePage extends Component {
         const searchParams = new URLSearchParams(window.location.search);
         const tournament_strbool = searchParams.get("tournament");
         this.isTournament = tournament_strbool !== null && tournament_strbool === "true" ? true : false;
-        // console.log("user info: ", this.router.login_info);
         this.p1Name = this.isTournament === true ? this.tournament!.currentMatch.player1.name :this.router.login_info.username;
         const app = document.getElementById("app") as HTMLDivElement;
         this.buildBoard(app);

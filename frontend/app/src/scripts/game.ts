@@ -61,7 +61,6 @@ export class Player {
 	type = "player";
 
 	constructor(name: string, paddle: Paddle) {
-		console.log(name);
 		if (name != "")
 			this.name = name;
 		this.paddle = paddle;
@@ -429,7 +428,6 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 
 			// update history will implement idk when
 			if (!isTournament) {
-				console.log("updating history becuase game is not a tournament game");
 				try {
 					const res = await fetch(`${backend_url}/users/${router.login_info.username}/history`, {
 						method: "POST",
@@ -444,14 +442,17 @@ export function start_game(cv: HTMLCanvasElement, ball: Ball, left_player: Playe
 							p2_score: p2Final,
 						}),
 					});
+					if (!res.ok) {
+						console.error("Unexpected error while attempting to update game history");
+						return ;
+					}
 					const data = await res.json();
-					console.log(data);
+					if (!data || !data.success)
+						console.error("Unexpected error while attempting to update game history");
 				} catch (error) {
-					console.log(error);
+					console.error("Unexpected error while attempting to update game history");
 				}
 				return ;
-			} else {
-				console.log("not updating history because game is a tournament game");
 			}
 		}
 

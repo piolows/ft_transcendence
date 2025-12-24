@@ -88,10 +88,6 @@ export default class SignUp extends Component {
 				return ;
 			}
 			const body = JSON.stringify(Object.fromEntries(formData.entries()));
-			console.log("body: ", body);
-			for (let [key, value] of formData.entries()) {
-  				console.log(`${key}: ${value}`);
-			}
 			try {
 				const response = await fetch(`${backend_url}/auth/register`, {
 					method: "POST",
@@ -107,7 +103,7 @@ export default class SignUp extends Component {
 				if (response.ok && data && data.success) {
 					this.router.loggedin = true;
 					this.router.login_info = data.user;
-					this.router.start_presence_heartbeat();
+					await this.router.start_presence_heartbeat();
 					this.router.route(history.state?.route, "replace");
 				} else {
 					if (!data)

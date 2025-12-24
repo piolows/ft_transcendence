@@ -23,19 +23,19 @@ export class Member {
 		this.uuid = shortUUID();
 	}
 
-	join(game, pref=null) {
+	join(game) {
 		if (this.game)
 			this.leave();
-		let ret = game.join(this, pref);
+		let ret = game.join(this);
 		if (ret == false)
 			this.is_left = false;
 		return ret;
 	}
 
-	play(game) {
+	play(game, pref=null) {
 		if (this.game)
 			this.leave();
-		const ret = game.player_join(this);
+		const ret = game.player_join(this, pref);
 		if (ret == false)
 			this.is_left = false;
 		return ret;
@@ -74,7 +74,7 @@ class Setup {
 	timeout = 0;
 	game_over = false;
 
-	constructor(width = 800, height = 600, max_score = 5, max_time = 600, ball = null, lplayer = null, rplayer = null) {
+	constructor(width = 800, height = 600, max_score = 1, max_time = 300, ball = null, lplayer = null, rplayer = null) {
 		this.arena_width = width;
 		this.arena_height = height;
 		this.max_score = max_score;
@@ -169,22 +169,20 @@ export class Game {
 		this.setup.end_game();
 		const players = Object.values(this.players);
 		if (players.length > 1) {
-			if (this.setup.game_over) {
-				try {
-					await fetch(`${process.env.USERS_URL}/${players[0].user_info.username}/history`, {
-						method: "POST",
-						body: {
-							game: "pong",
-							op_id: players[1].user_info.id,
-							winner_id: this.winner == 0 ? -1 : (this.winner == -1 ? this.getPlayer('left') : this.getPlayer('right')),
-							time: this.setup.time,
-							p1_score: this.setup.p1_score,
-							p2_score: this.setup.p2_score,
-						}
-					});
-				} catch (error) {
-					console.error(error);
-				}
+			try {
+				await fetch(`${process.env.USERS_URL}/${players[0].user_info.username}/history`, {
+					method: "POST",
+					body: {
+						game: "pong",
+						op_id: players[1].user_info.id,
+						winner_id: this.winner == 0 ? -1 : (this.winner == -1 ? this.getPlayer('left').user_info : this.getPlayer('right').user_info),
+						time: this.setup.time,
+						p1_score: this.setup.p1_score,
+						p2_score: this.setup.p2_score,
+					}
+				});
+			} catch (error) {
+				console.error(error);
 			}
 		}
 		for (let player of players) {
@@ -245,7 +243,7 @@ export class Game {
 		delete this.specs[player.user_info.username];
 		this.players[player.user_info.username] = player;
 		this.all[player.user_info.username] = player;
-		return player.is_player;
+		return player.is_left;
 	}
 
 	spec_join(spec) {

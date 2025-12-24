@@ -33,11 +33,9 @@ export default class History extends Component {
 		this.listview.max_page = this.max_page;
 		this.listview.rows = [];
 		for (let game of this.games) {
-			console.log(game);
 			const info = { op_uname: game.username, op_pfp:
 			 backend_url + game.avatarURL, op_email: game.email, local_game: game.winner_id == -1,
 				result: game.winner_id == this.profile_info.id ? 'WIN' : 'LOSS', score: `${game.p1_score} - ${game.p2_score}`, op_name: game.local_op, game: game.game};
-			console.log("testing: ", info);
 			const row = [];
 			row.push({ value: `<a href="/profile/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity flex flex-row overflow-hidden">
 				<img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
@@ -79,6 +77,8 @@ export default class History extends Component {
 			user = user.substring(0, user.length - 1);
 		if (user == "")
 			user = this.router.login_info.username;
+		if (user.indexOf("?") != -1)
+			user = user.split("?")[0];
 		const params = new URLSearchParams(window.location.search);
 		try {
 			const page = params.get("page");
@@ -86,6 +86,7 @@ export default class History extends Component {
 				this.page = 1;
 			else
 				this.page = parseInt(page ?? "1");
+			console.log(this.page, user);
 			if (this.page < 1) {
 				this.router.route(`/history/${user}?page=1`);
 				return ;

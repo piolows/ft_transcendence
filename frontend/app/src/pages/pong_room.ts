@@ -81,8 +81,6 @@ export default class PongRoom extends Component {
 								<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
 									<p class="text-xs font-pixelify text-gray-300 mb-2">GAME STATUS</p>
 									<p id="result" class="text-white">WAITING</p>
-									<button id="startGame" class="text-white py-1 mt-2 mb-5 pixel-box font-pixelify ${this.router.login_info.id == this.admin.id || this.game_over ? 'bg-blue-500 hover:bg-blue-600 clicky' : 'bg-gray-500 hover:bg-gray-600'}" style="width: 120px;">START GAME</button>
-									<p class="text-xs text-white">${this.router.login_info.id == this.admin.id ? 'Bots will replace the empty seats' : `Only the admin can start the game`}</p>
 								</div>
 								<div class="pixel-box bg-blue-800 p-3 text-center mb-4">
 									<p class="text-xs font-pixelify text-gray-300 mb-2">ROOM CODE</p>
@@ -131,7 +129,7 @@ export default class PongRoom extends Component {
 	async get_info() {
 		const params = new URLSearchParams(window.location.search);
 		this.preference = params.get('pref') ?? "SPEC";
-		if (!(this.preference in ['SPEC', 'PLAY', 'EITHER', 'LPLAY', 'RPLAY']))
+		if (!['SPEC', 'PLAY', 'EITHER', 'LPLAY', 'RPLAY'].includes(this.preference))
 			this.preference = 'SPEC';
 		const root_len = "/pong/room".length;
 		const uri_len = this.real_path?.length;
@@ -142,7 +140,8 @@ export default class PongRoom extends Component {
 		let room = this.real_path.substring(root_len);
 		if (room.length >= 1 && room[0] == "/")
 			room = room.substring(1);
-		room = room.split("?")[0];
+		if (room.indexOf("?") != -1)
+			room = room.split("?")[0];
 		const slash_at = room.indexOf("/");
 		if ((slash_at != -1 && slash_at != room.length - 1) || room.length <= 1) {
 			await this.router.route_error(this.real_path, 404);
@@ -207,11 +206,10 @@ export default class PongRoom extends Component {
 		this.socket.onmessage = async (message) => {
 			try {
 				const msg = JSON.parse(message.data);
-				console.log(msg);
 				if (msg.exit) {
 					this.game_over = true;
 				}
-				if (msg.role) {
+				else if (msg.role) {
 					if (msg.role == "left_player")
 						this.left_player = this.router.login_info;
 					else if (msg.role == "right_player")
@@ -221,8 +219,7 @@ export default class PongRoom extends Component {
 					await draw_frame(this.elements, msg, this);
 				}
 			} catch (error: any) {
-				console.error(error.status, error);
-				console.error("Unexpected communication from server.", message);
+				console.error("Unexpected communication from server");
 			}
 		};
 		this.socket.onclose = () => {
@@ -302,7 +299,7 @@ export default class PongRoom extends Component {
 						credentials: "include"
 					});
 				} catch (err) {
-					console.error("Failed to destroy room:", err);
+					console.error("Failed to destroy room");
 				}
 				try {
 					await fetch(backend_url + "/auth/logout", {
@@ -313,7 +310,7 @@ export default class PongRoom extends Component {
 					this.router.stop_presence_heartbeat();
 					this.router.route("/");
 				} catch (err) {
-					console.error("Failed to log out:", err);
+					console.error("Failed to log out");
 				}
 			};
 		}

@@ -120,9 +120,7 @@ function timeFormat(time: number) {
 }
 
 export async function draw_frame(elements: any, message: any, room: any) {
-	// console.log("DRAW");
 	if (message) {
-		// console.log("NOW");
 		elements.p1_score.innerText = message.p1_score;
 		elements.p2_score.innerText = message.p2_score;
 		elements.left_paddle.y = message.left_paddle.y;

@@ -89,7 +89,7 @@ services:
       - SESSIONS_DB=/app/src/databases/sessions.db
       - SESSION_SECRET=${SESSION_SECRET}
       - FRONTEND_URL=https://localhost
-      - USERS_URL=http://backend_users:41613
+      - USERS_URL=http://backend_users:41611
       - AUTH_URL=http://backend_auth:41610
       - PORT=4116
     ports:

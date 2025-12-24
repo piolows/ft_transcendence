@@ -81,7 +81,6 @@ export default class CreateTournament extends Component {
         this.players = [];
         start_tourney.onclick = (event) => {
             event.preventDefault();
-            console.log("Starting tournament");
             // for every pairing, get each value in the input box
             const players = document.querySelectorAll(".player-name");
             const name_regex = /^[a-zA-Z0-9_-]+$/;

@@ -1,7 +1,6 @@
 import Fastify from "fastify";
 import websocketPlugin from "@fastify/websocket";
 import pongHandler from  "./handlers/pong.controller.js";
-// import roshamboHandler from "./handlers/roshambo.controller.js";
 import fastifyCors from "@fastify/cors";
 import fs from "fs";
 import 'dotenv/config';
@@ -36,7 +35,6 @@ async function startSever() {
 	});
 
 	await fastify.register(pongHandler, { prefix: "/pong" });
-	// await fastify.register(roshamboHandler, { prefix: "/roshambo" });
 
 	fastify.listen({ port: process.env.PORT, host: '0.0.0.0' })
 		.catch(error => {

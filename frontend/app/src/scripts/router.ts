@@ -170,8 +170,11 @@ export class Router {
 			const res = await fetch(backend_url + "/auth/me", {
 				credentials: "include",
 			});
+			if (!res.ok) {
+				console.error("Unexpected error while checking login session");
+				return ;
+			}
 			const data = await res.json();
-
 			if (data.loggedIn) {
 				this.login_info = data.user;
 				this.loggedin = true;
@@ -180,15 +183,16 @@ export class Router {
 				this.loggedin = false;
 			}
 		} catch (err) {
-			console.error("Failed to check session:", err);
+			console.error("Unexpected error while checking login session");
 		}
 	}
 
 	// Sends heartbeat of user (online status) every 30 seconds
-	start_presence_heartbeat() {
+	async start_presence_heartbeat() {
 		if (this.presence_interval_id !== null) {
 			return;
 		}
+		await this.check_session();
 		if (!this.loggedin || !this.login_info || !this.login_info.id) {
 			return ;
 		}
@@ -199,7 +203,7 @@ export class Router {
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ id: this.login_info.id }),
 		}).catch((err) => {
-			console.error("Failed to send presence heartbeat:", err);
+			console.error("Failed to send presence heartbeat");
 		});
 		this.presence_interval_id = window.setInterval(() => {
 			if (!this.loggedin || !this.login_info || !this.login_info.id) {
@@ -232,9 +236,10 @@ export class Router {
 			credentials: "include",
 		})
 		.then(res => res.json())
-		.then(data => {
+		.then(async (data) => {
+			this.loggedin = true;
 			this.login_info = data.user;
-			this.start_presence_heartbeat();
+			await this.start_presence_heartbeat();
 			this.route(window.location.pathname, "replace");
 		})
 		.catch(err => console.error("Error sending token to backend:", err));
@@ -355,7 +360,7 @@ export class Router {
 	}
 
 	async start() {
-		this.loading();
+		this.loading(true);
 		if ("scrollRestoration" in history) {
 			history.scrollRestoration = "manual";
 		}
@@ -369,7 +374,7 @@ export class Router {
 			}
 			console.error(error.status, error);
 		}
-		this.start_presence_heartbeat();
+		await this.start_presence_heartbeat();
 		this.loading(false);
 		this.route(location.pathname);
 	}

@@ -140,7 +140,7 @@ export default class Pong extends Component {
 						credentials: "include"
 					});
 				} catch (err) {
-					console.error("Failed to destroy room:", err);
+					console.error("Failed to destroy room");
 				}
 				try {
 					await fetch(backend_url + "/auth/logout", {
@@ -151,7 +151,7 @@ export default class Pong extends Component {
 					this.router.stop_presence_heartbeat();
 					this.router.route("/");
 				} catch (err) {
-					console.error("Failed to log out:", err);
+					console.error("Failed to log out");
 				}
 			};
 		}
@@ -166,7 +166,7 @@ export default class Pong extends Component {
 		const isTournament = params.get("tournament");
 		const diff = params.get("difficulty");
 		let difficulty = 1;
-		if (diff && diff in ["0", "1", "2"])
+		if (diff && ["0", "1", "2"].includes(diff))
 			difficulty = parseInt(diff);
 		// const gamemodeLabel = document.getElementById('gamemode')!;
 		const modeDisplay = document.getElementById('mode-display')!;
@@ -212,8 +212,6 @@ export default class Pong extends Component {
 			// get the palyer values of the matchup
 			tournament = Tournament.loadFromLocalStorage();
 			const currentMatch = tournament?.currentMatch;
-			console.log(Math.floor(Math.random() * difficultyNames.length));
-			console.log(Math.floor(Math.random() * difficultyNames.length));
 			player1 = currentMatch?.player1.isBot == true ? new Bot(currentMatch?.player1.name, left_paddle, cv, Math.floor(Math.random() * difficultyNames.length)) : new Player(currentMatch?.player1.name!, left_paddle);
 			player2 = currentMatch?.player2.isBot == true ? new Bot(currentMatch?.player2.name, right_paddle, cv, Math.floor(Math.random() * difficultyNames.length)) : new Player(currentMatch?.player2.name!, right_paddle);
 		} else {
@@ -305,7 +303,6 @@ export default class Pong extends Component {
 			overlayButton.textContent = 'BACK TO TOURNAMENT';
 			overlayButton.onclick = () => {
 				// tournament.reportMatchResult(player1!.name, player2!.name, winner === 'draw' ? null : winner);
-				console.log(`player1: ${player1}, player2: ${player2}, winner: ${winner}`);
 				const currentMatch = tournament?.currentMatch;
 				// tournament?.recordMatch(player1!.name, player2!.name, winner === 'draw' ? "none" : (winner === "AI Bot" ? "bot" : winner));
 				tournament?.recordMatch(currentMatch?.player1!, currentMatch?.player2!, trueWinner !== null ? trueWinner : winner);
