@@ -285,11 +285,18 @@ const endpointHandler = (fastify, options, done) => {
 
 			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: user['avatarURL'] };
 			req.session.save();
-			fetch(process.env.USERS_URL, {
+			const resp = await fetch(process.env.USERS_URL, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(req.session.user)
-			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
+			});
+			if (!resp.ok) {
+				return reply.send({ succes: false, code: resp.status, source: "/auth/google-login", error: `Error while attempting to download avatar` } );
+			}
+			const data = await resp.json();
+			if (!data || !data.success) {
+				return reply.send({ succes: false, code: data.code, source: data.source, error: data.error } );
+			}
 			reply.send({ success: true, user: req.session.user });
 		} catch (error) {
 			return reply.send({ success: false, code: 500, source: "/auth/google-login", error: error.message });

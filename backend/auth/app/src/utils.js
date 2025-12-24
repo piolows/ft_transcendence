@@ -138,15 +138,22 @@ export async function save_pfp(url) {
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify( { url } )
 		});
-		if (!res.ok)
+		if (!res.ok) {
 			console.error('Failed to fetch avatar: ', await res.text(), ' from CDN');
+			return avatarURI;
+		}
 		else {
 			const data = await res.json();
+			if (!data || !data.success) {
+				console.error('Failed to fetch avatar: ', data);
+				return avatarURI;
+			}
 			console.info('Fetched avatar from CDN: ', data);
 			avatarURI = data.public_url;
 		}
 	} catch (err) {
 		console.error('Failed to make contact with CDN service: ', err);
+		return avatarURI;
 	}
 	return avatarURI;
 }

@@ -118,7 +118,6 @@ export default async function endpointHandler(fastify) {
 
 			return reply.send({ success: true, filename, public_url });
 		} catch (err) {
-			fastify.log.error(err);
 			return reply.send({ success: false, code: 500, source: "/cdn/avatars", error: "Failed to download avatar" });
 		}
 	});
