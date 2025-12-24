@@ -20,7 +20,7 @@ export default class MainTitle extends Component {
                 </h1>
                 <p class="text-xl font-silkscreen mb-12 rainbow">EXPERIENCE CLASSIC GAMES REIMAGINED!</p>
                 <div class="space-y-4">
-                <a href="/pong/menu" router-link>
+                <a href="/pong/game?op=bot&difficulty=1" router-link>
                     <button class="pixel-box bg-green-500 px-6 sm:px-7 lg:px-8 py-4 text-sm md:text-lg lg:text-xl hover:bg-green-600 clicky wiggler w-80 sm:w-120 md:w-160 lg:w-180 mr-2">
                         CLICK HERE TO PLAY INSTANTLY
                     </button>
