@@ -43,7 +43,7 @@ function resetBall(game, ball)
 {
 	const LESS_THAN_A_SECOND = 900;
 
-	game.reset = 3;
+	game.reset = 1.5;
 	game.last_bot_second = performance.now() - LESS_THAN_A_SECOND;
 	ball.x = game.arena_width / 2 - ball.r / 2;
 	ball.y = game.arena_height / 2 - ball.r / 2;

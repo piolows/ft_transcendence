@@ -21,9 +21,9 @@ const endpointHandler = (fastify, options, done) => {
 			return ;
 		}
 		console.log("BEFORE");
-		console.log(user_id, op_id, info.winner_id.id, null, info.game, info.p1_score, info.p2_score, info.time, date)
+		console.log(user_id, op_id, info.winner_id, null, info.game, info.p1_score, info.p2_score, info.time, date)
 		await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, winner_id, local_op, game, p1_score, p2_score, time, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-			.run(user_id, op_id, info.winner_id.id, null, info.game, info.p1_score, info.p2_score, info.time, date);
+			.run(user_id, op_id, info.winner_id, null, info.game, info.p1_score, info.p2_score, info.time, date);
 		console.log("AFTER");
 		const tmp = await fastify.sqlite.prepare(`SELECT * FROM ${HT} WHERE user_id=?`).get(user_id);
 		if (tmp)
@@ -40,7 +40,7 @@ const endpointHandler = (fastify, options, done) => {
 		else {
 			stats.draws += 1;
 		}
-		stats.win_rate = stats.wins / (stats.wins + stats.losses);
+		stats.win_rate = stats.wins != 0 || stats.losses != 0 ? stats.wins / (stats.wins + stats.losses) : 0;
 		await fastify.sqlite.prepare(`UPDATE ${ST} SET wins=?, losses=?, draws=?, win_rate=?, points=? WHERE user_id=?`)
 			.run(stats.wins, stats.losses, stats.draws, stats.win_rate, stats.points, user_id);
 	}

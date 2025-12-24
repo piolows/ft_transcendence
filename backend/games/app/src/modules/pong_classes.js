@@ -75,7 +75,7 @@ class Setup {
 	timeout = 0;
 	game_over = false;
 
-	constructor(width = 800, height = 600, max_score = 1, max_time = 300, ball = null, lplayer = null, rplayer = null) {
+	constructor(width = 800, height = 600, max_score = 5, max_time = 300, ball = null, lplayer = null, rplayer = null) {
 		this.arena_width = width;
 		this.arena_height = height;
 		this.max_score = max_score;
@@ -101,17 +101,17 @@ class Setup {
 		this.p2_score = 0;
 		this.time = 0;
 		this.reset = 0;
-		this.timeout = 3;
+		this.timeout = 2;
 		this.last_bot_second = 0;
 		this.last_second = 0;
-		this.left_player.paddle.y = this.arena_height / 2;
-		this.right_player.paddle.y = this.arena_height / 2;
+		this.left_player.paddle.y = (this.arena_height / 2) - 45;
+		this.right_player.paddle.y = (this.arena_height / 2) - 45;
 	}
 
 	end_game() {
 		this.game_over = true;
-		this.left_player.paddle.y = this.arena_height / 2;
-		this.right_player.paddle.y = this.arena_height / 2;
+		this.left_player.paddle.y = (this.arena_height / 2) - 45;
+		this.right_player.paddle.y = (this.arena_height / 2) - 45;
 		this.last_bot_second = 0;
 		this.last_second = 0;
 		this.timeout = 99999;
@@ -176,7 +176,7 @@ export class Game {
 					body: JSON.stringify({
 						game: "pong",
 						op_id: players[1].user_info.id,
-						winner_id: this.setup.winner == 0 ? -1 : (this.setup.winner == -1 ? this.getPlayer('left').user_info : this.getPlayer('right').user_info),
+						winner_id: this.setup.winner == 0 ? -1 : (this.setup.winner == -1 ? this.getPlayer('left').user_info.id : this.getPlayer('right').user_info.id),
 						time: this.setup.time,
 						p1_score: !players[0].is_left ? this.setup.p1_score : this.setup.p2_score,
 						p2_score: players[0].is_left ? this.setup.p1_score : this.setup.p2_score,
@@ -190,21 +190,6 @@ export class Game {
 			this.specs[player.user_info.username] = player;
 			delete this.players[player.user_info.username];
 		}
-		// if (this.tournament_id) {
-		// 	fetch(`${process.env.TOURNAMENT_URL}/${req.body.tournament_id}`, {
-		// 		method: "POST",
-		// 		body: {
-		// 			game_over: this.setup.game_over,
-		// 			admin: this.admin_info,
-		// 			winner: this.winner,
-		// 			time: this.setup.time,
-		// 			left_player: this.getPlayer('left'),
-		// 			right_player: this.getPlayer('right'),
-		// 			p1_score: this.setup.p1_score,
-		// 			p2_score: this.setup.p2_score,
-		// 		}
-		// 	}).catch(error => console.log(error));
-		// }
 	}
 
 	player_count() {
