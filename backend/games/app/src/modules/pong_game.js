@@ -105,7 +105,7 @@ export default function update_game(game) {
 
 	// Game over condition
 	if (game.time >= game.max_time || p1_score >= game.max_score || p2_score >= game.max_score) {
-		game.winner = (p1_score > p2_score ? 1 : (p1_score < p2_score ? -1 : 0));
+		game.winner = (p1_score < p2_score ? -1 : (p2_score < p1_score ? 1 : 0));
 		return false;
 	}
 

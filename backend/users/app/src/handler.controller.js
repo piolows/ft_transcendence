@@ -14,18 +14,20 @@ const endpointHandler = (fastify, options, done) => {
 		return new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
 	}
 
-	function isDictionary(obj) {
-		return obj != null && typeof obj == 'object' && !Array.isArray(obj);
-	}
-
 	async function addGame(user_id, op_id, info, date) {
 		if ("local_op" in info) {
 			await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, winner_id, local_op, game, p1_score, p2_score, time, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
 				.run(user_id, op_id, info.winner_id, info.local_op, info.game, info.p1_score, info.p2_score, info.time, date);
 			return ;
 		}
-		await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, winner_id, game, p1_score, p2_score, time, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
-			.run(user_id, op_id, info.winner_id, info.game, info.p1_score, info.p2_score, info.time, date);
+		console.log("BEFORE");
+		console.log(user_id, op_id, info.winner_id.id, null, info.game, info.p1_score, info.p2_score, info.time, date)
+		await fastify.sqlite.prepare(`INSERT INTO ${HT} (user_id, op_id, winner_id, local_op, game, p1_score, p2_score, time, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+			.run(user_id, op_id, info.winner_id.id, null, info.game, info.p1_score, info.p2_score, info.time, date);
+		console.log("AFTER");
+		const tmp = await fastify.sqlite.prepare(`SELECT * FROM ${HT} WHERE user_id=?`).get(user_id);
+		if (tmp)
+			console.log("SUCCESS");
 		const stats = await fastify.sqlite.prepare(`SELECT * FROM ${ST} WHERE user_id=?`).get(user_id);
 		if (user_id == info.winner_id) {
 			stats.wins += 1;
@@ -44,7 +46,7 @@ const endpointHandler = (fastify, options, done) => {
 	}
 
 	fastify.post("/", async (req, resp) => {
-		if (!req.body || !isDictionary(req.body))
+		if (!req.body)
 			return resp.send({ success: false, code: 400, source: "/users", error: `Invalid Request: JSON Body required` });
 		const required = ["id", "username", "email", "avatarURL"];
 		for (const key of required) {
@@ -73,7 +75,7 @@ const endpointHandler = (fastify, options, done) => {
 	});
 
 	fastify.delete("/", async (req, reply) => {
-		if (!req.body || !isDictionary(req.body))
+		if (!req.body)
 			return resp.send({ success: false, code: 400, source: "/users/delete", error: `Invalid Request: JSON Body required` });
 		if (!req.body.username)
 			return resp.send({ success: false, code: 400, source: "/users/delete", error: "Must provide username" });
@@ -151,7 +153,7 @@ const endpointHandler = (fastify, options, done) => {
 	});
 
 	fastify.post("/:username/history", async (req, resp) => {
-		if (!req.body || !isDictionary(req.body))
+		if (!req.body)
 			return resp.send({ success: false, code: 400, source: "/users/:username/history:post", error: `Invalid Request: JSON Body required` });
 		const required = ["op_id", "winner_id", "p1_score", "p2_score", "game", "time"];
 		for (const key of required) {
@@ -197,7 +199,7 @@ const endpointHandler = (fastify, options, done) => {
 	// AGG [WIP]
 	// Description: Send post request for last seen online. Check if user exists using id from frontend. Get time now, update.
 	fastify.post("/status", async (req, resp) => {
-		if (!req.body || !isDictionary(req.body))
+		if (!req.body)
 			return resp.send({ success: false, code: 400, source: "/users/status", error: `Invalid Request: JSON Body required` });
 		if (!req.body.id)
 			return resp.send({ success: false, code: 400, source: "/users/status", error: `Missing field: id`});
@@ -310,7 +312,7 @@ const endpointHandler = (fastify, options, done) => {
 	});
 
 	fastify.post("/:username/friends", async (req, resp) => {
-		if (!req.body || !isDictionary(req.body))
+		if (!req.body)
 			return resp.send({ success: false, code: 400, source: "/users/:username/friends:post", error: `Invalid Request: JSON Body required` });
 		if (!req.body.user_id)
 			return resp.send({ success: false, code: 400, source: "/users/:username/friends:post", error: `Missing Field: user_id` });
@@ -339,7 +341,7 @@ const endpointHandler = (fastify, options, done) => {
 	});
 
 	fastify.delete("/:username/friends", async (req, resp) => {
-		if (!req.body || !isDictionary(req.body))
+		if (!req.body)
 			return resp.send({ success: false, code: 400, source: "/users/:username/friends:delete", error: `Invalid Request: JSON Body required` });
 		if (!req.body.user_id)
 			return resp.send({ success: false, code: 400, source: "/users/:username/friends:delete", error: `Missing Field: user_id` });

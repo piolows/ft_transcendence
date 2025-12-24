@@ -66,6 +66,7 @@ class Setup {
 	left_player;
 	right_player;
 	ball;
+	winner = 0;
 	p1_score = 0;
 	p2_score = 0;
 	last_second = 0;
@@ -123,7 +124,6 @@ export class Game {
 	setup;
 	game_name;
 	admin_info;
-	winner = 0;
 	started = false;
 	players = {};		// username -> Member
 	specs = {};			// username -> Member
@@ -172,14 +172,15 @@ export class Game {
 			try {
 				await fetch(`${process.env.USERS_URL}/${players[0].user_info.username}/history`, {
 					method: "POST",
-					body: {
+					headers: { 'content-type': 'application/json' },
+					body: JSON.stringify({
 						game: "pong",
 						op_id: players[1].user_info.id,
-						winner_id: this.winner == 0 ? -1 : (this.winner == -1 ? this.getPlayer('left').user_info : this.getPlayer('right').user_info),
+						winner_id: this.setup.winner == 0 ? -1 : (this.setup.winner == -1 ? this.getPlayer('left').user_info : this.getPlayer('right').user_info),
 						time: this.setup.time,
-						p1_score: this.setup.p1_score,
-						p2_score: this.setup.p2_score,
-					}
+						p1_score: !players[0].is_left ? this.setup.p1_score : this.setup.p2_score,
+						p2_score: players[0].is_left ? this.setup.p1_score : this.setup.p2_score,
+					})
 				});
 			} catch (error) {
 				console.error(error);
@@ -401,7 +402,7 @@ function game_state(gameObj) {
 		started: gameObj.started,
 		game_over: game.game_over,
 		full: (gameObj.player_count() == 2),
-		winner: gameObj.winner,
+		winner: game.winner,
 		time: game.time,
 		left_player: lp?.user_info,
 		right_player: rp?.user_info,

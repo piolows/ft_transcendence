@@ -53,7 +53,7 @@ const pongHandler = (fastify, options, done) => {
 			success: true,
 			started: games[room_code].started,
 			game_over: games[room_code].setup.game_over,
-			winner: games[room_code].winner,
+			winner: games[room_code].setup.winner == 0 ? -1 : (games[room_code].setup.winner == -1 ? games[room_code].getPlayer('left').user_info : games[room_code].getPlayer('right').user_info),
 			p1_score: games[room_code].setup.p1_score,
 			p2_score: games[room_code].setup.p2_score,
 			time: games[room_code].setup.time,
