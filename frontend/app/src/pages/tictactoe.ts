@@ -47,12 +47,6 @@ export default class TicTacToePage extends Component {
             }
         }
 
-        // if (board[0][0] !== "D" && board[0][0] !== "" && board[0][0] === board[1][1] && board[1][1] === board[2][2]) {
-        //     return true;
-        // }
-        // if (board[0][0] !== "D" && board[0][2] !== "" && board[0][2] === board[1][1] && board[1][1] === board[2][0]) {
-        //     return true;
-        // }
         if (board[0][0] !== "D" && board[1][1] !== "D" && board[2][2] !== "D" &&
             board[0][0] !== "" && board[0][0] === board[1][1] && board[1][1] === board[2][2]) {
             return true;
@@ -135,7 +129,7 @@ export default class TicTacToePage extends Component {
     }
 
     private buildBoard(app: HTMLDivElement | HTMLElement) {
-        app.innerHTML += `
+        app.innerHTML = this.navbar.get_html() + `
         <div id="main-container" class="flex flex-col items-center min-h-screen p-4">
             <div id="game-info" class="pixel-box bg-gradient-to-r from-purple-600 to-blue-600 p-4 mb-6 max-w-md w-full text-center shadow-lg">
                 <div id="current-move" class="text-xl md:text-2xl font-bold text-white">
@@ -223,6 +217,7 @@ export default class TicTacToePage extends Component {
         this.currentMove = "X";
         this.gameTime = 0;
         this.buildBoard(app);
+        this.navbar.init();
         this.initializeBoard("enable");
     }
 
@@ -481,7 +476,7 @@ export default class TicTacToePage extends Component {
     
         this.currentMove = this.currentMove === "X" ? "O" : "X";
         this.updateInfo(this.currentMove, (this.currentMove === "X" ? this.p1Name : this.p2Name)!);
-        this.lockBoards(srow, scol, cell);
+        // this.lockBoards(srow, scol, cell);
     }
 
     async load(app: HTMLDivElement | HTMLElement) {
@@ -491,7 +486,6 @@ export default class TicTacToePage extends Component {
 
     private updateTime() {
         this.gameTime += 1;
-        const time_display = document.getElementById("time") as HTMLSpanElement;
         const seconds = this.gameTime % 60;
         const minutes = Math.floor(this.gameTime / 60) % 60;
         const mins = document.getElementById("minutes");
@@ -502,7 +496,7 @@ export default class TicTacToePage extends Component {
     }
 
     async init() {
-        await this.navbar.init();
+        // this.navbar.init();
         this.tournament = Tournament.loadFromLocalStorage("tictactoe");
         const searchParams = new URLSearchParams(window.location.search);
         const tournament_strbool = searchParams.get("tournament");
@@ -513,6 +507,7 @@ export default class TicTacToePage extends Component {
         this.p1Name = this.isTournament === true ? this.tournament!.currentMatch.player1.name :this.router.login_info.username;
         const app = document.getElementById("app") as HTMLDivElement;
         this.buildBoard(app);
+        this.navbar.init();
         this.initializeBoard("enable");
         const params = new URLSearchParams(window.location.search);
         const tournament = Tournament.loadFromLocalStorage("tictactoe");
@@ -560,10 +555,6 @@ export default class TicTacToePage extends Component {
                 sessionStorage.setItem("tictactoe-p2", name);
                 this.p2Name = name;
                 app?.removeChild(main_screen);
-                // const move_container = document.getElementById("current-move-text");
-                // const text = move_container?.textContent;
-                // const newMoveText: string = `${text} ${this.p1Name}`;
-                // if (move_container) move_container.textContent = newMoveText;
                 // update time
                 this.interval = setInterval(() => {this.updateTime()}, 1000);
             }
