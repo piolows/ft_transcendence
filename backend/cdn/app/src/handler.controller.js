@@ -1,6 +1,6 @@
 import path from "path";
 import { pipeline } from "stream/promises";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import { randomUUID } from "crypto";
 import fetch from "node-fetch";
 
@@ -58,6 +58,7 @@ export default async function endpointHandler(fastify) {
 			const ext = extType(req.headers['content-type']);
 			const filename = `${randomUUID().replace(/-/g, "").slice(0, 16)}${ext}`;
 			const avatarDir = path.join(process.cwd(), "public", "uploads", "avatars");
+			await mkdir(avatarDir, { recursive: true });
 			await writeFile(path.join(avatarDir, filename), buffer);
 			
 			const public_url = `/cdn/avatars/${filename}`;
@@ -108,6 +109,7 @@ export default async function endpointHandler(fastify) {
 			const ext = extType(contentType);
 			const filename = `${randomUUID().replace(/-/g, "").slice(0, 16)}${ext}`;
 			const avatarDir = path.join(process.cwd(), "public", "uploads", "avatars");
+			await mkdir(avatarDir, { recursive: true });
 			const buffer = Buffer.from(await response.arrayBuffer());
 			await writeFile(path.join(avatarDir, filename), buffer);
 
