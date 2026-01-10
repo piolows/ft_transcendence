@@ -16,7 +16,7 @@ async function startSever() {
 
 	// Enable CORS
 	await fastify.register(fastifyCors, {
-		origin: [process.env.FRONTEND_URL],
+		origin: true, // Accept any origin (since requests are proxied through frontend)
 		credentials: true,
 		methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
 		allowedHeaders: ['Content-Type', 'Authorization'],
@@ -25,11 +25,13 @@ async function startSever() {
 	await fastify.register(websocketPlugin, {
 		options: {
 			verifyClient: (info, next) => {
-				const allowed = ["https://localhost"];
-				if (allowed.includes(info.origin))
+				// Accept connections from any HTTPS origin (proxied through frontend)
+				const origin = info.origin || "";
+				if (origin.startsWith("https://")) {
 					next(true);
-				else
+				} else {
 					next(false, 403, "Origin not allowed");
+				}
 			}
 		}
 	});

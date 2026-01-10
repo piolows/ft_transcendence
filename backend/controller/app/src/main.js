@@ -18,7 +18,7 @@ async function startSever() {
 
 	// Enable CORS
 	await fastify.register(fastifyCors, {
-		origin: [process.env.FRONTEND_URL],
+		origin: true, // Accept any origin (since requests are proxied through frontend)
 		credentials: true,
 		methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
 		allowedHeaders: ['Content-Type', 'Authorization'],
