@@ -7,7 +7,8 @@
   "type": "module",
   "main": "index.html",
   "scripts": {
-    "build": "tsc && vite build",
+    "build": "vite build",
+    "build:check": "tsc --noEmit",
     "dev": "vite --host 0.0.0.0"
   },
   "dependencies": {

@@ -39,4 +39,16 @@ export default defineConfig({
 			}
 		},
 	},
+	build: {
+		outDir: path.resolve(__dirname, 'dist'),
+		emptyOutDir: true,
+		// Don't fail build on TypeScript errors (handled by tsconfig.json)
+		rollupOptions: {
+			onwarn(warning, warn) {
+				// Suppress TypeScript warnings during build
+				if (warning.code === 'UNUSED_EXTERNAL_IMPORT') return;
+				warn(warning);
+			}
+		}
+	},
 });

@@ -18,12 +18,17 @@ services:
     container_name: frontend
     volumes:
       - front_end:/app
-    build: ./frontend
+      - certificates:/app/certs:ro
+    build:
+      context: ./frontend
+      dockerfile: ${FRONTEND_DOCKERFILE:-Dockerfile}
     restart: on-failure
     ports:
       - "443:443"
     networks:
       - transcendence
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
 
   backend:
     container_name: backend
