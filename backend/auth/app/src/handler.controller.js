@@ -1,7 +1,7 @@
 import { OAuth2Client } from 'google-auth-library';
 import * as argon2 from 'argon2';
 import { deleteSchema, loginSchema, registerSchema, googleLoginSchema } from './schemas.js';
-import { hash, validate_registration, save_pfp } from './utils.js';
+import { hash, validate_registration, save_pfp, valid_body } from './utils.js';
 
 const endpointHandler = (fastify, options, done) => {
 	fastify.get("/me", async (req, reply) => {
@@ -11,11 +11,15 @@ const endpointHandler = (fastify, options, done) => {
 		return reply.send({ success: true, loggedIn: false });
 	});
 
-	fastify.post("/login", loginSchema, async (req, reply) => {
+	fastify.post("/login", async (req, reply) => {
 		if (req.contentLength === 0 || !req.body)
 			return reply.send({ success: false, code: 400, source: "/auth/login", error: "Empty body" });
 		if (req.session && req.session.user)
 			return reply.send({ success: false, code: 403, source: "/auth/login", error: "Already logged in. Logout first" });
+		const username = req.body.username?.value ?? req.body.username;
+		const password = req.body.password?.value ?? req.body.password;
+		if (!valid_body(undefined, username, password, false))
+			return reply.send({ success: false, code: 400, source: "/auth/login", error: "Missing field" });
 		try {
 			if (!req.session) {
 				req.session.init();
@@ -43,7 +47,7 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	});
 
-	fastify.post("/register", registerSchema, async (req, reply) => {
+	fastify.post("/register", async (req, reply) => {
 		try {
 			if (!req.session) {
 				req.session.init();
@@ -54,6 +58,11 @@ const endpointHandler = (fastify, options, done) => {
 		const password = req.body.password?.value ?? req.body.password;
 		const avatarURL = req.body.avatarURL?.value ?? req.body.avatarURL;
 		const avatarFile = req.body.avatarFile;
+
+		if (!valid_body(email, username, password, true))
+			return reply.send({ success: false, code: 400, source: "/auth/register", error: "Missing field"});
+
+		console.log(`username: ${username} email: ${email} password: ${password} avatarURL ${avatarURL} avatarFile ${avatarFile}`);
 
 		let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`).get(username);
 		if (user && (user['email'] != email || user['password'] != null)) {

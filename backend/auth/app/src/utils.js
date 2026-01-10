@@ -21,6 +21,10 @@ export function shortUUID() {
   return randomUUID().replace(/-/g, "").slice(0, 5);
 }
 
+export function valid_body(email, username, password, isReg) {
+	return (isReg ? email !== undefined && username !== undefined && password !== undefined : username !== undefined && password !== undefined);
+}
+
 export function validate_registration(user, req, update = false) {
 	if (user && user['password'] != null && !update) {
 		return { success: false, code: 403, source: "/auth:validate_registration", error: 'User already exists' };
@@ -52,7 +56,8 @@ export function validate_registration(user, req, update = false) {
 	
 
 	const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-	if (req.body.email?.value && !email_regex.test(req.body.email?.value) && !update) {
+	const email = req.body.email?.value ?? req.body.email;
+	if (email && !email_regex.test(email) && !update) {
 		return { success: false, code: 400, source: "/auth:validate_registration", error: 'Invalid email format' };
 	}
 
