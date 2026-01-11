@@ -6,7 +6,7 @@ import 'dotenv/config';
 
 async function startSever() {
 	const fastify = Fastify({
-		logger: true
+		logger: true,
 	});
 
 	await fastify.register(sqlite, {
@@ -14,10 +14,10 @@ async function startSever() {
 	});
 
 	await fastify.register(fastifyCors, {
-		origin: [process.env.FRONTEND_URL],
+		origin: true,
 		credentials: true,
 		methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-		allowedHeaders: ['Content-Type', 'Authorization'],
+		// allowedHeaders: ['Content-Type', 'Authorization'],
 	});
 
 	await fastify.register(endpointHandler);

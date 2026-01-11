@@ -7,9 +7,9 @@ export const HTTP_CODES: any = {
 	503: "Service Unavailable",
 }
 
-export var backend_url = "https://localhost:4161";
-export var sockets_url = "https://localhost:4116";
-export var backend_websocket = "wss://localhost:4116";
+export var backend_url = "/api";
+export var sockets_url = "/games";
+export var backend_websocket = "/streams";
 
 export default abstract class Component {
 	router: Router;
@@ -169,6 +169,10 @@ export class Router {
 		try {
 			const res = await fetch(backend_url + "/auth/me", {
 				credentials: "include",
+				cache: 'no-store',
+				headers: {
+					'Connection': 'close',
+				},
 			});
 			if (!res.ok) {
 				console.error("Unexpected error while checking login session");

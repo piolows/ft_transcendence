@@ -27,7 +27,12 @@ export default class TopPlayers extends Component {
 
 	async get_top() {
 		try {
-			const response = await fetch(`${backend_url}/users/top`);
+			const response = await fetch(`${backend_url}/users/top`,{
+				cache: 'no-store',
+				headers: {
+					'Connection': 'close',
+				},
+			});
 			if (!response.ok) {
 				console.error(response.status, response.text());
 				return ;

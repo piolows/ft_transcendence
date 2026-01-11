@@ -12,10 +12,10 @@ async function startSever() {
 	});
 
 	await fastify.register(fastifyCors, {
-		origin: [process.env.FRONTEND_URL],
+		origin: true,
 		credentials: true,
 		methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-		allowedHeaders: ['Content-Type', 'Authorization'],
+		// allowedHeaders: ['Content-Type', 'Authorization'],
 	});
 
 	fastify.addContentTypeParser('*', { parseAs: 'buffer' }, (request, payload, done) => {

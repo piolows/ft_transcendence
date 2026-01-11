@@ -21,7 +21,7 @@ services:
     build: ./frontend
     restart: on-failure
     ports:
-      - "443:443"
+      - "8443:443"
     networks:
       - transcendence
 
@@ -34,7 +34,7 @@ services:
     restart: on-failure
     environment:
       - PORT=4161
-      - FRONTEND_URL=https://localhost
+      - FRONTEND_URL=https://localhost:8443
       - AUTH_URL=http://backend_auth:41610
       - USERS_URL=http://backend_users:41611
       - CDN_URL=http://backend_cdn:41612
@@ -88,7 +88,7 @@ services:
     environment:
       - SESSIONS_DB=/app/src/databases/sessions.db
       - SESSION_SECRET=${SESSION_SECRET}
-      - FRONTEND_URL=https://localhost
+      - FRONTEND_URL=https://localhost:8443
       - USERS_URL=http://backend_users:41611
       - AUTH_URL=http://backend_auth:41610
       - PORT=4116
@@ -106,7 +106,7 @@ services:
     restart: on-failure
     environment:
     - PORT=41612
-    - FRONTEND_URL=https://localhost
+    - FRONTEND_URL=https://localhost:8443
     networks:
       - micro-services
 

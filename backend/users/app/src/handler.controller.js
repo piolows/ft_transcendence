@@ -245,13 +245,13 @@ const endpointHandler = (fastify, options, done) => {
 
 	fastify.get("/top", async (req, resp) => {
 		try {
-			if (!("page" in req.query)) {
+			if (req.query && !("page" in req.query)) {
 				const top_players = await fastify.sqlite.prepare(`SELECT ${UT}.username, ${ST}.points FROM ${ST}
 					JOIN ${UT} ON ${ST}.user_id = ${UT}.id ORDER BY ${ST}.points DESC LIMIT 3 OFFSET 0`).all();
 				return resp.send({ success: true, top_players });
 			}
 			const player_count = await fastify.sqlite.prepare(`SELECT COUNT(user_id) FROM ${ST}`).get()['COUNT(user_id)'];
-			if (req.query.page < 1)
+			if (req.query && req.query.page < 1)
 				req.query.page = 1;
 			const OFFSET = (req.query.page - 1) * PLAYERS_PER_PAGE;
 			const top_players = await fastify.sqlite.prepare(`SELECT ${UT}.username, ${ST}.points FROM ${ST}

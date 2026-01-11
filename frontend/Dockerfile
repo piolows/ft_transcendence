@@ -1,5 +1,7 @@
 FROM node:24-alpine3.21
 
+RUN apk add curl
+
 WORKDIR /app
 
 RUN addgroup -g 1001 -S nodejs && \

@@ -13,14 +13,40 @@ export default defineConfig({
 			key: fs.readFileSync(path.resolve(__dirname, "certs/localhost-key.pem")),
 			cert: fs.readFileSync(path.resolve(__dirname, "certs/localhost-cert.pem")),
 		},
+		hmr: {
+			protocol: 'wss',
+		},
 		host: "0.0.0.0",
-		port: 443,
-	},
-	proxy: {
-		'/cdn': {
-			target: 'https://localhost:4161',
-			changeOrigin: true,
-			// rewrite: path => path.replace(/^\/cdn/, '/cdn')
+		port: 8443,
+		proxy: {
+			'/api': {
+				target: 'https://backend:4161',
+				changeOrigin: true,
+				secure: false,
+				headers: {
+					Connection: 'close',
+				},
+				rewrite: (path) => path.replace(/^\/api/, ''),
+			},
+			'/games': {
+				target: 'https://backend_games:4116',
+				changeOrigin: true,
+				secure: false,
+				headers: {
+					Connection: 'close',
+				},
+				rewrite: (path) => path.replace(/^\/games/, ''),
+			},
+			'/streams': {
+				target: 'wss://backend_games:4116',
+				changeOrigin: true,
+				ws: true,
+				secure: false,
+				headers: {
+					Connection: 'close',
+				},
+				rewrite: (path) => path.replace(/^\/streams/, ''),
+			},
 		}
 	},
 });

@@ -13,4 +13,4 @@ alias dvls='docker volume ls'
 alias rest='docker restart'
 
 make
-echo "Services ready and open on https://localhost"
+echo "Services ready!"

@@ -16,16 +16,16 @@ async function startSever() {
 
 	// Enable CORS
 	await fastify.register(fastifyCors, {
-		origin: [process.env.FRONTEND_URL],
+		origin: true,
 		credentials: true,
 		methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-		allowedHeaders: ['Content-Type', 'Authorization'],
+		// allowedHeaders: ['Content-Type', 'Authorization'],
 	});
 	
 	await fastify.register(websocketPlugin, {
 		options: {
 			verifyClient: (info, next) => {
-				const allowed = ["https://localhost"];
+				const allowed = ["https://localhost:8443"];
 				if (allowed.includes(info.origin))
 					next(true);
 				else

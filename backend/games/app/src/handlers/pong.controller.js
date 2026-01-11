@@ -129,10 +129,7 @@ const pongHandler = (fastify, options, done) => {
 				done();
 			}
 		}, async (socket, req) => {
-			const login_data = await authenticate(req);
-			if (!login_data.success)
-				return reply.send(login_data);
-			const member = new Member(socket, login_data.user);
+			const member = new Member(socket, req.user.user);
 
 			console.log(`New user connected to socket: ${member.uuid} - ${member.user_info.username} - ${member.user_info.email}`);
 

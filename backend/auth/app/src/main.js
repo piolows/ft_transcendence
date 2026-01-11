@@ -12,7 +12,7 @@ import 'dotenv/config';
 	
 async function startSever() {
 	const fastify = Fastify({
-		logger: true
+		logger: true,
 	});
 
 	const ONEDAY = 1000 * 60 * 60 * 24;
@@ -37,10 +37,10 @@ async function startSever() {
 	});
 
 	await fastify.register(fastifyCors, {
-		origin: [process.env.FRONTEND_URL],
+		origin: true,
 		credentials: true,
 		methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-		allowedHeaders: ['Content-Type', 'Authorization'],
+		// allowedHeaders: ['Content-Type', 'Authorization'],
 	});
 
 	await fastify.register(fastifyMultipart, {
