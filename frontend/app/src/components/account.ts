@@ -1,4 +1,4 @@
-import Component, { Router, backend_url, sockets_url } from "../scripts/router";
+import Component, { Router, backend_url, cdn_url, sockets_url } from "../scripts/router";
 
 export default class AuthSection extends Component {
 	constructor(router: Router) {
@@ -11,7 +11,7 @@ export default class AuthSection extends Component {
 				<div id="profile-info">
 					<a href="/profile" router-link class="hover:opacity-80 transition-opacity">
 						<div class="flex items-center space-x-4">
-							<img id="pfp" src="${ backend_url + this.router.login_info.avatarURL }" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
+							<img id="pfp" src="${ cdn_url + this.router.login_info.avatarURL }" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
 							<div>
 								<h4 id="username" class="crt-text">${ this.router.login_info.username }</h4>
 								<p id="email" class="text-xs font-silkscreen">${ this.router.login_info.email }</p>

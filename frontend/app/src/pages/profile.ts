@@ -1,4 +1,4 @@
-import Component, { backend_url } from "../scripts/router";
+import Component, { backend_url, cdn_url } from "../scripts/router";
 import NavBar from "../components/nav_bar";
 import Footer from "../components/footer";
 import { formatDiagnosticsWithColorAndContext } from "typescript";
@@ -28,7 +28,7 @@ export default class Profile extends Component {
 						<div class="flex flex-col md:flex-row justify-between">
 							<div class="flex items-center space-x-8">
 								<div class="relative ${this.profile_info.id == this.router.login_info.id ? 'group cursor-pointer' : ''}" id="avatar-container">
-									<img src="${backend_url + this.profile_info.avatarURL}" 
+									<img src="${cdn_url + this.profile_info.avatarURL}" 
 										class="w-32 h-32 rounded-full pixel-box" alt="Profile Picture">
 								${this.profile_info.id == this.router.login_info.id ? `
 								<div class="absolute inset-0 bg-black/0 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:bg-black/30 transition-opacity">
@@ -498,14 +498,14 @@ export default class Profile extends Component {
 		if (recentGames && this.last_matches.length > 0) {
 			const games = [];
 			for (let game of this.last_matches) {
-				games.push({ op_uname: game.local_op ? game.local_op : game.username, op_pfp: backend_url + game.avatarURL, local_game: game.local_op !== null, op_email: game.email,
+				games.push({ op_uname: game.local_op ? game.local_op : game.username, op_pfp: cdn_url + game.avatarURL, local_game: game.local_op !== null, op_email: game.email,
 					result: game.winner_id == this.profile_info.id ? 'WIN' : (game.winner_id == -1 ? 'DRAW' : 'LOSS'), score: `${game.p1_score} - ${game.p2_score}`, game: game.game });
 			}
 	
 			recentGames.innerHTML = `
 				<div class="grid md:grid-cols-14 grid-cols-10 gap-y-5">
 					${games.map(game => `
-						<a href="/profile/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity flex-row col-span-3 overflow-hidden hidden md:flex"><img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
+						<a href="/profile/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity flex-row col-span-3 overflow-hidden hidden md:flex"><img src="${cdn_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
 							<span class="w-35 overflow-hidden" style="padding-top: 5px; padding-left: 7px;">${this.profile_info.username}</span>
 						</a>
 						<div class="flex col-span-1"><span style="padding-top: 7px;">VS</span></div>

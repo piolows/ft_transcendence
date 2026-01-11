@@ -1,9 +1,6 @@
-# Development Nginx Dockerfile
-# Uses nginx for proxying with live-reload capability via vite in background
+# Development Nginx Dockerfile  
+# Uses nginx for proxying - serves pre-built static files
 FROM nginx:alpine
-
-# Install Node.js for vite dev server (hot reload)
-RUN apk add --no-cache nodejs npm
 
 WORKDIR /app
 

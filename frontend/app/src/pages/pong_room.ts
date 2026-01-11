@@ -1,5 +1,5 @@
 import NavBar from "../components/nav_bar";
-import Component, { backend_url, backend_websocket, Router, sockets_url } from "../scripts/router";
+import Component, { backend_url, backend_websocket, cdn_url, Router, sockets_url } from "../scripts/router";
 import { Ball, Paddle, draw_frame } from "../scripts/server_game";
 
 export default class PongRoom extends Component {
@@ -90,7 +90,7 @@ export default class PongRoom extends Component {
 							<div class="pixel-box bg-blue-800 p-3 text-center">
 								<p class="text-xs font-pixelify text-gray-300 mb-2">CREATED BY</p>
 								<div class="flex flex-col justify-center items-center space-y-2">
-									<img src="${ backend_url + this.admin.avatarURL }" class="w-10 h-10 rounded-full pixel-box mr-3" alt="Admin">
+									<img src="${ cdn_url + this.admin.avatarURL }" class="w-10 h-10 rounded-full pixel-box mr-3" alt="Admin">
 									<p class="text-xs text-white">${ this.admin.username }</p>
 								</div>
 							</div>
@@ -279,7 +279,7 @@ export default class PongRoom extends Component {
 				<div class="flex items-center space-x-6">
 					<a href="/profile" router-link class="hover:opacity-80 transition-opacity">
 						<div class="flex items-center space-x-4">
-							<img id="pfp" src="${backend_url + this.router.login_info.avatarURL}" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
+							<img id="pfp" src="${cdn_url + this.router.login_info.avatarURL}" class="w-12 h-12 rounded-full pixel-box" alt="Profile">
 							<div>
 								<h4 id="username" class="crt-text text-white text-sm">${this.router.login_info.username}</h4>
 								<p id="email" class="text-xs font-silkscreen text-gray-300">${this.router.login_info.email}</p>

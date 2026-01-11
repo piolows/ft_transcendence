@@ -11,6 +11,8 @@ export const HTTP_CODES: any = {
 export var backend_url = "/api";
 export var sockets_url = "/game";
 export var backend_websocket = `wss://${window.location.host}/game`;
+// CDN URLs (avatars, etc.) are served directly via /cdn/ route, not through /api
+export var cdn_url = "";
 
 export default abstract class Component {
 	router: Router;
