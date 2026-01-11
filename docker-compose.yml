@@ -43,8 +43,6 @@ services:
       - AUTH_URL=http://backend_auth:41610
       - USERS_URL=http://backend_users:41611
       - CDN_URL=http://backend_cdn:41612
-    ports:
-      - "4161:4161"
     networks:
       - transcendence
       - micro-services
@@ -96,8 +94,6 @@ services:
       - USERS_URL=http://backend_users:41611
       - AUTH_URL=http://backend_auth:41610
       - PORT=4116
-    ports:
-      - "4116:4116"
     networks:
       - micro-services
       - transcendence
