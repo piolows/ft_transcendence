@@ -2,16 +2,11 @@ import Fastify from "fastify";
 import websocketPlugin from "@fastify/websocket";
 import pongHandler from  "./handlers/pong.controller.js";
 import fastifyCors from "@fastify/cors";
-import fs from "fs";
 import 'dotenv/config';
 
 async function startSever() {
 	const fastify = Fastify({
 		logger: true,
-		https: {
-			cert: fs.readFileSync("/app/certs/localhost-cert.pem"),
-			key: fs.readFileSync("/app/certs/localhost-key.pem")
-		}
 	});
 
 	// Enable CORS
@@ -25,12 +20,15 @@ async function startSever() {
 	await fastify.register(websocketPlugin, {
 		options: {
 			verifyClient: (info, next) => {
-				// Accept connections from any HTTPS origin (proxied through frontend)
+				// Accept connections proxied through nginx
+				// Check X-Forwarded-Proto header set by nginx or HTTPS origin
+				const proto = info.req.headers['x-forwarded-proto'];
 				const origin = info.origin || "";
-				if (origin.startsWith("https://")) {
+				if (proto === 'https' || origin.startsWith("https://")) {
 					next(true);
 				} else {
-					next(false, 403, "Origin not allowed");
+					// In development, also allow direct connections
+					next(true);
 				}
 			}
 		}

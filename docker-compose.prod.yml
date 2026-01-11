@@ -6,9 +6,14 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile.prod
+    ports:
+      - "8443:443"
     volumes:
       # Mount certificates volume for SSL
       - certificates:/etc/nginx/certs:ro
     # No need to mount front_end volume in production as files are baked into image
+    networks:
+      - transcendence
+      - micro-services
     environment:
       - NODE_ENV=production

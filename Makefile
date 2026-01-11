@@ -1,7 +1,11 @@
 all: build
 
 build:
+# 	@docker compose --env-file .env up --build -d || echo "Unexpected error during build process."
 	@docker compose --env-file .env up --build -d || echo "Unexpected error during build process."
+
+prod: fclean
+	docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
 
 restart:
 	@docker compose restart

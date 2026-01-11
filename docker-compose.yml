@@ -24,9 +24,10 @@ services:
       dockerfile: ${FRONTEND_DOCKERFILE:-Dockerfile}
     restart: on-failure
     ports:
-      - "443:443"
+      - "8443:443"
     networks:
       - transcendence
+      - micro-services
     environment:
       - NODE_ENV=${NODE_ENV:-development}
 
@@ -34,12 +35,11 @@ services:
     container_name: backend
     volumes:
       - backend_controller:/app
-      - certificates:/app/certs
     build: ./backend/controller
     restart: on-failure
     environment:
       - PORT=4161
-      - FRONTEND_URL=https://localhost
+      - FRONTEND_URL=https://localhost:8443
       - AUTH_URL=http://backend_auth:41610
       - USERS_URL=http://backend_users:41611
       - CDN_URL=http://backend_cdn:41612
@@ -87,13 +87,12 @@ services:
     container_name: backend_games
     volumes:
       - backend_games:/app
-      - certificates:/app/certs
     build: ./backend/games
     restart: on-failure
     environment:
       - SESSIONS_DB=/app/src/databases/sessions.db
       - SESSION_SECRET=${SESSION_SECRET}
-      - FRONTEND_URL=https://localhost
+      - FRONTEND_URL=https://localhost:8443
       - USERS_URL=http://backend_users:41611
       - AUTH_URL=http://backend_auth:41610
       - PORT=4116
@@ -111,7 +110,7 @@ services:
     restart: on-failure
     environment:
     - PORT=41612
-    - FRONTEND_URL=https://localhost
+    - FRONTEND_URL=https://localhost:8443
     networks:
       - micro-services
 

@@ -5,15 +5,10 @@ import fastifyMultipart from '@fastify/multipart';
 import fastifyCors from "@fastify/cors";
 import proxy from "@fastify/http-proxy";
 import 'dotenv/config';
-import fs from "fs";
 
 async function startSever() {
 	const fastify = Fastify({
 		logger: true,
-		https: {
-			cert: fs.readFileSync("/app/certs/localhost-cert.pem"),
-			key: fs.readFileSync("/app/certs/localhost-key.pem")
-		}
 	});
 
 	// Enable CORS
