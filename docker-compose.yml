@@ -1,35 +1,19 @@
 services:
-  # Init container to set proper ownership
-  volume-init:
-    image: alpine:latest
-    command: |
-      sh -c "
-        chmod -R 777 /front_end /backend_controller /backend_auth /backend_users /backend_games /backend_cdn
-      "
-    volumes:
-      - front_end:/front_end
-      - backend_controller:/backend_controller
-      - backend_auth:/backend_auth
-      - backend_users:/backend_users
-      - backend_games:/backend_games
-      - backend_cdn:/backend_cdn
-
   frontend:
     container_name: frontend
-    volumes:
-      - front_end:/app
-      - certificates:/app/certs:ro
     build:
       context: ./frontend
-      dockerfile: ${FRONTEND_DOCKERFILE:-Dockerfile}
-    restart: on-failure
     ports:
       - "8443:443"
+    volumes:
+      - front_end:/app
+      - certificates:/etc/nginx/certs:ro
     networks:
       - transcendence
       - micro-services
     environment:
-      - NODE_ENV=${NODE_ENV:-development}
+      - NODE_ENV=production
+    restart: on-failure
 
   backend:
     container_name: backend
