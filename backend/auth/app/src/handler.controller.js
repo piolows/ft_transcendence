@@ -51,81 +51,81 @@ const endpointHandler = (fastify, options, done) => {
 		try {
 			if (!req.session) {
 				req.session.init();
-		}
-
-		const username = req.body.username?.value ?? req.body.username;
-		const email = req.body.email?.value ?? req.body.email;
-		const password = req.body.password?.value ?? req.body.password;
-		const avatarURL = req.body.avatarURL?.value ?? req.body.avatarURL;
-		const avatarFile = req.body.avatarFile;
-
-		if (!valid_body(email, username, password, true))
-			return reply.send({ success: false, code: 400, source: "/auth/register", error: "Missing field"});
-
-		console.log(`username: ${username} email: ${email} password: ${password} avatarURL ${avatarURL} avatarFile ${avatarFile}`);
-
-		let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`).get(username);
-		if (user && (user['email'] != email || user['password'] != null)) {
-			return reply.send({ success: false, code: 403, source: "/auth/register", error: 'User already exists' });
-		}
-
-		user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(email);
-		const valReg = validate_registration(user, req);
-		if (valReg) {
-			return reply.send(valReg);
-		}
-
-		const hashedPassword = await hash(password);
-		
-		// Handle file upload if present
-		let avatarURI = process.env.DEFAULT_PIC;
-		if (avatarFile && avatarFile.file.bytesRead > 0) {
-			try {
-				const file = avatarFile;
-				const buffer = await file.toBuffer();
-
-				const resp = await fetch(`${process.env.CDN_URL}/upload-image`, {
-					method: 'POST',
-					body: buffer,
-					headers: {
-						'content-type': file.mimetype,
-						'content-length': buffer.length.toString(),
-						'x-filename': file.filename,
-					},
-				});
-				if (resp.ok) {
-					const data = await resp.json();
-					if (data && data.success) {
-						avatarURI = data.public_url;
-					}
-				}
-			} catch (error) {
-				console.error("File upload error:", error.message);
-				// Continue with default avatar
 			}
-		} else if (avatarURL && avatarURL != "") {
-			avatarURI = await save_pfp(avatarURL);
+
+			const username = req.body.username?.value ?? req.body.username;
+			const email = req.body.email?.value ?? req.body.email;
+			const password = req.body.password?.value ?? req.body.password;
+			const avatarURL = req.body.avatarURL?.value ?? req.body.avatarURL;
+			const avatarFile = req.body.avatarFile;
+
+			if (!valid_body(email, username, password, true))
+				return reply.send({ success: false, code: 400, source: "/auth/register", error: "Missing field"});
+
+			console.log(`username: ${username} email: ${email} password: ${password} avatarURL ${avatarURL} avatarFile ${avatarFile}`);
+
+			let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`).get(username);
+			if (user && (user['email'] != email || user['password'] != null)) {
+				return reply.send({ success: false, code: 403, source: "/auth/register", error: 'User already exists' });
+			}
+
+			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(email);
+			const valReg = validate_registration(user, req);
+			if (valReg) {
+				return reply.send(valReg);
+			}
+
+			const hashedPassword = await hash(password);
+			
+			// Handle file upload if present
+			let avatarURI = process.env.DEFAULT_PIC;
+			if (avatarFile && avatarFile.file.bytesRead > 0) {
+				try {
+					const file = avatarFile;
+					const buffer = await file.toBuffer();
+
+					const resp = await fetch(`${process.env.CDN_URL}/upload-image`, {
+						method: 'POST',
+						body: buffer,
+						headers: {
+							'content-type': file.mimetype,
+							'content-length': buffer.length.toString(),
+							'x-filename': file.filename,
+						},
+					});
+					if (resp.ok) {
+						const data = await resp.json();
+						if (data && data.success) {
+							avatarURI = data.public_url;
+						}
+					}
+				} catch (error) {
+					console.error("File upload error:", error.message);
+					// Continue with default avatar
+				}
+			} else if (avatarURL && avatarURL != "") {
+				avatarURI = await save_pfp(avatarURL);
+			}
+			
+			if (user)
+				await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(username, email, hashedPassword, avatarURI, email);
+			else
+				await fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username, email, password, avatarURL) VALUES (?, ?, ?, ?)`).run(username, email, hashedPassword, avatarURI);
+			
+			user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(email);
+			req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: avatarURI };
+			req.session.save();
+			
+			fetch(process.env.USERS_URL, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(req.session.user)
+			}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
+			
+			reply.send({ success: true, user: req.session.user });
+		} catch (error) {
+			return reply.send({ success: false, code: 500, source: "/auth/register", error: error.message });
 		}
-		
-		if (user)
-			await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(username, email, hashedPassword, avatarURI, email);
-		else
-			await fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username, email, password, avatarURL) VALUES (?, ?, ?, ?)`).run(username, email, hashedPassword, avatarURI);
-		
-		user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(email);
-		req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: avatarURI };
-		req.session.save();
-		
-		fetch(process.env.USERS_URL, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(req.session.user)
-		}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
-		
-		reply.send({ success: true, user: req.session.user });
-	} catch (error) {
-		return reply.send({ success: false, code: 500, source: "/auth/register", error: error.message });
-	}
 	});
 
 	// fastify.post("/register", registerSchema, async (req, reply) => {
