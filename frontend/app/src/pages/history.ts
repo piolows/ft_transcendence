@@ -1,4 +1,4 @@
-import Component, { backend_url, Router } from "../scripts/router";
+import Component, { backend_url, cdn_url, Router } from "../scripts/router";
 import NavBar from "../components/nav_bar";
 import Footer from "../components/footer";
 import ListView from "../components/list_view";
@@ -34,11 +34,11 @@ export default class History extends Component {
 		this.listview.rows = [];
 		for (let game of this.games) {
 			const info = { op_uname: game.username, op_pfp:
-			 backend_url + game.avatarURL, op_email: game.email, local_game: game.local_op !== null,
+			 cdn_url + game.avatarURL, op_email: game.email, local_game: game.local_op !== null,
 				result: game.winner_id == this.profile_info.id ? 'WIN' : (game.winner_id == -1 ? 'DRAW' : 'LOSS'), score: `${game.p1_score} - ${game.p2_score}`, op_name: game.local_op, game: game.game};
 			const row = [];
 			row.push({ value: `<a href="/profile/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity flex flex-row overflow-hidden">
-				<img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
+				<img src="${cdn_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
 				<span style="padding-top: 5px; padding-left: 7px;">${this.profile_info.username}</span></a>`, cols: 4, classes: "hidden lg:flex" });
 			row.push({ value: `<div class="flex"><span style="padding-top: 7px;">VS</span></div>` });
 			row.push({ value: `<a href="/profile/${info.op_uname}" router-link class="hover:opacity-80 transition-opacity flex flex-row overflow-hidden">

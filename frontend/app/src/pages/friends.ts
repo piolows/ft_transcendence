@@ -1,4 +1,4 @@
-import Component, { backend_url, Router } from "../scripts/router";
+import Component, { backend_url, cdn_url, Router } from "../scripts/router";
 import NavBar from "../components/nav_bar";
 import Footer from "../components/footer";
 import ListView from "../components/list_view";
@@ -40,7 +40,7 @@ export default class Friends extends Component {
 				- UNFOLLOW
 			</button></div>`;
 		for (const [idx, friend] of this.friends.entries()) {
-			const row =  [{ value: `<a href="/profile/${friend.username}" router-link class="hover:opacity-80 transition-opacity flex flex-col sm:flex-row overflow-hidden"><img src="${backend_url + friend.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
+			const row =  [{ value: `<a href="/profile/${friend.username}" router-link class="hover:opacity-80 transition-opacity flex flex-col sm:flex-row overflow-hidden"><img src="${cdn_url + friend.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
 				<span style="padding-top: 5px; padding-left: 7px;">${friend.username}</span></a>`, cols: 2 },
 				{ value: `<div><span>${friend.points} PTS</span></div>`, cols: 2 },
 				{ value: `<div><span>${Math.round(friend.win_rate * 10000) / 100}% Win Rate</span></div>`, cols: 2 }];
@@ -56,7 +56,7 @@ export default class Friends extends Component {
 				<h1 class="text-center text-5xl font-bold mb-12 retro-shadow">FRIENDS LIST</h1>
 				<div class="flex flex-row items-center justify-center w-full gap-x-5 mb-12"><p>Friends of</p><div>
 				<a href="/profile/${this.profile_info.username}" router-link class="hover:opacity-80 transition-opacity flex-row flex overflow-hidden">
-				<img src="${backend_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
+				<img src="${cdn_url + this.profile_info.avatarURL}" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #000;"/>
 				<span style="padding-top: 5px; padding-left: 7px;">${this.profile_info.username}</span></a></div></div>
 				<div class="flex justify-center">${this.listview.get_html()}</div>
 			</div>` + this.footer.get_html();

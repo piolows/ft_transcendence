@@ -1,4 +1,4 @@
-import { backend_url } from "./router";
+import { cdn_url } from "./router";
 
 export class Ball
 {
@@ -140,7 +140,7 @@ export async function draw_frame(elements: any, message: any, room: any) {
 			${ room.left_player ?
 			`<div id="player1-info">
 				<div class="flex flex-col items-center space-x-4">
-					<img id="pfp" src="${ backend_url + room.left_player.avatarURL }" class="w-12 h-12 rounded-full pixel-box bg-blue-800" alt="Profile">
+					<img id="pfp" src="${ cdn_url + room.left_player.avatarURL }" class="w-12 h-12 rounded-full pixel-box bg-blue-800" alt="Profile">
 					<div>
 						<h4 id="username" class="crt-text">${ room.left_player.username }</h4>
 						<p id="email" class="text-xs font-silkscreen">${ room.left_player.email }</p>
@@ -151,7 +151,7 @@ export async function draw_frame(elements: any, message: any, room: any) {
 			${ room.right_player ?
 			`<div id="player2-info">
 				<div class="flex flex-col items-center space-x-4">
-					<img id="pfp" src="${ backend_url + room.right_player.avatarURL }" class="w-12 h-12 rounded-full pixel-box bg-blue-800" alt="Profile">
+					<img id="pfp" src="${ cdn_url + room.right_player.avatarURL }" class="w-12 h-12 rounded-full pixel-box bg-blue-800" alt="Profile">
 					<div>
 						<h4 id="username" class="crt-text">${ room.right_player.username }</h4>
 						<p id="email" class="text-xs font-silkscreen">${ room.right_player.email }</p>

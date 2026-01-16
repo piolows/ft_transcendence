@@ -7,9 +7,12 @@ export const HTTP_CODES: any = {
 	503: "Service Unavailable",
 }
 
-export var backend_url = "https://localhost:4161";
-export var sockets_url = "https://localhost:4116";
-export var backend_websocket = "wss://localhost:4116";
+// Use relative paths so nginx can proxy to the correct backend services
+export var backend_url = "/api";
+export var sockets_url = "/game";
+export var backend_websocket = `wss://${window.location.host}/game`;
+// CDN URLs (avatars, etc.) are served directly via /cdn/ route, not through /api
+export var cdn_url = "";
 
 export default abstract class Component {
 	router: Router;
