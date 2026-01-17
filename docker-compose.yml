@@ -7,7 +7,6 @@ services:
       - "8443:443"
     volumes:
       - front_end:/app
-      - certificates:/etc/nginx/certs:ro
     networks:
       - transcendence
       - micro-services
@@ -101,13 +100,6 @@ volumes:
     driver_opts:
       type: none
       device: ${PWD}/frontend/app
-      o: bind
-  certificates:
-    name: certificates
-    driver: local
-    driver_opts:
-      type: none
-      device: ${PWD}/frontend/app/certs
       o: bind
   backend_users:
     name: backend_users

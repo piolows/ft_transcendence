@@ -128,53 +128,6 @@ const endpointHandler = (fastify, options, done) => {
 		}
 	});
 
-	// fastify.post("/register", registerSchema, async (req, reply) => {
-	// 	try {
-	// 		if (!req.session) {
-	// 			req.session.init();
-	// 		}
-	// 		console.log("body: ", req.body);
-
-	// 		let user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE username=?`).get(req.body.username);
-	// 		if (user && (user['email'] != req.body.email || user['password'] != null)) {
-	// 			return reply.send({ success: false, code: 403, source: "/auth/register", error: 'User already exists' });
-	// 		}
-
-	// 		user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
-	// 		const valReg = validate_registration(user, req);
-	// 		if (valReg) {
-	// 			return reply.send(valReg);
-	// 		}
-
-	// 		const password = await hash(req.body.password);
-	// 		const avatarURI = req.body.avatarURL && req.body.avatarURL != "" ? await save_pfp(req.body.avatarURL) : process.env.DEFAULT_PIC;
-	// 		if (user)
-	// 			await fastify.sqlite.prepare(`UPDATE ${process.env.USERS_TABLE} SET username=?, email=?, password=?, avatarURL=? WHERE email=?`).run(req.body.username, req.body.email, password, avatarURI, req.body.email);
-	// 		else
-	// 			await fastify.sqlite.prepare(`INSERT INTO ${process.env.USERS_TABLE} (username, email, password, avatarURL) VALUES (?, ?, ?, ?)`).run(req.body.username, req.body.email, password, avatarURI);
-	// 		user = await fastify.sqlite.prepare(`SELECT * FROM ${process.env.USERS_TABLE} WHERE email=?`).get(req.body.email);
-	// 		await fetch(`${process.env.USERS_URL}`, {
-	// 			method: "POST",
-	// 			body: {
-	// 				id: user['id'],
-	// 				username: user['username'],
-	// 				email: user['email'],
-	// 				avatarURL: user['avatarURL'],
-	// 			}
-	// 		});
-	// 		req.session.user = { id: user['id'], username: user['username'], email: user['email'], avatarURL: avatarURI };
-	// 		req.session.save();
-	// 		fetch(process.env.USERS_URL, {
-	// 			method: "POST",
-	// 			headers: { "Content-Type": "application/json" },
-	// 			body: JSON.stringify(req.session.user)
-	// 		}).then(response => response.json()).then(data => console.log(data)).catch(error => console.log(error));
-	// 		reply.send({ success: true, user: req.session.user });
-	// 	} catch (error) {
-	// 		return reply.send({ success: false, code: 500, source: "/auth/register", error: error.message });
-	// 	}
-	// });
-
 	fastify.post("/update", async (req, reply) => {
 		try {
 			if (!req.session || !req.session.user)

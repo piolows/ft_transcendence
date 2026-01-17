@@ -10,8 +10,8 @@ export default defineConfig({
 	],
 	server: {
 		https: {
-			key: fs.readFileSync(path.resolve(__dirname, "certs/localhost-key.pem")),
-			cert: fs.readFileSync(path.resolve(__dirname, "certs/localhost-cert.pem")),
+			key: fs.readFileSync("/etc/nginx/certs/localhost-key.pem"),
+			cert: fs.readFileSync("/etc/nginx/certs/localhost-cert.pem"),
 		},
 		host: "0.0.0.0",
 		port: 443,

@@ -14,12 +14,12 @@ fclean:
 	@docker volume rm $$(docker volume ls -q) 2&>/dev/null || true
 	@docker system prune --all --force
 	@docker volume prune -f
-	 rm -rf ./backend/controller/app/src/node_modules
-	 rm -rf ./backend/games/app/src/node_modules
-	 rm -rf ./backend/users/app/src/node_modules
-	 rm -rf ./backend/auth/app/src/node_modules
-	 rm -rf ./backend/cdn/app/src/node_modules
-	 rm -rf ./frontend/app/src/node_modules
+	@rm -rf ./frontend/app/node_modules
+	@rm -rf ./backend/cdn/app/node_modules
+	@rm -rf ./backend/auth/app/node_modules
+	@rm -rf ./backend/games/app/node_modules
+	@rm -rf ./backend/users/app/node_modules
+	@rm -rf ./backend/controller/app/node_modules
 
 re: fclean all
 
