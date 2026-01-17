@@ -18,6 +18,8 @@ FROM nginx:1.28.1-alpine
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 
+COPY --from=builder /app/src/favicon.ico /usr/share/nginx/html
+
 COPY certs/* /etc/nginx/certs/
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
