@@ -1,4 +1,18 @@
 services:
+  volume-init:
+      image: alpine:latest
+      command: |
+        sh -c "
+          chmod -R 777 /front_end /backend_controller /backend_auth /backend_users /backend_games /backend_cdn
+        "
+      volumes:
+        - front_end:/front_end
+        - backend_controller:/backend_controller
+        - backend_auth:/backend_auth
+        - backend_users:/backend_users
+        - backend_games:/backend_games
+        - backend_cdn:/backend_cdn
+
   frontend:
     container_name: frontend
     build:
