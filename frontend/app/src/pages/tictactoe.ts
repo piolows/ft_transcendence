@@ -62,7 +62,6 @@ export default class TicTacToePage extends Component {
         const game_info = document.getElementById("game-info") as HTMLDivElement;
         const current_move_icon = game_info.querySelector("#current-move-icon") as HTMLSpanElement;
         const current_move_text = game_info.querySelector("#current-move-text");
-        // const time = game_info.querySelector("#time");
 
         if (currentMove === "X")
         {
@@ -120,7 +119,6 @@ export default class TicTacToePage extends Component {
                     this.lastMove = board;
                 }
             } else {
-                // This is an inactive board - dim it
                 board.classList.remove("active-board", "ring-4", "ring-yellow-400", "shadow-[0_0_20px_rgba(250,204,21,0.5)]");
                 board.classList.add("opacity-40", "pointer-events-none");
                 board.classList.remove("opacity-100");
@@ -252,10 +250,10 @@ export default class TicTacToePage extends Component {
                     game: "tictactoe",
                     local_op: this.p2Name,
                     op_id: this.router.login_info.id,
-                    winner_id: winner === this.p1Name ? this.router.login_info.id : -1,
+                    winner_id: -1,
                     time: this.gameTime,
-                    p1_score: 0,
-                    p2_score: 0,
+                    p1_score: winner === "X" ? 1 : 0,
+                    p2_score: winner === "O" ? 1 : 0,
                 }),
             });
             if (!res.ok) {
@@ -473,7 +471,9 @@ export default class TicTacToePage extends Component {
             // Mark as "D" for draw (neutral - counts for neither player)
             this.trueLargeBoard[lrow][lcol] = "D" as Cell;
         }
-        if (this.checkBoardWin(this.trueLargeBoard)) this.winnerModal(this.currentMove);
+        console.log("move: ", this.currentMove);
+        if (this.checkBoardWin(this.trueLargeBoard))
+            this.winnerModal(this.currentMove);
         else if (this.isGameDrawn()) this.drawModal();
 
     
@@ -499,7 +499,6 @@ export default class TicTacToePage extends Component {
     }
 
     async init() {
-        // this.navbar.init();
         this.tournament = Tournament.loadFromLocalStorage("tictactoe");
         const searchParams = new URLSearchParams(window.location.search);
         const tournament_strbool = searchParams.get("tournament");

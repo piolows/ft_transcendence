@@ -66,7 +66,7 @@ function hit_paddle(paddle, ball, is_left = false)
 			const angle = normal_intersect * (Math.PI / 4);
 			ball.xVel = ball.speed * Math.cos(angle);
 			ball.yVel = ball.speed * Math.sin(angle);
-			// ball.speed *= 1.05;
+			ball.speed *= 1.05;
 			if (!is_left)
 				ball.xVel *= -1;
 		}
